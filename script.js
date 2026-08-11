@@ -4,46 +4,27 @@ const leapMonthLabel=document.getElementById('leapMonthLabel');
 function syncLeapMonth(){if(!calendarType||!leapMonthLabel)return;leapMonthLabel.style.display=calendarType.value==='lunar'?'flex':'none';if(calendarType.value!=='lunar'){const c=document.getElementById('isLeapMonth');if(c)c.checked=false;}}
 if(calendarType){calendarType.addEventListener('change',syncLeapMonth);syncLeapMonth();}
 
-function currentUiLang(){
-  const htmlLang=(document.documentElement.lang||'').toLowerCase();
-  if(htmlLang.startsWith('ja'))return'ja';if(htmlLang.startsWith('ko'))return'ko';if(htmlLang.startsWith('vi'))return'vi';if(htmlLang.startsWith('tl')||htmlLang.startsWith('fil'))return'tl';if(htmlLang.startsWith('en'))return'en';
-  const active=[...document.querySelectorAll('button,a')].find(el=>el.classList.contains('active')&&['KR','US','JP','PH','VN'].includes(el.textContent.trim().toUpperCase()));
-  const code=active?.textContent.trim().toUpperCase();return({KR:'ko',US:'en',JP:'ja',PH:'tl',VN:'vi'})[code]||'ko';
-}
-function dateLabel(value,type,lang){
-  if(lang==='ko')return value+({year:'년',month:'월',day:'일'})[type];
-  if(lang==='ja')return value+({year:'年',month:'月',day:'日'})[type];
-  if(lang==='vi')return type==='year'?`Năm ${value}`:type==='month'?`Tháng ${Number(value)}`:`Ngày ${Number(value)}`;
-  return value;
-}
+const CODE_TO_LANG={KR:'ko',US:'en',JP:'ja',PH:'tl',VN:'vi'};
+const LANG_TO_FLAG={ko:'🇰🇷',en:'🇺🇸',ja:'🇯🇵',tl:'🇵🇭',vi:'🇻🇳'};
+const LANG_TO_TITLE={ko:'한국어',en:'English',ja:'日本語',tl:'Tagalog',vi:'Tiếng Việt'};
+function normalizeLang(v){v=(v||'').toLowerCase();if(v.startsWith('ja'))return'ja';if(v.startsWith('ko'))return'ko';if(v.startsWith('vi'))return'vi';if(v.startsWith('tl')||v.startsWith('fil'))return'tl';if(v.startsWith('en'))return'en';return'ko';}
+function currentUiLang(){return normalizeLang(document.documentElement.lang||window.__LUMEN_LANG__||'ko');}
+function inferChoiceLang(el,index){const explicit=el?.dataset?.lang||el?.getAttribute?.('lang');if(explicit)return normalizeLang(explicit);const code=(el?.textContent||'').trim().toUpperCase();if(CODE_TO_LANG[code])return CODE_TO_LANG[code];return ['ko','en','ja','tl','vi'][index]||'ko';}
+function dateLabel(value,type,lang){if(lang==='ko')return value+({year:'년',month:'월',day:'일'})[type];if(lang==='ja')return value+({year:'年',month:'月',day:'日'})[type];if(lang==='vi')return type==='year'?`Năm ${value}`:type==='month'?`Tháng ${Number(value)}`:`Ngày ${Number(value)}`;return value;}
 function fillSelect(id,start,end,type,pad=false,selected=null){const el=document.getElementById(id);if(!el)return;const prev=el.value;el.innerHTML='';const lang=currentUiLang();for(let n=start;n<=end;n++){const v=pad?String(n).padStart(2,'0'):String(n);const o=document.createElement('option');o.value=v;o.textContent=dateLabel(v,type,lang);if((prev&&v===prev)||(selected!==null&&Number(v)===Number(selected)))o.selected=true;el.appendChild(o);}}
-function refreshBirthDateLabels(langOverride=null){
-  const lang=langOverride||currentUiLang();
-  [['birthYear','year'],['birthMonth','month'],['birthDay','day']].forEach(([id,type])=>{const el=document.getElementById(id);if(!el)return;[...el.options].forEach(o=>o.textContent=dateLabel(o.value,type,lang));});
-}
+function refreshBirthDateLabels(langOverride=null){const lang=normalizeLang(langOverride||currentUiLang());[['birthYear','year'],['birthMonth','month'],['birthDay','day']].forEach(([id,type])=>{const el=document.getElementById(id);if(!el)return;[...el.options].forEach(o=>o.textContent=dateLabel(o.value,type,lang));});}
 fillSelect('birthYear',1900,2050,'year',false,1980);fillSelect('birthMonth',1,12,'month',true,1);fillSelect('birthDay',1,31,'day',true,1);
 const time=document.getElementById('birthTime');if(time){time.innerHTML='<option value="">모름 (태어난 시간)</option>';for(let h=0;h<24;h++){for(const m of [0,30]){const v=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;const o=document.createElement('option');o.value=v;o.textContent=v;time.appendChild(o);}}}
 
-document.addEventListener('click',e=>{const el=e.target.closest('button,a');if(!el)return;const code=el.textContent.trim().toUpperCase();const lang=({KR:'ko',US:'en',JP:'ja',PH:'tl',VN:'vi'})[code];if(lang)setTimeout(()=>refreshBirthDateLabels(lang),0);});
-new MutationObserver(()=>refreshBirthDateLabels()).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
-setTimeout(()=>refreshBirthDateLabels(),150);
+function dockLanguageSwitcher(){const header=document.querySelector('.fortune-header');const switcher=document.querySelector('.language-switcher');if(!header||!switcher)return false;const brand=header.querySelector('.brand');let stack=header.querySelector('.brand-language-stack');if(!stack){stack=document.createElement('div');stack.className='brand-language-stack';if(brand){brand.before(stack);stack.appendChild(brand);}else header.prepend(stack);}if(switcher.parentElement!==stack)stack.appendChild(switcher);[...switcher.querySelectorAll('.lang-choice,button,a')].slice(0,5).forEach((el,i)=>{const lang=inferChoiceLang(el,i);el.dataset.lang=lang;el.textContent=LANG_TO_FLAG[lang];el.title=LANG_TO_TITLE[lang];el.setAttribute('aria-label',LANG_TO_TITLE[lang]);});return true;}
+dockLanguageSwitcher();const langDockObserver=new MutationObserver(()=>dockLanguageSwitcher());langDockObserver.observe(document.body,{childList:true,subtree:true});
 
-// Place the language selector directly below the Lumen Destiny brand.
-function dockLanguageSwitcher(){
-  const header=document.querySelector('.fortune-header');
-  const brand=header?.querySelector('.brand');
-  const switcher=document.querySelector('.language-switcher');
-  if(!header||!brand||!switcher)return false;
-  let stack=header.querySelector('.brand-language-stack');
-  if(!stack){stack=document.createElement('div');stack.className='brand-language-stack';brand.before(stack);stack.appendChild(brand);}
-  if(switcher.parentElement!==stack)stack.appendChild(switcher);
-  return true;
-}
-if(!dockLanguageSwitcher()){
-  const langDockObserver=new MutationObserver(()=>{if(dockLanguageSwitcher())langDockObserver.disconnect();});
-  langDockObserver.observe(document.body,{childList:true,subtree:true});
-  setTimeout(()=>langDockObserver.disconnect(),4000);
-}
+document.addEventListener('click',e=>{const el=e.target.closest('.lang-choice,button,a');if(!el)return;let lang=el.dataset?.lang;if(!lang){const code=(el.textContent||'').trim().toUpperCase();lang=CODE_TO_LANG[code];}if(lang){window.__LUMEN_LANG__=normalizeLang(lang);setTimeout(()=>{refreshBirthDateLabels(lang);dockLanguageSwitcher();},0);}});
+new MutationObserver(()=>{refreshBirthDateLabels();dockLanguageSwitcher();}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+setTimeout(()=>{refreshBirthDateLabels();dockLanguageSwitcher();},150);
+
+// Always carry the chosen language into the result URL.
+const sajuForm=document.getElementById('sajuForm');if(sajuForm){let langInput=sajuForm.querySelector('input[name="lang"]');if(!langInput){langInput=document.createElement('input');langInput.type='hidden';langInput.name='lang';sajuForm.appendChild(langInput);}sajuForm.addEventListener('submit',()=>{langInput.value=currentUiLang();});}
 
 const fortuneNav=document.querySelector('.main-fortune-nav');
 const fortuneLinks=fortuneNav?[...fortuneNav.querySelectorAll('a[href^="#"]')]:[];
