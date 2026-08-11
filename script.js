@@ -1,22 +1,8 @@
 const yearEl=document.getElementById('year');if(yearEl)yearEl.textContent=new Date().getFullYear();
 const calendarType=document.getElementById('calendarType');
 const leapMonthLabel=document.getElementById('leapMonthLabel');
-const submitButton=document.getElementById('manseSubmit');
 function syncLeapMonth(){if(!calendarType||!leapMonthLabel)return;leapMonthLabel.style.display=calendarType.value==='lunar'?'flex':'none';if(calendarType.value!=='lunar'){const c=document.getElementById('isLeapMonth');if(c)c.checked=false;}}
 if(calendarType){calendarType.addEventListener('change',syncLeapMonth);syncLeapMonth();}
-function goToManseResult(){
- const name=(document.getElementById('userName')?.value||'').trim();
- const birthDate=document.getElementById('birthDate')?.value||'';
- const birthTime=document.getElementById('birthTime')?.value||'';
- const cal=document.getElementById('calendarType')?.value||'solar';
- const gender=document.getElementById('gender')?.value||'other';
- const leap=document.getElementById('isLeapMonth')?.checked;
- if(!name){alert('이름 또는 별명을 입력해주세요.');document.getElementById('userName')?.focus();return;}
- if(!birthDate){alert('생년월일을 입력해주세요.');document.getElementById('birthDate')?.focus();return;}
- const params=new URLSearchParams({name,birthDate,calendarType:cal,gender});
- if(birthTime)params.set('birthTime',birthTime);
- if(cal==='lunar'&&leap)params.set('isLeapMonth','1');
- window.location.assign('/result.html?'+params.toString());
-}
-if(submitButton)submitButton.addEventListener('click',goToManseResult);
-const form=document.getElementById('sajuForm');if(form)form.addEventListener('submit',function(e){e.preventDefault();goToManseResult();});
+function fillSelect(id,start,end,suffix,pad=false,selected=null){const el=document.getElementById(id);if(!el)return;el.innerHTML='';for(let n=start;n<=end;n++){const v=pad?String(n).padStart(2,'0'):String(n);const o=document.createElement('option');o.value=v;o.textContent=`${v}${suffix}`;if(selected!==null&&Number(v)===Number(selected))o.selected=true;el.appendChild(o);}}
+fillSelect('birthYear',1900,2050,'년',false,1980);fillSelect('birthMonth',1,12,'월',true,1);fillSelect('birthDay',1,31,'일',true,1);
+const time=document.getElementById('birthTime');if(time){time.innerHTML='<option value="">모름 (태어난 시간)</option>';for(let h=0;h<24;h++){for(const m of [0,30]){const v=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;const o=document.createElement('option');o.value=v;o.textContent=v;time.appendChild(o);}}}
