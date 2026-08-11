@@ -24,10 +24,26 @@ function refreshBirthDateLabels(langOverride=null){
 fillSelect('birthYear',1900,2050,'year',false,1980);fillSelect('birthMonth',1,12,'month',true,1);fillSelect('birthDay',1,31,'day',true,1);
 const time=document.getElementById('birthTime');if(time){time.innerHTML='<option value="">모름 (태어난 시간)</option>';for(let h=0;h<24;h++){for(const m of [0,30]){const v=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;const o=document.createElement('option');o.value=v;o.textContent=v;time.appendChild(o);}}}
 
-// Keep date unit labels synchronized with KR/US/JP/PH/VN language buttons.
 document.addEventListener('click',e=>{const el=e.target.closest('button,a');if(!el)return;const code=el.textContent.trim().toUpperCase();const lang=({KR:'ko',US:'en',JP:'ja',PH:'tl',VN:'vi'})[code];if(lang)setTimeout(()=>refreshBirthDateLabels(lang),0);});
 new MutationObserver(()=>refreshBirthDateLabels()).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 setTimeout(()=>refreshBirthDateLabels(),150);
+
+// Place the language selector directly below the Lumen Destiny brand.
+function dockLanguageSwitcher(){
+  const header=document.querySelector('.fortune-header');
+  const brand=header?.querySelector('.brand');
+  const switcher=document.querySelector('.language-switcher');
+  if(!header||!brand||!switcher)return false;
+  let stack=header.querySelector('.brand-language-stack');
+  if(!stack){stack=document.createElement('div');stack.className='brand-language-stack';brand.before(stack);stack.appendChild(brand);}
+  if(switcher.parentElement!==stack)stack.appendChild(switcher);
+  return true;
+}
+if(!dockLanguageSwitcher()){
+  const langDockObserver=new MutationObserver(()=>{if(dockLanguageSwitcher())langDockObserver.disconnect();});
+  langDockObserver.observe(document.body,{childList:true,subtree:true});
+  setTimeout(()=>langDockObserver.disconnect(),4000);
+}
 
 const fortuneNav=document.querySelector('.main-fortune-nav');
 const fortuneLinks=fortuneNav?[...fortuneNav.querySelectorAll('a[href^="#"]')]:[];
