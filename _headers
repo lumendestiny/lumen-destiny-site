@@ -1,0 +1,14 @@
+/*.html
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/script.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/manse-result.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+/styles.css
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
