@@ -1,0 +1,24 @@
+(()=>{
+const COPY={
+ko:{guardianTitle:'소망을 담은 디지털 수호부적',guardianBody:'모든 해설은 무료이며 부적은 원하는 분만 구매합니다. 개인 맞춤 부적과 수호동물, 고유번호, 발행일, QR 인증을 결합한 수집형 디지털 콘텐츠로 준비합니다.',guardianNotice:'부적은 특정 미래나 결과를 보장하지 않는 상징적 디지털 콘텐츠입니다.',archive:'부적 아카이브 보기',tier5:'Guardian 기본 · 디자인당 100개',tier10:'개인 소망 맞춤 · 디자인당 100개',tier50:'Rare Edition · 디자인당 5개',tier100:'Legendary Motion · 단 1개',footerBrand:'루멘 명운 · Lumen Destiny',footerSlogan:'운명을 보는 것이 아니라, 삶의 방향을 찾습니다.',privacy:'개인정보처리방침',terms:'이용약관',support:'고객지원',footerArchive:'부적 아카이브'},
+en:{guardianTitle:'Digital Guardian for Your Wishes',guardianBody:'All interpretations are free. Guardians are optional collectible digital content combining personalization, a guardian animal, serial number, issue date and QR verification.',guardianNotice:'Guardians are symbolic digital content and do not guarantee a specific future or outcome.',archive:'View Guardian Archive',tier5:'Basic Guardian · 100 per design',tier10:'Personal Wish · 100 per design',tier50:'Rare Edition · 5 per design',tier100:'Legendary Motion · Only 1',footerBrand:'Lumen Destiny',footerSlogan:'Not to predict fate, but to find your direction.',privacy:'Privacy Policy',terms:'Terms of Use',support:'Support',footerArchive:'Guardian Archive'},
+ja:{guardianTitle:'願いを込めたデジタル守護符',guardianBody:'すべての解説は無料です。守護符は希望する方のみ購入でき、個別カスタマイズ、守護動物、固有番号、発行日、QR認証を組み合わせたコレクション型デジタルコンテンツです。',guardianNotice:'守護符は特定の未来や結果を保証するものではない象徴的なデジタルコンテンツです。',archive:'守護符アーカイブを見る',tier5:'Basic Guardian · 各デザイン100個',tier10:'個人願望カスタム · 各デザイン100個',tier50:'Rare Edition · 各デザイン5個',tier100:'Legendary Motion · 1個限定',footerBrand:'ルーメン命運 · Lumen Destiny',footerSlogan:'運命を当てるのではなく、人生の方向を見つけます。',privacy:'プライバシーポリシー',terms:'利用規約',support:'サポート',footerArchive:'守護符アーカイブ'},
+tl:{guardianTitle:'Digital Guardian para sa Iyong Hiling',guardianBody:'Libre ang lahat ng paliwanag. Opsyonal ang Guardian at pinagsasama nito ang personalization, guardian animal, serial number, issue date at QR verification.',guardianNotice:'Ang Guardian ay simbolikong digital content at hindi garantiya ng partikular na hinaharap o resulta.',archive:'Tingnan ang Guardian Archive',tier5:'Basic Guardian · 100 bawat disenyo',tier10:'Personal Wish · 100 bawat disenyo',tier50:'Rare Edition · 5 bawat disenyo',tier100:'Legendary Motion · Iisa lamang',footerBrand:'Lumen Destiny',footerSlogan:'Hindi para hulaan ang kapalaran, kundi para hanapin ang direksiyon ng buhay.',privacy:'Patakaran sa Privacy',terms:'Mga Tuntunin',support:'Suporta',footerArchive:'Guardian Archive'},
+vi:{guardianTitle:'Bùa hộ mệnh kỹ thuật số cho điều ước',guardianBody:'Tất cả phần luận giải đều miễn phí. Bùa hộ mệnh là nội dung số sưu tầm tùy chọn, kết hợp cá nhân hóa, linh vật bảo hộ, số sê-ri, ngày phát hành và xác thực QR.',guardianNotice:'Bùa hộ mệnh là nội dung số mang tính biểu tượng và không bảo đảm một tương lai hay kết quả cụ thể.',archive:'Xem kho bùa hộ mệnh',tier5:'Guardian cơ bản · 100 mỗi thiết kế',tier10:'Cá nhân hóa điều ước · 100 mỗi thiết kế',tier50:'Rare Edition · 5 mỗi thiết kế',tier100:'Legendary Motion · Chỉ 1',footerBrand:'Lumen Destiny',footerSlogan:'Không phải để đoán số phận, mà để tìm hướng đi cho cuộc sống.',privacy:'Chính sách riêng tư',terms:'Điều khoản sử dụng',support:'Hỗ trợ',footerArchive:'Kho bùa hộ mệnh'}
+};
+function lang(){const v=window.LUMEN_LANG||localStorage.getItem('lumen-lang')||document.documentElement.lang||'ko';return COPY[v]?v:'en'}
+function text(sel,value){const el=document.querySelector(sel);if(el&&value)el.textContent=value}
+function apply(code=lang()){
+ const c=COPY[code]||COPY.en;
+ text('#talisman h2',c.guardianTitle);
+ const intro=document.querySelector('#talisman > div:first-child > p:not(.section-label):not(.notice)');if(intro)intro.textContent=c.guardianBody;
+ text('#talisman .notice',c.guardianNotice);text('#talisman a.button',c.archive);
+ const tiers=document.querySelectorAll('#talisman .guardian-tiers span');[c.tier5,c.tier10,c.tier50,c.tier100].forEach((v,i)=>{if(tiers[i])tiers[i].textContent=v});
+ text('footer > div:first-child strong',c.footerBrand);text('footer > div:first-child p',c.footerSlogan);
+ const links=document.querySelectorAll('footer .footer-links a');[c.privacy,c.terms,c.support,c.footerArchive].forEach((v,i)=>{if(links[i])links[i].textContent=v});
+}
+function schedule(code){setTimeout(()=>apply(code),0);setTimeout(()=>apply(code),120);setTimeout(()=>apply(code),500)}
+document.addEventListener('click',e=>{const b=e.target.closest('.lang-choice');if(!b)return;schedule(b.dataset.lang||'en')});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>schedule(lang()));else schedule(lang());
+window.addEventListener('load',()=>schedule(lang()));
+})();
