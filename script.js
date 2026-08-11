@@ -7,12 +7,13 @@ function fillSelect(id,start,end,suffix,pad=false,selected=null){const el=docume
 fillSelect('birthYear',1900,2050,'년',false,1980);fillSelect('birthMonth',1,12,'월',true,1);fillSelect('birthDay',1,31,'일',true,1);
 const time=document.getElementById('birthTime');if(time){time.innerHTML='<option value="">모름 (태어난 시간)</option>';for(let h=0;h<24;h++){for(const m of [0,30]){const v=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;const o=document.createElement('option');o.value=v;o.textContent=v;time.appendChild(o);}}}
 
-// Fortune navigation: keep the selected section fully visible below the sticky header
+// Fortune navigation: deterministic click targeting + underline.
+// Scroll-spy is intentionally omitted because several cards share one parent section
+// and previously caused the last menu item to become active incorrectly.
 const fortuneNav=document.querySelector('.main-fortune-nav');
 const fortuneLinks=fortuneNav?[...fortuneNav.querySelectorAll('a[href^="#"]')]:[];
-const fortuneTargets=fortuneLinks.map(link=>document.querySelector(link.getAttribute('href'))).filter(Boolean);
-function headerOffset(){const header=document.querySelector('.fortune-header')||document.querySelector('.site-header');return (header?.getBoundingClientRect().height||0)+14;}
-function setActiveFortune(id){fortuneLinks.forEach(link=>link.classList.toggle('active',link.getAttribute('href')===`#${id}`));}
-function scrollToFortune(target,pushHash=true){if(!target)return;const top=target.getBoundingClientRect().top+window.scrollY-headerOffset();window.scrollTo({top:Math.max(0,top),behavior:'smooth'});setActiveFortune(target.id);if(pushHash)history.replaceState(null,'',`#${target.id}`);}
-fortuneLinks.forEach(link=>link.addEventListener('click',e=>{const target=document.querySelector(link.getAttribute('href'));if(!target)return;e.preventDefault();scrollToFortune(target,true);}));
-if(fortuneTargets.length){let ticking=false;const updateActive=()=>{ticking=false;const marker=window.scrollY+headerOffset()+36;let current=fortuneTargets[0];for(const target of fortuneTargets){if(target.offsetTop<=marker)current=target;}setActiveFortune(current.id);};window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(updateActive);ticking=true;}},{passive:true});window.addEventListener('resize',updateActive);updateActive();if(location.hash){const initial=document.querySelector(location.hash);if(initial&&fortuneTargets.includes(initial))setTimeout(()=>scrollToFortune(initial,false),80);}}
+function navHeaderHeight(){const header=document.querySelector('.fortune-header')||document.querySelector('.site-header');return Math.ceil(header?.getBoundingClientRect().height||0);}
+function setActiveFortune(hash){fortuneLinks.forEach(link=>link.classList.toggle('active',link.getAttribute('href')===hash));}
+function goToFortune(hash,updateHash=true){const target=document.querySelector(hash);if(!target)return;setActiveFortune(hash);const gap=22;const y=target.getBoundingClientRect().top+window.pageYOffset-navHeaderHeight()-gap;window.scrollTo({top:Math.max(0,y),behavior:'smooth'});if(updateHash)history.replaceState(null,'',hash);}
+fortuneLinks.forEach(link=>link.addEventListener('click',e=>{const hash=link.getAttribute('href');if(!hash||!document.querySelector(hash))return;e.preventDefault();goToFortune(hash,true);}));
+if(location.hash&&fortuneLinks.some(link=>link.getAttribute('href')===location.hash)){setActiveFortune(location.hash);window.addEventListener('load',()=>setTimeout(()=>goToFortune(location.hash,false),60),{once:true});}
