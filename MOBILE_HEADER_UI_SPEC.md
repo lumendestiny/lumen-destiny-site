@@ -1,6 +1,6 @@
 # Lumen Destiny — Mobile Header / Language Bar UI Spec
 
-Updated: 2026-08-12
+Updated: 2026-08-13
 
 ## Supported widths
 Primary manual review widths:
@@ -22,9 +22,9 @@ The whole header remains one sticky unit at top: 0. The language bar must never 
 
 ## Brand + language row
 - Brand must remain visible and must not wrap.
-- Five language flags remain on the same row as the brand.
-- Flags may horizontally scroll if an unusually narrow browser/font environment cannot fit them.
-- Do not stack the language bar below the brand at <=520px; that previously caused header-height collisions.
+- Six language flags (KO / EN / JA / TL / VI / ZH) remain on the same row as the brand.
+- Flags may horizontally scroll inside the language container if an unusually narrow browser/font environment cannot fit them.
+- Do not stack the language bar below the brand at <=520px; that previously caused header-height collisions and mobile layout instability.
 - Minimum flag touch target is approximately 31–38px depending on viewport.
 - Active language receives a visible selected state.
 
@@ -51,13 +51,14 @@ At 320px and above:
 ## Regression checklist
 For each 320/360/390/430px width:
 1. Load Korean.
-2. Switch EN / JP / TL / VI.
+2. Switch EN / JA / TL / VI / ZH and back to KO.
 3. Scroll down: brand, flags and nav remain visible as one sticky header.
-4. Confirm no flag is clipped vertically.
-5. Confirm the nav can be swiped horizontally.
+4. Confirm no flag is clipped vertically or duplicated.
+5. Confirm the language row and nav can be swiped horizontally when needed.
 6. Open Guardian pages and confirm the longer Guardian navigation remains usable.
 7. Confirm page content begins below the actual auto-height header and is not hidden underneath it.
 8. Rotate portrait/landscape and repeat a language switch.
+9. Confirm the active language remains visually selected and has the correct accessible name/state.
 
 ## Implementation note
-The canonical mobile layout rules are in `service-shell.css`. Do not reintroduce the previous <=520px `flex-direction: column` rule for `.brand-language-stack` without redesigning the sticky header height model.
+The canonical mobile layout rules are in `service-shell.css`. Do not reintroduce a <=520px `flex-direction: column` rule for `.brand-language-stack` without redesigning the sticky header height model.
