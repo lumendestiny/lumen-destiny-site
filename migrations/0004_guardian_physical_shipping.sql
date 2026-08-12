@@ -1,0 +1,10 @@
+ALTER TABLE guardian_stories ADD COLUMN shipping_claim_hash TEXT;
+ALTER TABLE guardian_stories ADD COLUMN shipping_claim_expires_at TEXT;
+ALTER TABLE guardian_stories ADD COLUMN shipping_name TEXT;
+ALTER TABLE guardian_stories ADD COLUMN shipping_phone TEXT;
+ALTER TABLE guardian_stories ADD COLUMN shipping_postal_code TEXT;
+ALTER TABLE guardian_stories ADD COLUMN shipping_address1 TEXT;
+ALTER TABLE guardian_stories ADD COLUMN shipping_address2 TEXT;
+ALTER TABLE guardian_stories ADD COLUMN shipping_submitted_at TEXT;
+ALTER TABLE guardian_stories ADD COLUMN shipping_status TEXT NOT NULL DEFAULT 'not_requested';
+CREATE INDEX IF NOT EXISTS idx_guardian_stories_shipping_status ON guardian_stories(shipping_status);
