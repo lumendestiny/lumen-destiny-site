@@ -1,0 +1,3 @@
+const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store'}});const validId=id=>/^LG-\d{8}-[A-Z0-9]{5,12}$/.test(id);
+export async function onRequestGet({request,env}){const id=new URL(request.url).searchParams.get('id')||'';if(!validId(id))return json({ok:false,error:'invalid_id'},400);if(env?.LUMEN_GUARDIAN_ENABLED!=='true')return json({ok:false,error:'guardian_not_enabled',status:'format_only',id},503);return json({ok:false,error:'storage_not_configured',id},503)}
+export async function onRequest(){return json({ok:false,error:'method_not_allowed'},405)}
