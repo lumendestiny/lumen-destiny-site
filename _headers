@@ -15,5 +15,9 @@
 /*.css
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 
+/assets/flags/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  X-Content-Type-Options: nosniff
+
 /api/*
   Cache-Control: no-store, max-age=0
