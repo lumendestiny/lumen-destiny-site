@@ -1,6 +1,6 @@
 # Lumen Destiny — Accessibility Release Checklist
 
-Updated: 2026-08-12
+Updated: 2026-08-13
 
 ## Shared requirements
 - Every public page must expose a usable `main` landmark.
@@ -14,6 +14,11 @@ Updated: 2026-08-12
 - Forms require visible or programmatically associated labels/instructions.
 - Validation errors must be readable text, not only border/color changes.
 - Recovery/offline notices must be understandable in all supported languages.
+
+## V1 public scope
+Accessibility release testing applies to Home, Saju Result, Compatibility, Compatibility Result, Guardian Archive, Guardian Order, Guardian Gift, Guardian Campaigns, Guardian Gallery, Guardian Verify, Guardian Physical Status, Privacy, Terms, Refund/Cancellation and Support.
+
+The paused 1:1 consultation page is not part of the V1 public feature set and is marked `noindex,nofollow`.
 
 ## Motion
 - Respect `prefers-reduced-motion: reduce`.
@@ -36,7 +41,7 @@ Confirm:
 - focus outline is not hidden behind sticky header
 
 ## Keyboard smoke test
-On Home, Result, Compatibility, Consult, Guardian, Guardian Order and Verify:
+On Home, Result, Compatibility, Guardian, Guardian Order and Verify:
 1. Reload page.
 2. Press Tab; skip link must appear.
 3. Activate skip link; focus/viewport must move to main content.
