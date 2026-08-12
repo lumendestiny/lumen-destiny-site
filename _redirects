@@ -1,21 +1,25 @@
-# Core service routes: serve HTML internally without browser redirects.
-/compatibility /compatibility.html 200
-/compatibility-result /compatibility-result.html 200
-/consult /consult.html 200
-/guardian /guardian.html 200
-/guardian-order /guardian-order.html 200
-/guardian-gift /guardian-gift.html 200
-/guardian-campaigns /guardian-campaigns.html 200
-/guardian-gallery /guardian-gallery.html 200
-/guardian-physical-status /guardian-physical-status.html 200
-/guardian-verify /guardian-verify.html 200
-/guardian-payment-result /guardian-payment-result.html 200
-/guardian-story /guardian-story.html 200
-/status /status.html 200
-/privacy /privacy.html 200
-/terms /terms.html 200
-/support /support.html 200
+# Canonical service routes use real directory pages to avoid Cloudflare clean-URL loops.
+/compatibility.html /compatibility/ 301
+/compatibility /compatibility/ 301
+/compatibility-result.html /compatibility-result/ 301
+/compatibility-result /compatibility-result/ 301
+/consult.html /consult/ 301
+/consult /consult/ 301
+/guardian.html /guardian/ 301
+/guardian /guardian/ 301
+/guardian-order.html /guardian-order/ 301
+/guardian-order /guardian-order/ 301
+/guardian-gift.html /guardian-gift/ 301
+/guardian-gift /guardian-gift/ 301
+/guardian-campaigns.html /guardian-campaigns/ 301
+/guardian-campaigns /guardian-campaigns/ 301
+/guardian-gallery.html /guardian-gallery/ 301
+/guardian-gallery /guardian-gallery/ 301
+/guardian-physical-status.html /guardian-physical-status/ 301
+/guardian-physical-status /guardian-physical-status/ 301
+/guardian-verify.html /guardian-verify/ 301
+/guardian-verify /guardian-verify/ 301
 
-# Legacy story aliases use the canonical extensionless route.
-/guardian-stories.html /guardian-story 301
-/guardian-stories /guardian-story 301
+# Legacy story aliases.
+/guardian-stories.html /guardian-story/ 301
+/guardian-stories /guardian-story/ 301
