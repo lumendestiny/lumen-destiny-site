@@ -1,0 +1,31 @@
+name: Payment Flow Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/payments/**'
+      - 'guardian-payment-result.js'
+      - 'guardian-e2e-*.js'
+      - 'refund-policy.html'
+      - 'scripts/payment-flow-audit.mjs'
+      - '.github/workflows/payment-flow-audit.yml'
+  pull_request:
+    paths:
+      - 'functions/api/payments/**'
+      - 'guardian-payment-result.js'
+      - 'guardian-e2e-*.js'
+      - 'refund-policy.html'
+      - 'scripts/payment-flow-audit.mjs'
+      - '.github/workflows/payment-flow-audit.yml'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit payment, cancellation and refund contracts
+        run: node scripts/payment-flow-audit.mjs
