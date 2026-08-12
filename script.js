@@ -18,31 +18,9 @@ if (calendarType) {
   syncLeapMonth();
 }
 
-const FLAG_SVG = {
-  ko: `<svg viewBox="0 0 36 24" width="24" height="16" aria-hidden="true"><rect width="36" height="24" fill="#fff"/><path d="M18 6a6 6 0 0 1 0 12 3 3 0 0 0 0-6 3 3 0 0 1 0-6z" fill="#cd2e3a"/><path d="M18 18a6 6 0 0 1 0-12 3 3 0 0 0 0 6 3 3 0 0 1 0 6z" fill="#0047a0"/></svg>`,
-  en: `<svg viewBox="0 0 38 24" width="24" height="16" aria-hidden="true"><rect width="38" height="24" fill="#fff"/><g fill="#b22234"><rect y="0" width="38" height="2"/><rect y="4" width="38" height="2"/><rect y="8" width="38" height="2"/><rect y="12" width="38" height="2"/><rect y="16" width="38" height="2"/><rect y="20" width="38" height="2"/></g><rect width="16" height="12" fill="#3c3b6e"/></svg>`,
-  ja: `<svg viewBox="0 0 36 24" width="24" height="16" aria-hidden="true"><rect width="36" height="24" fill="#fff"/><circle cx="18" cy="12" r="6" fill="#bc002d"/></svg>`,
-  tl: `<svg viewBox="0 0 36 24" width="24" height="16" aria-hidden="true"><rect width="36" height="12" fill="#003da5"/><rect y="12" width="36" height="12" fill="#ce1126"/><path d="M0 0l17 12L0 24z" fill="#fff"/><circle cx="5.5" cy="12" r="2.1" fill="#fcd116"/></svg>`,
-  vi: `<svg viewBox="0 0 36 24" width="24" height="16" aria-hidden="true"><rect width="36" height="24" fill="#da251d"/><path d="M18 5.2l1.8 4.2 4.6.4-3.5 3 1.1 4.5-4-2.4-4 2.4 1.1-4.5-3.5-3 4.6-.4z" fill="#ff0"/></svg>`
-};
-
-function renderLanguageFlags() {
-  document.querySelectorAll('.lang-choice[data-lang]').forEach(btn => {
-    const lang = btn.dataset.lang;
-    if (!FLAG_SVG[lang]) return;
-    if (lang !== 'ko' || !btn.querySelector('svg')) btn.innerHTML = FLAG_SVG[lang];
-    btn.style.backgroundImage = 'none';
-    const svg = btn.querySelector('svg');
-    if (svg) {
-      svg.style.display = 'block';
-      svg.style.pointerEvents = 'none';
-    }
-  });
-}
-renderLanguageFlags();
-
 function normalizeLang(value) {
   const v = (value || '').toLowerCase();
+  if (v.startsWith('zh')) return 'zh';
   if (v.startsWith('ja')) return 'ja';
   if (v.startsWith('ko')) return 'ko';
   if (v.startsWith('vi')) return 'vi';
@@ -56,14 +34,14 @@ function currentUiLang() {
 }
 
 function guardianLabel(lang) {
-  return ({ko:'가디언',en:'Guardian',ja:'ガーディアン',tl:'Guardian',vi:'Guardian'})[normalizeLang(lang)] || 'Guardian';
+  return ({ko:'가디언',en:'Guardian',ja:'ガーディアン',tl:'Guardian',vi:'Guardian',zh:'Guardian'})[normalizeLang(lang)] || 'Guardian';
 }
 
 function ensureGuardianNav() {
   const nav = document.querySelector('.main-fortune-nav');
-  if (!nav || nav.querySelector('a[href="/guardian.html"]')) return;
+  if (!nav || nav.querySelector('a[href="/guardian"],a[href="/guardian.html"]')) return;
   const link = document.createElement('a');
-  link.href = '/guardian.html';
+  link.href = '/guardian';
   link.className = 'guardian-nav-link';
   link.textContent = guardianLabel(currentUiLang());
   nav.appendChild(link);
@@ -77,6 +55,11 @@ function dateLabel(value, type, lang) {
     if (type === 'year') return `Năm ${value}`;
     if (type === 'month') return `Tháng ${Number(value)}`;
     return `Ngày ${Number(value)}`;
+  }
+  if (lang === 'zh') {
+    if (type === 'year') return `${value}年`;
+    if (type === 'month') return `${Number(value)}月`;
+    return `${Number(value)}日`;
   }
   return value;
 }
@@ -156,7 +139,6 @@ document.addEventListener('click', event => {
   localStorage.setItem('lumen-lang', lang);
   setTimeout(() => {
     refreshBirthDateLabels(lang);
-    renderLanguageFlags();
     const guardian = document.querySelector('.guardian-nav-link');
     if (guardian) guardian.textContent = guardianLabel(lang);
   }, 0);
@@ -164,7 +146,6 @@ document.addEventListener('click', event => {
 
 window.addEventListener('lumen-language-change', event => {
   refreshBirthDateLabels(event.detail?.lang);
-  renderLanguageFlags();
   const guardian = document.querySelector('.guardian-nav-link');
   if (guardian) guardian.textContent = guardianLabel(event.detail?.lang);
 });
@@ -172,7 +153,6 @@ window.addEventListener('lumen-language-change', event => {
 setTimeout(() => {
   syncBirthDays();
   refreshBirthDateLabels();
-  renderLanguageFlags();
   ensureGuardianNav();
 }, 80);
 
