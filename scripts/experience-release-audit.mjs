@@ -4,7 +4,7 @@ const read=p=>fs.readFileSync(p,'utf8');
 const must=(p,needles)=>{const t=read(p);for(const n of needles){if(!t.includes(n))throw new Error(`${p}: missing ${n}`)}return t};
 const exists=p=>{if(!fs.existsSync(p))throw new Error(`missing required V1 file: ${p}`)};
 
-for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md']) exists(p);
+for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','lumen-api.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md']) exists(p);
 
 for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html']){
   must(p,['<main']);
@@ -20,8 +20,10 @@ must('support.html',['llumendestiny@gmail.com']);
 must('privacy.html',['llumendestiny@gmail.com']);
 must('robots.txt',['Disallow: /admin-guardian.html','Disallow: /guardian-e2e-test.html','Disallow: /payment-test.html','Disallow: /api/admin/']);
 must('sitemap.xml',['https://lumendestiny.com/guardian/','https://lumendestiny.com/compatibility/']);
+must('_headers',['/result.html','/compatibility-result/*','/guardian-payment-result.html','X-Robots-Tag: noindex, nofollow, noarchive']);
+must('lumen-api.js',['TIMEOUT_MS=15000','request_timeout','network_unavailable','data?.error_code']);
 
 const sitemap=read('sitemap.xml');
 if(sitemap.includes('/consult')) throw new Error('sitemap must not expose paused consultation');
 
-console.log('Experience release static audit passed. Runtime/device evidence is still required before setting Experience Gate flags.');
+console.log('Experience release static audit passed. Private result indexing and client recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
