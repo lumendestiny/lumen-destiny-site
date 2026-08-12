@@ -2,7 +2,13 @@
 
 Updated: 2026-08-12
 
-This checklist covers launch readiness outside payment-provider approval.
+This checklist covers V1 launch readiness outside payment-provider approval.
+
+## V1 public scope
+- Public navigation ends at Guardian.
+- 1:1 consultation remains hidden/disabled for V1 and is not a launch dependency.
+- Supported launch languages: KO / EN / JA / TL / VI / ZH (Simplified Chinese).
+- All six country/language buttons must render one stable, official flag asset without runtime rewriting.
 
 ## 1. Mobile UX
 - Test 360/375/390/412px widths.
@@ -13,20 +19,21 @@ This checklist covers launch readiness outside payment-provider approval.
 - Long translated strings wrap without pushing controls off-screen.
 
 ## 2. Multilingual completeness
-For KO/EN/JA/TL/VI verify:
+For KO/EN/JA/TL/VI/ZH verify:
 - Home/navigation/language bar.
-- Saju, compatibility and face-reading input labels/placeholders.
+- Saju and compatibility input labels/placeholders.
 - Validation errors and loading states.
 - Result headings, explanatory blocks and action buttons.
 - Guardian catalog/order/checkout/result/verification states.
 - Refund/cancellation notice shown before payment.
 - New functionality must use translation keys rather than hard-coded Korean strings.
+- V1 public navigation must not expose 1:1 consultation in any language.
 
 ## 3. Privacy/data handling
 Do not mark complete from design intent alone. Verify actual runtime behavior.
 - Privacy policy reflects actual data flow.
 - Face-reading original photo is not retained after processing unless separately consented.
-- Saju/compatibility/consultation/Guardian data has documented purpose and retention period.
+- Saju/compatibility/Guardian data has documented purpose and retention period.
 - User deletion request workflow is operational.
 - Sensitive personal inputs and secrets are not unnecessarily written to logs.
 - Guardian payment/order records retain only what is operationally/accounting necessary.
@@ -79,6 +86,7 @@ Payment readiness is necessary but not sufficient. Final release should require:
 2. SECURITY RELEASE READY
 3. PRIVACY RELEASE READY
 4. PG/KYC/Sandbox/Production readiness
-5. Manual mobile/multilingual smoke test complete
+5. Manual mobile/multilingual smoke test complete for KO/EN/JA/TL/VI/ZH
+6. Guardian customer journey smoke test complete
 
 Do not switch a manual verification flag to true simply to clear the gate.
