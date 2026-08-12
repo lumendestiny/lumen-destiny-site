@@ -20,6 +20,15 @@
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
   X-Content-Type-Options: nosniff
 
+/result.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/compatibility-result/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/guardian-payment-result.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
 /admin-guardian.html
   X-Robots-Tag: noindex, nofollow, noarchive
 
