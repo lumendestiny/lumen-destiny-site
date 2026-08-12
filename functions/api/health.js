@@ -1,0 +1,1 @@
+export async function onRequestGet(){return Response.json({ok:true,service:'lumen-destiny-api',version:'2026-08-12',features:{consult:false,guardianOrders:false,guardianVerify:false}},{status:200,headers:{'Cache-Control':'no-store'}})}
