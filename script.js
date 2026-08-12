@@ -217,7 +217,9 @@ function goToFortune(hash, updateHash = true) {
     scrollElementBelowHeader(target, 10);
   } else {
     setFocusedCard(hash);
-    if (fortuneServices) scrollElementBelowHeader(fortuneServices, 8);
+    const target = document.querySelector(hash);
+    if (target) scrollElementBelowHeader(target, 12);
+    else if (fortuneServices) scrollElementBelowHeader(fortuneServices, 8);
   }
   if (updateHash) history.replaceState(null, '', hash);
 }
