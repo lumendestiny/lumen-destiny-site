@@ -1,0 +1,26 @@
+name: i18n-audit
+
+on:
+  push:
+    paths:
+      - '**/*.html'
+      - '**/*.js'
+      - '**/*.mjs'
+      - 'scripts/i18n-audit.mjs'
+      - '.github/workflows/i18n-audit.yml'
+  pull_request:
+    paths:
+      - '**/*.html'
+      - '**/*.js'
+      - '**/*.mjs'
+
+jobs:
+  hardcoded-korean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Audit unexpected hardcoded Korean
+        run: node scripts/i18n-audit.mjs
