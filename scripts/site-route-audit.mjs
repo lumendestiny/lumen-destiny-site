@@ -15,7 +15,7 @@ walk(root);
 const fileSet=new Set(files);
 let failed=false;
 const errors=[];
-const ignorePrefixes=['/api/','http://','https://','mailto:','tel:','javascript:','data:','#'];
+const ignorePrefixes=['/api/','/cdn-cgi/','http://','https://','mailto:','tel:','javascript:','data:','#'];
 function checkTarget(from,raw){
   if(!raw||ignorePrefixes.some(p=>raw.startsWith(p))) return;
   if(!raw.startsWith('/')) return;
