@@ -1,2 +1,21 @@
+# Core service routes: serve HTML internally without browser redirects.
+/compatibility /compatibility.html 200
+/compatibility-result /compatibility-result.html 200
+/consult /consult.html 200
+/guardian /guardian.html 200
+/guardian-order /guardian-order.html 200
+/guardian-gift /guardian-gift.html 200
+/guardian-campaigns /guardian-campaigns.html 200
+/guardian-gallery /guardian-gallery.html 200
+/guardian-physical-status /guardian-physical-status.html 200
+/guardian-verify /guardian-verify.html 200
+/guardian-payment-result /guardian-payment-result.html 200
+/guardian-story /guardian-story.html 200
+/status /status.html 200
+/privacy /privacy.html 200
+/terms /terms.html 200
+/support /support.html 200
+
+# Legacy story aliases use the canonical extensionless route.
 /guardian-stories.html /guardian-story 301
 /guardian-stories /guardian-story 301
