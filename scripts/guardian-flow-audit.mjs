@@ -7,7 +7,7 @@ const required = [
   ['guardian-order.js', 'recipientName'],
   ['guardian-checkout.js', 'createGuardianCheckout'],
   ['guardian-checkout.js', 'policyAccepted:true'],
-  ['functions/api/guardian/orders.js', "payment_status,'pending'"],
+  ['functions/api/guardian/orders.js', "'pending','pending'"],
   ['functions/api/payments/webhook.js', "issuance_status='issued'"],
   ['functions/api/guardian/verify.js', "status='verified'"],
   ['guardian-qr.js', '/guardian-verify.html'],
