@@ -8,9 +8,12 @@ Do not mark a privacy environment flag `true` until the corresponding runtime be
 ## 1. Privacy policy finalized — `LUMEN_PRIVACY_POLICY_FINALIZED`
 - Public privacy page matches the actual V1 data flow.
 - It explains what data is processed, why, retention/deletion behavior, and the support contact.
-- Face-reading photos are described as transient analysis inputs and not retained as originals after processing.
+- V1 clearly states that face-reading photo upload is not part of the public release.
 
 ## 2. Face photo ephemeral — `LUMEN_FACE_PHOTO_EPHEMERAL_VERIFIED`
+Face reading is excluded from V1, so this flag is **not a V1 release blocker**. It becomes mandatory before any future face-reading/photo-upload release.
+
+Before that future feature is enabled:
 - Test upload → analysis → completion/error paths.
 - Confirm original face image is not written to D1, KV, R2, repository, analytics, backups, or application logs.
 - Confirm failure/timeout paths also do not persist the original.
@@ -41,7 +44,7 @@ Before setting the flag, run one end-to-end test request against the deployed su
 Inspect deployed Cloudflare/Functions logs during success and forced-error tests.
 
 Must not log:
-- face image bytes/base64 or image URLs containing credentials
+- face image bytes/base64 or image URLs containing credentials (future face-reading feature)
 - birth date/time or full consultation questions unless strictly necessary for a short-lived diagnostic session
 - Guardian free-form personal messages
 - authorization headers, webhook secrets, internal secrets, API keys, tokens, raw payment credentials
@@ -49,11 +52,12 @@ Must not log:
 Errors returned to users should use stable error codes rather than echoing request bodies or secrets.
 
 ## V1 activation sequence
-1. Keep all five flags false by default.
-2. Complete static Security Release Audit.
-3. Complete deployed runtime tests above.
-4. Set each flag true individually only after evidence exists.
-5. Call authenticated `/api/admin/privacy-gate` and require `PRIVACY RELEASE READY` with zero blockers before enabling production features that depend on sensitive processing.
+1. Keep the four V1 blocker flags false by default: privacy policy, retention, deletion flow, sensitive logging.
+2. Face-photo verification remains optional/N/A until face reading is actually released.
+3. Complete static Security Release Audit.
+4. Complete deployed runtime tests above.
+5. Set each V1 blocker flag true individually only after evidence exists.
+6. Call authenticated `/api/admin/privacy-gate` and require `PRIVACY RELEASE READY` with zero blockers before enabling production features that depend on sensitive processing.
 
 ## Principle
 Privacy readiness is an evidence gate, not a documentation checkbox. A passing CI audit does not by itself prove runtime deletion, retention, or logging behavior.
