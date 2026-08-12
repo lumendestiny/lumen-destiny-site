@@ -1,0 +1,27 @@
+name: Mobile UX Audit
+on:
+  pull_request:
+    paths:
+      - '**/*.html'
+      - '**/*.css'
+      - '**/*.js'
+      - 'scripts/mobile-ux-audit.mjs'
+      - '.github/workflows/mobile-ux-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - '**/*.css'
+      - '**/*.js'
+      - 'scripts/mobile-ux-audit.mjs'
+      - '.github/workflows/mobile-ux-audit.yml'
+jobs:
+  mobile-ux-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Audit mobile overflow and viewport risks
+        run: node scripts/mobile-ux-audit.mjs
