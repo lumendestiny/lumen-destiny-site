@@ -1,25 +1,16 @@
-# Canonical service routes use real directory pages to avoid Cloudflare clean-URL loops.
-/compatibility.html /compatibility/ 301
-/compatibility /compatibility/ 301
-/compatibility-result.html /compatibility-result/ 301
-/compatibility-result /compatibility-result/ 301
-/consult.html /consult/ 301
-/consult /consult/ 301
-/guardian.html /guardian/ 301
-/guardian /guardian/ 301
-/guardian-order.html /guardian-order/ 301
-/guardian-order /guardian-order/ 301
-/guardian-gift.html /guardian-gift/ 301
-/guardian-gift /guardian-gift/ 301
-/guardian-campaigns.html /guardian-campaigns/ 301
-/guardian-campaigns /guardian-campaigns/ 301
-/guardian-gallery.html /guardian-gallery/ 301
-/guardian-gallery /guardian-gallery/ 301
-/guardian-physical-status.html /guardian-physical-status/ 301
-/guardian-physical-status /guardian-physical-status/ 301
-/guardian-verify.html /guardian-verify/ 301
-/guardian-verify /guardian-verify/ 301
+# Canonical service URLs are extensionless. Do not redirect extensionless paths.
+/compatibility.html /compatibility 301
+/compatibility-result.html /compatibility-result 301
+/consult.html /consult 301
+/guardian.html /guardian 301
+/guardian-order.html /guardian-order 301
+/guardian-gift.html /guardian-gift 301
+/guardian-campaigns.html /guardian-campaigns 301
+/guardian-gallery.html /guardian-gallery 301
+/guardian-physical-status.html /guardian-physical-status 301
+/guardian-verify.html /guardian-verify 301
+/guardian-story.html /guardian-story 301
 
 # Legacy story aliases.
-/guardian-stories.html /guardian-story/ 301
-/guardian-stories /guardian-story/ 301
+/guardian-stories.html /guardian-story 301
+/guardian-stories /guardian-story 301
