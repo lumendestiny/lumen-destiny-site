@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin-guardian.html
+Disallow: /guardian-e2e-test.html
+Disallow: /payment-review.html
+Disallow: /api/admin/
+Disallow: /api/payments/test/
+
+Sitemap: https://lumendestiny.com/sitemap.xml
