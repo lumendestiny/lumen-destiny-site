@@ -2,6 +2,7 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-Frame-Options: DENY
 
 /*.html
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
@@ -19,5 +20,21 @@
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
   X-Content-Type-Options: nosniff
 
+/admin-guardian.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/guardian-e2e-test.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/payment-test.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/payment-review.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/consult/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
 /api/*
   Cache-Control: no-store, max-age=0
+  X-Content-Type-Options: nosniff
