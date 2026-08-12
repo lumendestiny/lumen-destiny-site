@@ -35,6 +35,7 @@ Status values: TODO / BLOCKED / READY / VERIFIED
 - [ ] No secret exists in GitHub, browser JS or HTML.
 - [ ] D1 migrations applied in order and backed up before destructive changes.
 - [ ] `0007_guardian_edition_slots.sql` applied before enabling paid Guardian issuance.
+- [ ] `0008_guardian_checkout_sessions.sql` applied before enabling checkout.
 - [ ] Error pages and 404 behavior checked.
 
 ## 5. AI consultation
@@ -48,7 +49,7 @@ Status values: TODO / BLOCKED / READY / VERIFIED
 
 ## 6. Guardian database / issuance
 - [ ] GUARDIAN_DB bound to production.
-- [ ] All migrations including payment audit and edition slots applied.
+- [ ] All migrations including payment audit, edition slots and checkout sessions applied.
 - [ ] Every sellable Guardian design has a stable `edition_key`.
 - [ ] Basic/Custom edition limit 100 tested.
 - [ ] Rare edition limit 5 tested.
@@ -64,19 +65,28 @@ Status values: TODO / BLOCKED / READY / VERIFIED
 - [ ] Payment provider selected.
 - [ ] Merchant/business identity approved.
 - [ ] Settlement bank account connected.
+- [ ] `LUMEN_PAYMENT_PROVIDER` configured.
+- [ ] `LUMEN_PAYMENT_ADAPTER_URL` uses HTTPS and points only to the intended payment adapter.
+- [ ] `LUMEN_PAYMENT_ADAPTER_SECRET` stored only as a Cloudflare secret.
 - [ ] Sandbox checkout implemented.
-- [ ] Provider-native webhook signature verification implemented.
-- [ ] Browser redirect cannot issue Guardian.
+- [ ] Checkout API reads price from the Guardian server order and never trusts a browser amount.
+- [ ] Checkout session is recorded before provider checkout creation.
+- [ ] Provider checkout returns a valid HTTPS checkout URL.
+- [ ] Provider-native webhook signature verification implemented in the adapter/provider layer.
+- [ ] Browser return/redirect cannot issue Guardian.
 - [ ] Server verifies Guardian ID, USD amount and currency.
 - [ ] Duplicate event is idempotent.
 - [ ] Payment audit events recorded.
-- [ ] Success redirect opens `/guardian-payment-result.html?id=<guardianId>`.
+- [ ] Checkout creation failure is recoverable without creating a paid Guardian.
+- [ ] Payment success return opens the payment result page for the same Guardian ID.
 - [ ] Pending state clearly tells the customer not to pay again.
 - [ ] Issued state shows Guardian ID, serial and verification route.
 - [ ] Failed/unknown state never displays a false payment success message.
 - [ ] Payment result page is tested with delayed webhook delivery.
+- [ ] Wrong amount and wrong currency are rejected.
+- [ ] Sold-out race after payment has a documented support/refund path before launch.
 - [ ] Refund/cancellation policy and technical flow decided before exposing refund controls.
-- [ ] LUMEN_PAYMENTS_ENABLED=true only after all sandbox tests pass.
+- [ ] `LUMEN_PAYMENTS_ENABLED=true` only after all sandbox tests pass.
 
 ## 8. Guardian gifting / campaigns
 - [ ] Gift sender/recipient fields tested.
@@ -107,6 +117,7 @@ Status values: TODO / BLOCKED / READY / VERIFIED
 ## 11. Analytics / operations
 - [ ] Privacy-conscious analytics decision made.
 - [ ] Error monitoring chosen.
+- [ ] Checkout creation failures can be detected.
 - [ ] Payment webhook failures can be detected.
 - [ ] Daily backup/export procedure for Guardian orders documented.
 - [ ] Incident rollback procedure documented.
@@ -118,19 +129,21 @@ Status values: TODO / BLOCKED / READY / VERIFIED
 - [ ] Compatibility flow works.
 - [ ] 1:1 consultation shows intended preview/live state.
 - [ ] Guardian test order is created with correct server price and `edition_key`.
+- [ ] Checkout creation returns the configured provider and correct server amount.
+- [ ] Checkout session audit row exists for the Guardian order.
 - [ ] Valid sandbox webhook changes payment result from pending to issued.
 - [ ] Verification shows the same issuance serial.
 - [ ] Replaying the webhook does not allocate a second slot.
 - [ ] Wrong amount and wrong currency are rejected.
 - [ ] Final available slot is issued once; next attempt returns sold out.
-- [ ] `/status.html` shows expected production states.
+- [ ] `/status.html` shows expected production states, including Checkout and Webhook separately.
 
 ## 13. Final production gate
 Production launch is GO only when:
 - Core flows are VERIFIED on mobile and desktop.
 - Five-language critical flows are VERIFIED.
 - AI, if enabled, is READY on /status.html and smoke-tested.
-- Payments, if enabled, pass sandbox, webhook, idempotency and final-slot tests.
+- Payments, if enabled, show READY for Checkout and Webhook and pass sandbox, idempotency and final-slot tests.
 - Privacy/terms/refund text matches actual behavior.
 - No critical/major known defect remains.
 
