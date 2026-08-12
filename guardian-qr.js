@@ -6,7 +6,7 @@ const link=document.getElementById('guardianQrLink');
 
 async function renderQr(detail={}){
   if(!panel||!image||!link||!detail.id)return;
-  const url=new URL('/guardian-verify/',location.origin);
+  const url=new URL('/guardian-verify',location.origin);
   url.searchParams.set('id',detail.id);
   const lang=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lumen-lang')||'ko';
   url.searchParams.set('lang',lang);
