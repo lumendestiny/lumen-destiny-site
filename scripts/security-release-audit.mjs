@@ -10,10 +10,11 @@ for(const forbidden of ['LUMEN_INTERNAL_SECRET','LUMEN_PAYMENT_WEBHOOK_SECRET','
 mustContain('functions/api/payments/test-complete.js',["LUMEN_PAYMENT_TEST_MODE!=='true'","LUMEN_INTERNAL_SECRET","unauthorized"]);
 mustContain('functions/api/payments/test-adapter.js',["LUMEN_PAYMENT_TEST_MODE!=='true'","LUMEN_PAYMENT_ADAPTER_SECRET","unauthorized"]);
 mustContain('functions/api/admin/security-gate.js',['LUMEN_INTERNAL_SECRET','unauthorized','SECURITY RELEASE READY']);
-mustContain('functions/api/admin/privacy-gate.js',['LUMEN_INTERNAL_SECRET','unauthorized','PRIVACY RELEASE READY']);
+mustContain('functions/api/admin/privacy-gate.js',['LUMEN_INTERNAL_SECRET','unauthorized','PRIVACY RELEASE READY','LUMEN_FACE_PHOTO_EPHEMERAL_VERIFIED','LUMEN_DATA_RETENTION_VERIFIED','LUMEN_DELETE_REQUEST_FLOW_VERIFIED','LUMEN_SENSITIVE_LOGGING_VERIFIED']);
+mustContain('PRIVACY_RELEASE_CHECKLIST.md',['llumendestiny@gmail.com','Face photo ephemeral','Deletion request flow','Sensitive logging','PRIVACY RELEASE READY']);
 
 const publicFiles=['index.html','result.html','service-shell.js','lumen-api.js','guardian-order-v2.js','guardian-payment-result.js','guardian-verify.js'];
 const secretAssignment=/(?:LUMEN_INTERNAL_SECRET|LUMEN_PAYMENT_WEBHOOK_SECRET|LUMEN_PAYMENT_ADAPTER_SECRET|OPENAI_API_KEY)\s*[:=]\s*['"`][^'"`]+/;
 for(const file of publicFiles){const text=fs.readFileSync(file,'utf8');if(secretAssignment.test(text))throw new Error(`${file}: possible hard-coded secret detected`)}
 
-console.log('Security release audit passed: client secrets absent and admin/test guards present.');
+console.log('Security/privacy release audit passed: client secrets absent, admin/test guards present, and privacy evidence checklist is wired.');
