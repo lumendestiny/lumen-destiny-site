@@ -8,9 +8,11 @@ const LANGS=new Set(['ko','en','ja','tl','vi']);
 const normalizeLang=v=>LANGS.has(String(v||'').toLowerCase())?String(v).toLowerCase():'ko';
 function safeHttpsUrl(value){try{const u=new URL(String(value||''));return u.protocol==='https:'?u:null}catch{return null}}
 async function expireOld(env,guardianId,now){try{await env.GUARDIAN_DB.prepare(`UPDATE guardian_checkout_sessions SET status='expired',failure_code=COALESCE(failure_code,'checkout_expired'),updated_at=? WHERE guardian_id=? AND status IN ('creating','ready') AND expires_at IS NOT NULL AND expires_at<?`).bind(now,guardianId,now).run()}catch{}}
+async function paymentEmergencyState(env){if(env?.LUMEN_PAYMENT_EMERGENCY_HOLD==='true')return{hold:true,reason:'manual_emergency_hold'};try{const row=await env.GUARDIAN_DB.prepare(`SELECT incident_id,guardian_id,provider,incident_type,status,severity,summary,updated_at FROM guardian_payment_incidents WHERE status!='resolved' AND severity='critical' ORDER BY updated_at DESC LIMIT 1`).first();if(row)return{hold:true,reason:'critical_payment_incident',incident:row};return{hold:false}}catch{return{hold:true,reason:'incident_state_unavailable'}}}
 export async function onRequestPost({request,env}){
   if(env?.LUMEN_PAYMENTS_ENABLED!=='true')return json({ok:false,error:'payments_not_enabled'},503);
   if(!env?.GUARDIAN_DB)return json({ok:false,error:'storage_not_configured'},503);
+  const emergency=await paymentEmergencyState(env);if(emergency.hold)return json({ok:false,error:'payments_temporarily_on_hold',reason:emergency.reason,incidentId:emergency.incident?.incident_id||null,support:'/support.html'},503,{'Retry-After':'300'});
   const provider=clean(env?.LUMEN_PAYMENT_PROVIDER||'',40).toLowerCase(),adapterUrl=safeHttpsUrl(env?.LUMEN_PAYMENT_ADAPTER_URL);
   if(!provider||!adapterUrl||!env?.LUMEN_PAYMENT_ADAPTER_SECRET)return json({ok:false,error:'payment_provider_not_configured'},503);
   const ct=request.headers.get('content-type')||'';if(!ct.toLowerCase().includes('application/json'))return json({ok:false,error:'content_type_required'},415);
