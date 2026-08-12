@@ -1,5 +1,5 @@
 const base=(process.env.LUMEN_PROD_BASE_URL||'https://lumendestiny.com').replace(/\/$/,'');
-const pages=['/','/compatibility.html?lang=ko','/consult.html?lang=ko','/guardian.html?lang=ko','/guardian-order.html?lang=ko','/guardian-verify.html?lang=ko','/status.html'];
+const pages=['/','/compatibility/?lang=ko','/consult/?lang=ko','/guardian/?lang=ko','/guardian-order/?lang=ko','/guardian-gift/?lang=ko','/guardian-campaigns/?lang=ko','/guardian-gallery/?lang=ko','/guardian-physical-status/?lang=ko','/guardian-verify/?lang=ko'];
 const timeoutMs=12000;
 async function fetchChecked(path,opts={}){const c=new AbortController();const t=setTimeout(()=>c.abort(),timeoutMs);try{const r=await fetch(base+path,{redirect:'follow',signal:c.signal,...opts});const chain=r.url;const text=await r.text();if(!r.ok)throw new Error(`${path}: HTTP ${r.status} (${chain})`);if(/ERR_TOO_MANY_REDIRECTS|too many redirects/i.test(text))throw new Error(`${path}: redirect-loop error page detected`);return{r,text,url:chain}}finally{clearTimeout(t)}}
 let lastErr;
