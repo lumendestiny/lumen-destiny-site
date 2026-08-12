@@ -1,1 +1,83 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>궁합 | 루멘 명운</title><link rel="stylesheet" href="/styles.css?v=20260812-5"><link rel="stylesheet" href="/fortune-ui.css?v=20260812-14"><link rel="stylesheet" href="/result-enhance.css?v=20260812-3"><link rel="stylesheet" href="/service-shell.css?v=20260812-4"><link rel="stylesheet" href="/compatibility-form.css?v=20260812-1"></head><body><header class="site-header fortune-header"><div class="brand-language-stack"><a class="brand" href="/">루멘 명운</a></div><nav class="main-fortune-nav"><a href="/#analysis">무료사주</a><a href="/#wealth">금전운</a><a href="/#yearly">신년운세</a><a href="/#monthly">월간운세</a><a href="/#today">오늘의 운세</a><a class="active" href="/compatibility/">궁합</a></nav></header><main><section class="section analysis-section"><div class="analysis-shell fortune-form-shell"><div class="form-heading compat-intro"><p class="section-label">FREE COMPATIBILITY</p><h2>무료 궁합</h2><p>두 사람의 기본 정보를 입력하면 일간·오행·지지 관계를 비교해 조화와 조율 포인트를 무료로 확인할 수 있습니다.</p></div><form id="compatForm" class="compat-form free-saju-style"><div class="compat-person"><h2>첫 번째 사람</h2><label>이름<input name="aName" maxlength="20" placeholder="이름을 입력하세요" required></label><label>생년월일<input name="aBirth" type="date" min="1900-01-01" max="2050-12-31" required></label><label>태어난 시간<input name="aTime" type="time"></label></div><div class="compat-person"><h2>두 번째 사람</h2><label>이름<input name="bName" maxlength="20" placeholder="이름을 입력하세요" required></label><label>생년월일<input name="bBirth" type="date" min="1900-01-01" max="2050-12-31" required></label><label>태어난 시간<input name="bTime" type="time"></label></div><button class="fortune-submit" type="submit">궁합 결과 보기</button></form><p class="privacy-note result-disclaimer">※ 입력값은 결과 계산에만 사용하며 별도 서버 DB 저장을 전제로 하지 않습니다. 궁합 해석은 관계를 이해하기 위한 참고 콘텐츠입니다.</p></div></section></main><script src="/service-shell.js?v=20260812-9" defer></script><script src="/compatibility-i18n.js?v=20260812-2" defer></script><script>document.getElementById('compatForm').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.currentTarget),q=new URLSearchParams();for(const[k,v]of f.entries())q.set(k,String(v).trim());q.set('lang',new URLSearchParams(location.search).get('lang')||localStorage.getItem('lumen-lang')||'ko');location.href='/compatibility-result/?'+q.toString()})</script></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>궁합 | 루멘 명운</title>
+  <link rel="stylesheet" href="/styles.css?v=20260812-5">
+  <link rel="stylesheet" href="/fortune-ui.css?v=20260812-14">
+  <link rel="stylesheet" href="/result-enhance.css?v=20260812-3">
+  <link rel="stylesheet" href="/service-shell.css?v=20260812-4">
+  <link rel="stylesheet" href="/compatibility-form.css?v=20260812-2">
+</head>
+<body>
+<header class="site-header fortune-header">
+  <div class="brand-language-stack"><a class="brand" href="/">루멘 명운</a></div>
+  <nav class="main-fortune-nav">
+    <a href="/#analysis">무료사주</a><a href="/#wealth">금전운</a><a href="/#yearly">신년운세</a><a href="/#monthly">월간운세</a><a href="/#today">오늘의 운세</a><a class="active" href="/compatibility/">궁합</a>
+  </nav>
+</header>
+<main>
+<section class="section analysis-section">
+<div class="analysis-shell fortune-form-shell">
+  <div class="form-heading compat-intro">
+    <p class="section-label">FREE COMPATIBILITY</p>
+    <h2>무료 궁합</h2>
+    <p>두 사람의 기본 정보를 입력하면 일간·오행·지지 관계를 비교해 조화와 조율 포인트를 무료로 확인할 수 있습니다.</p>
+  </div>
+  <form id="compatForm" class="compat-form free-saju-style">
+    <div class="compat-person" data-person="a">
+      <h2>첫 번째 사람</h2>
+      <div class="compat-field"><label for="aName">이름</label><input id="aName" name="aName" maxlength="20" placeholder="이름을 입력하세요" required></div>
+      <div class="compat-field"><label for="aGender">성별</label><select id="aGender" name="aGender"><option value="male">남자</option><option value="female">여자</option><option value="unspecified">선택하지 않음</option></select></div>
+      <div class="compat-field"><span class="compat-field-label">생년월일</span><div class="compat-birth-row"><select id="aYear" aria-label="첫 번째 사람 출생 연도"></select><select id="aMonth" aria-label="첫 번째 사람 출생 월"></select><select id="aDay" aria-label="첫 번째 사람 출생 일"></select></div></div>
+      <div class="compat-field"><label for="aTime">태어난 시간</label><select id="aTime" name="aTime"></select></div>
+      <div class="compat-field"><label for="aCalendar">달력</label><select id="aCalendar" name="aCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select></div>
+      <label class="compat-leap" id="aLeapLabel"><input type="checkbox" name="aLeap" value="true"> 음력 윤달로 입력</label>
+      <input type="hidden" name="aBirth" id="aBirth">
+    </div>
+    <div class="compat-person" data-person="b">
+      <h2>두 번째 사람</h2>
+      <div class="compat-field"><label for="bName">이름</label><input id="bName" name="bName" maxlength="20" placeholder="이름을 입력하세요" required></div>
+      <div class="compat-field"><label for="bGender">성별</label><select id="bGender" name="bGender"><option value="male">남자</option><option value="female">여자</option><option value="unspecified">선택하지 않음</option></select></div>
+      <div class="compat-field"><span class="compat-field-label">생년월일</span><div class="compat-birth-row"><select id="bYear" aria-label="두 번째 사람 출생 연도"></select><select id="bMonth" aria-label="두 번째 사람 출생 월"></select><select id="bDay" aria-label="두 번째 사람 출생 일"></select></div></div>
+      <div class="compat-field"><label for="bTime">태어난 시간</label><select id="bTime" name="bTime"></select></div>
+      <div class="compat-field"><label for="bCalendar">달력</label><select id="bCalendar" name="bCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select></div>
+      <label class="compat-leap" id="bLeapLabel"><input type="checkbox" name="bLeap" value="true"> 음력 윤달로 입력</label>
+      <input type="hidden" name="bBirth" id="bBirth">
+    </div>
+    <button class="fortune-submit" type="submit">궁합 결과 보기</button>
+  </form>
+  <p class="privacy-note result-disclaimer">※ 입력값은 결과 계산에만 사용하며 별도 서버 DB 저장을 전제로 하지 않습니다. 궁합 해석은 관계를 이해하기 위한 참고 콘텐츠입니다.</p>
+</div>
+</section>
+</main>
+<script src="/service-shell.js?v=20260812-9" defer></script>
+<script src="/compatibility-i18n.js?v=20260812-3" defer></script>
+<script>
+(()=>{
+  const pad=n=>String(n).padStart(2,'0');
+  const days=(y,m)=>new Date(Number(y),Number(m),0).getDate();
+  function fillPerson(prefix){
+    const y=document.getElementById(prefix+'Year'),m=document.getElementById(prefix+'Month'),d=document.getElementById(prefix+'Day'),t=document.getElementById(prefix+'Time'),cal=document.getElementById(prefix+'Calendar'),leap=document.getElementById(prefix+'LeapLabel');
+    for(let n=1900;n<=2050;n++)y.add(new Option(n+'년',String(n),n===1980,n===1980));
+    for(let n=1;n<=12;n++)m.add(new Option(pad(n)+'월',pad(n),n===1,n===1));
+    function fillDays(){const keep=Number(d.value||1),max=days(y.value,m.value);d.innerHTML='';for(let n=1;n<=max;n++)d.add(new Option(pad(n)+'일',pad(n),n===Math.min(keep,max),n===Math.min(keep,max)))}
+    fillDays();y.addEventListener('change',fillDays);m.addEventListener('change',fillDays);
+    t.add(new Option('모름 (태어난 시간)',''));
+    for(let h=0;h<24;h++)for(const min of [0,30]){const v=pad(h)+':'+pad(min);t.add(new Option(v,v))}
+    function syncLeap(){const lunar=cal.value==='lunar';leap.style.display=lunar?'flex':'none';if(!lunar)leap.querySelector('input').checked=false}
+    cal.addEventListener('change',syncLeap);syncLeap();
+  }
+  fillPerson('a');fillPerson('b');
+  document.getElementById('compatForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    for(const p of ['a','b']) document.getElementById(p+'Birth').value=document.getElementById(p+'Year').value+'-'+document.getElementById(p+'Month').value+'-'+document.getElementById(p+'Day').value;
+    const f=new FormData(e.currentTarget),q=new URLSearchParams();for(const[k,v]of f.entries())q.set(k,String(v).trim());
+    q.set('lang',new URLSearchParams(location.search).get('lang')||localStorage.getItem('lumen-lang')||'ko');
+    location.href='/compatibility-result/?'+q.toString();
+  });
+})();
+</script>
+</body>
+</html>
