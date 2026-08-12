@@ -39,10 +39,11 @@ for(const f of files.filter(f=>f.endsWith('.html')||f.endsWith('.js'))){
 if(fileSet.has('_redirects')){
   const lines=fs.readFileSync('_redirects','utf8').split(/\r?\n/).map(x=>x.trim()).filter(x=>x&&!x.startsWith('#'));
   for(const line of lines){
-    const [from,to]=line.split(/\s+/);
+    const [from,to,statusRaw]=line.split(/\s+/);
     if(!from||!to) continue;
-    if(!from.includes('.')&&/\.html(?:$|[?#])/.test(to)){
-      errors.push(`REDIRECT LOOP RISK: ${from} -> ${to}`);failed=true;
+    const status=Number(statusRaw||301);
+    if(status!==200&&!from.includes('.')&&/\.html(?:$|[?#])/.test(to)){
+      errors.push(`REDIRECT LOOP RISK: ${from} -> ${to} ${status}`);failed=true;
     }
     checkTarget('_redirects',to);
   }
