@@ -55,6 +55,21 @@ function currentUiLang() {
   return normalizeLang(window.__LUMEN_LANG__ || localStorage.getItem('lumen-lang') || document.documentElement.lang || 'ko');
 }
 
+function guardianLabel(lang) {
+  return ({ko:'가디언',en:'Guardian',ja:'ガーディアン',tl:'Guardian',vi:'Guardian'})[normalizeLang(lang)] || 'Guardian';
+}
+
+function ensureGuardianNav() {
+  const nav = document.querySelector('.main-fortune-nav');
+  if (!nav || nav.querySelector('a[href="/guardian.html"]')) return;
+  const link = document.createElement('a');
+  link.href = '/guardian.html';
+  link.className = 'guardian-nav-link';
+  link.textContent = guardianLabel(currentUiLang());
+  nav.appendChild(link);
+}
+ensureGuardianNav();
+
 function dateLabel(value, type, lang) {
   if (lang === 'ko') return value + ({ year: '년', month: '월', day: '일' })[type];
   if (lang === 'ja') return value + ({ year: '年', month: '月', day: '日' })[type];
@@ -142,18 +157,23 @@ document.addEventListener('click', event => {
   setTimeout(() => {
     refreshBirthDateLabels(lang);
     renderLanguageFlags();
+    const guardian = document.querySelector('.guardian-nav-link');
+    if (guardian) guardian.textContent = guardianLabel(lang);
   }, 0);
 });
 
 window.addEventListener('lumen-language-change', event => {
   refreshBirthDateLabels(event.detail?.lang);
   renderLanguageFlags();
+  const guardian = document.querySelector('.guardian-nav-link');
+  if (guardian) guardian.textContent = guardianLabel(event.detail?.lang);
 });
 
 setTimeout(() => {
   syncBirthDays();
   refreshBirthDateLabels();
   renderLanguageFlags();
+  ensureGuardianNav();
 }, 80);
 
 const sajuForm = document.getElementById('sajuForm');
