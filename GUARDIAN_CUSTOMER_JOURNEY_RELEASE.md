@@ -1,6 +1,6 @@
 # Lumen Guardian — Customer Journey Release Checklist
 
-Updated: 2026-08-12
+Updated: 2026-08-13
 
 Goal: verify the entire customer experience before production payments are enabled.
 
@@ -20,7 +20,7 @@ Goal: verify the entire customer experience before production payments are enabl
 - Required name/nickname and wish fields validate.
 - Gift mode clearly separates giver and recipient.
 - Target date/campaign is optional unless the campaign requires it.
-- Character limits work on mobile and all five languages.
+- Character limits work on mobile and all six languages.
 - User can edit before payment.
 
 ## 4. Review before payment
@@ -79,7 +79,7 @@ Goal: verify the entire customer experience before production payments are enabl
 - Refund completion is based on verified provider state.
 
 ## Production sign-off
-Do not mark the customer journey verified until the journey has been run on 320/360/390/430px mobile widths and desktop in all five supported languages, including success, failure, cancellation, duplicate webhook, sold-out race and refund scenarios.
+Do not mark the customer journey verified until the journey has been run on 320/360/390/430px mobile widths and desktop in all six supported languages (KO/EN/JA/TL/VI/ZH), including success, failure, cancellation, duplicate webhook, sold-out race and refund scenarios.
 
 Recommended production flag after evidence is retained internally:
 `LUMEN_GUARDIAN_JOURNEY_VERIFIED=true`
