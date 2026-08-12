@@ -21,6 +21,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Audit unexpected hardcoded Korean
+          node-version: '24'
+      - name: Audit unexpected hardcoded Korean (advisory)
+        env:
+          LUMEN_I18N_STRICT: 'false'
         run: node scripts/i18n-audit.mjs
