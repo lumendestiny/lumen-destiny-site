@@ -4,8 +4,8 @@ const clean=(v,max)=>String(v??'').trim().slice(0,max);
 const validId=id=>/^LG-\d{8}-[A-Z0-9]{5,12}$/.test(id);
 const makeCheckoutId=()=>`GC-${Date.now()}-${crypto.randomUUID().replace(/-/g,'').slice(0,10).toUpperCase()}`;
 const POLICY_VERSION='guardian-refund-2026-08-12-v1';
-const LANGS=new Set(['ko','en','ja','tl','vi']);
-const normalizeLang=v=>LANGS.has(String(v||'').toLowerCase())?String(v).toLowerCase():'ko';
+const LANGS=new Set(['ko','en','ja','tl','vi','zh']);
+const normalizeLang=v=>{const raw=String(v||'').trim().toLowerCase();if(raw==='zh-hans'||raw==='zh-cn'||raw.startsWith('zh-'))return'zh';return LANGS.has(raw)?raw:'ko'};
 function safeHttpsUrl(value){try{const u=new URL(String(value||''));return u.protocol==='https:'?u:null}catch{return null}}
 async function expireOld(env,guardianId,now){try{await env.GUARDIAN_DB.prepare(`UPDATE guardian_checkout_sessions SET status='expired',failure_code=COALESCE(failure_code,'checkout_expired'),updated_at=? WHERE guardian_id=? AND status IN ('creating','ready') AND expires_at IS NOT NULL AND expires_at<?`).bind(now,guardianId,now).run()}catch{}}
 async function paymentEmergencyState(env){if(env?.LUMEN_PAYMENT_EMERGENCY_HOLD==='true')return{hold:true,reason:'manual_emergency_hold'};try{const control=await env.GUARDIAN_DB.prepare(`SELECT state,note,changed_at FROM guardian_payment_control WHERE control_key='checkout' LIMIT 1`).first();if(control?.state==='hold')return{hold:true,reason:'operator_payment_hold',control};const row=await env.GUARDIAN_DB.prepare(`SELECT incident_id,guardian_id,provider,incident_type,status,severity,summary,updated_at FROM guardian_payment_incidents WHERE status!='resolved' AND severity='critical' ORDER BY updated_at DESC LIMIT 1`).first();if(row)return{hold:true,reason:'critical_payment_incident',incident:row};return{hold:false}}catch{return{hold:true,reason:'incident_state_unavailable'}}}
