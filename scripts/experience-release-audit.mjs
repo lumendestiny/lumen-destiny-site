@@ -4,7 +4,7 @@ const read=p=>fs.readFileSync(p,'utf8');
 const must=(p,needles)=>{const t=read(p);for(const n of needles){if(!t.includes(n))throw new Error(`${p}: missing ${n}`)}return t};
 const exists=p=>{if(!fs.existsSync(p))throw new Error(`missing required V1 file: ${p}`)};
 
-for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','compatibility.js','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','lumen-api.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md']) exists(p);
+for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','compatibility.js','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','lumen-api.js','result-zh-v1.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md']) exists(p);
 
 for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html']) must(p,['<main']);
 
@@ -27,6 +27,10 @@ if(compatibility.includes("el.textContent=L.error+' '+(e.message||'')")) throw n
 must('compatibility/index.html',['aBirth','bBirth','aCalendar','bCalendar','aLeap','bLeap','lang']);
 must('compatibility-result/index.html',['compatibility.js','compatError','compatContent']);
 
+// Chinese result fallback must cover static and dynamic V1 panels until the core result engine has native zh branches.
+must('result-zh-v1.js',["q.get('lang')","zh-CN","재성 위치와 금전 흐름","세운 · 월운 · 일운 흐름","십신과 관계를 연결한 해설","정재","편재"]);
+must('result.html',['result-zh-v1.js']);
+
 must('service-shell.js',['aria-pressed','aria-current','skip']);
 must('service-shell.css',[':focus-visible','prefers-reduced-motion:reduce','@media(max-width:520px){','.brand-language-stack{flex-direction:row!important']);
 must('ACCESSIBILITY_RELEASE_CHECKLIST.md',['320px','360px','390px','430px','200%','prefers-reduced-motion']);
@@ -44,4 +48,4 @@ const sitemap=read('sitemap.xml');
 if(sitemap.includes('/consult')) throw new Error('sitemap must not expose paused consultation');
 if(sitemap.includes('/guardian-gift')) throw new Error('sitemap must not expose paused Guardian gifting');
 
-console.log('Experience release static audit passed. Public SEO/social metadata, compatibility calculation contract, private result indexing, paused gifting route, and client recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
+console.log('Experience release static audit passed. Public SEO/social metadata, compatibility calculation contract, Chinese dynamic result coverage, private result indexing, paused gifting route, and client recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
