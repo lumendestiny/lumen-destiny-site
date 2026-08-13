@@ -21,6 +21,6 @@ export async function onRequestPost({request,env}){
   try{slot=await claimSlot(env,editionKey,clean(row.tier,20),limit,id,now)}catch{return json({ok:false,error:'edition_reservation_failed'},500)}
   if(!slot)return json({ok:false,error:'edition_sold_out'},409);
   try{await env.GUARDIAN_DB.prepare(`UPDATE guardian_orders SET payment_status='paid',issuance_status='issued',payment_reference=?,paid_at=COALESCE(paid_at,?),issued_at=COALESCE(issued_at,?),edition_key=?,issuance_serial=? WHERE id=? AND issuance_status!='issued'`).bind(paymentReference||null,now,now,editionKey,Number(slot.slot_no),id).run()}catch{await releaseSlot(env,id);return json({ok:false,error:'storage_write_failed'},500)}
-  return json({ok:true,id,paymentStatus:'paid',issuanceStatus:'issued',editionKey,serial:Number(slot.slot_no),editionLimit:limit,issuedAt:now,verifyUrl:`/guardian-verify.html?id=${encodeURIComponent(id)}`});
+  return json({ok:true,id,paymentStatus:'paid',issuanceStatus:'issued',editionKey,serial:Number(slot.slot_no),editionLimit:limit,issuedAt:now,verifyUrl:`/guardian-verify/?id=${encodeURIComponent(id)}`});
 }
 export async function onRequest(){return json({ok:false,error:'method_not_allowed'},405)}
