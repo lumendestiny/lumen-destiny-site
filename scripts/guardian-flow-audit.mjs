@@ -3,8 +3,11 @@ import fs from 'node:fs';
 const required=[
 ['guardian-order/index.html','guardianPolicyAgree'],
 ['guardian-order/index.html','guardian-checkout.js'],
-['guardian-order.js','createGuardianOrder'],
-['guardian-order.js','recipientName'],
+['guardian-order-v2.js','createGuardianOrder'],
+['guardian-order-v2.js','recipientName'],
+['guardian-order-v2.js','serverRequired'],
+['guardian-order-v2.js','guardian_order_not_created'],
+['guardian-order-v2.js','serverFail'],
 ['guardian-checkout.js','createGuardianCheckout'],
 ['guardian-checkout.js','policyAccepted:true'],
 ['functions/api/guardian/orders.js',"'pending','pending'"],
