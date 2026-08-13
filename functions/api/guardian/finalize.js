@@ -14,13 +14,14 @@ export async function onRequestPost({request,env}){
   const id=clean(body?.id,40).toUpperCase(),paymentReference=clean(body?.paymentReference,120);
   if(!validId(id))return json({ok:false,error:'invalid_id'},400);
   const now=new Date().toISOString();
-  let row;try{row=await env.GUARDIAN_DB.prepare('SELECT id,tier,edition_limit,edition_key,issuance_serial,payment_status,issuance_status FROM guardian_orders WHERE id=? LIMIT 1').bind(id).first()}catch{return json({ok:false,error:'storage_read_failed'},500)}
+  let row;try{row=await env.GUARDIAN_DB.prepare('SELECT id,tier,edition_limit,edition_key,issuance_serial,payment_status,issuance_status,payment_reference FROM guardian_orders WHERE id=? LIMIT 1').bind(id).first()}catch{return json({ok:false,error:'storage_read_failed'},500)}
   if(!row)return json({ok:false,error:'not_found'},404);
   if(row.issuance_status==='issued')return json({ok:true,id,status:'issued',serial:row.issuance_serial||null,idempotent:true});
+  if(row.payment_status!=='paid')return json({ok:false,error:'payment_not_confirmed',paymentStatus:row.payment_status||'pending'},409);
   const editionKey=clean(row.edition_key,80)||`${clean(row.tier,20)}-default`,limit=Math.max(1,Math.min(1000,Number(row.edition_limit)||1));let slot;
   try{slot=await claimSlot(env,editionKey,clean(row.tier,20),limit,id,now)}catch{return json({ok:false,error:'edition_reservation_failed'},500)}
   if(!slot)return json({ok:false,error:'edition_sold_out'},409);
-  try{await env.GUARDIAN_DB.prepare(`UPDATE guardian_orders SET payment_status='paid',issuance_status='issued',payment_reference=?,paid_at=COALESCE(paid_at,?),issued_at=COALESCE(issued_at,?),edition_key=?,issuance_serial=? WHERE id=? AND issuance_status!='issued'`).bind(paymentReference||null,now,now,editionKey,Number(slot.slot_no),id).run()}catch{await releaseSlot(env,id);return json({ok:false,error:'storage_write_failed'},500)}
+  try{await env.GUARDIAN_DB.prepare(`UPDATE guardian_orders SET issuance_status='issued',payment_reference=COALESCE(payment_reference,?),issued_at=COALESCE(issued_at,?),edition_key=?,issuance_serial=?,fulfillment_status='issued' WHERE id=? AND payment_status='paid' AND issuance_status!='issued'`).bind(paymentReference||null,now,editionKey,Number(slot.slot_no),id).run()}catch{await releaseSlot(env,id);return json({ok:false,error:'storage_write_failed'},500)}
   return json({ok:true,id,paymentStatus:'paid',issuanceStatus:'issued',editionKey,serial:Number(slot.slot_no),editionLimit:limit,issuedAt:now,verifyUrl:`/guardian-verify/?id=${encodeURIComponent(id)}`});
 }
 export async function onRequest(){return json({ok:false,error:'method_not_allowed'},405)}
