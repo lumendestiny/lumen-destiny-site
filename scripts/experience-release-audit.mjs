@@ -6,9 +6,13 @@ const exists=p=>{if(!fs.existsSync(p))throw new Error(`missing required V1 file:
 
 for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','lumen-api.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md']) exists(p);
 
-for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html']){
-  must(p,['<main']);
+for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html']) must(p,['<main']);
+
+for(const [p,url] of [['index.html','https://lumendestiny.com/'],['compatibility/index.html','https://lumendestiny.com/compatibility/'],['guardian/index.html','https://lumendestiny.com/guardian/']]){
+  must(p,['meta name="description"',`rel="canonical" href="${url}"`,'property="og:type"','property="og:site_name"',`property="og:url" content="${url}"`,'property="og:title"','property="og:description"','name="twitter:card"','name="twitter:title"','name="twitter:description"']);
 }
+must('index.html',['hreflang="ko"','hreflang="en"','hreflang="ja"','hreflang="tl"','hreflang="vi"','hreflang="zh-Hans"','hreflang="x-default"']);
+must('compatibility/index.html',['hreflang="ko"','hreflang="en"','hreflang="ja"','hreflang="tl"','hreflang="vi"','hreflang="zh-Hans"','hreflang="x-default"']);
 
 must('service-shell.js',['aria-pressed','aria-current','skip']);
 must('service-shell.css',[':focus-visible','prefers-reduced-motion:reduce','@media(max-width:520px){','.brand-language-stack{flex-direction:row!important']);
@@ -26,4 +30,4 @@ must('lumen-api.js',['TIMEOUT_MS=15000','request_timeout','network_unavailable',
 const sitemap=read('sitemap.xml');
 if(sitemap.includes('/consult')) throw new Error('sitemap must not expose paused consultation');
 
-console.log('Experience release static audit passed. Private result indexing and client recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
+console.log('Experience release static audit passed. Public SEO/social metadata, private result indexing, and client recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
