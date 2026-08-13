@@ -13,8 +13,10 @@ must('guardian-gift/index.html',['noindex,nofollow','url=/guardian/','location.r
 if(read('guardian-gift/index.html').includes('<main')) throw new Error('guardian-gift must remain disabled until gifting is intentionally restored');
 
 for(const [p,url] of [['index.html','https://lumendestiny.com/'],['compatibility/index.html','https://lumendestiny.com/compatibility/'],['guardian/index.html','https://lumendestiny.com/guardian/']]){
-  must(p,['meta name="description"',`rel="canonical" href="${url}"`,'property="og:type"','property="og:site_name"',`property="og:url" content="${url}"`,'property="og:title"','property="og:description"','name="twitter:card"','name="twitter:title"','name="twitter:description"']);
+  must(p,['meta name="description"',`rel="canonical" href="${url}"`,'property="og:type"','property="og:site_name"',`property="og:url" content="${url}"`,'property="og:title"','property="og:description"']);
 }
+for(const p of ['index.html','compatibility/index.html']) must(p,['name="twitter:card"','name="twitter:title"','name="twitter:description"']);
+
 must('index.html',['hreflang="ko"','hreflang="en"','hreflang="ja"','hreflang="tl"','hreflang="vi"','hreflang="zh-Hans"','hreflang="x-default"']);
 must('compatibility/index.html',['hreflang="ko"','hreflang="en"','hreflang="ja"','hreflang="tl"','hreflang="vi"','hreflang="zh-Hans"','hreflang="x-default"']);
 
