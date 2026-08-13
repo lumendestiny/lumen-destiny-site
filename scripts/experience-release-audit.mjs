@@ -4,7 +4,7 @@ const read=p=>fs.readFileSync(p,'utf8');
 const must=(p,needles)=>{const t=read(p);for(const n of needles){if(!t.includes(n))throw new Error(`${p}: missing ${n}`)}return t};
 const exists=p=>{if(!fs.existsSync(p))throw new Error(`missing required V1 file: ${p}`)};
 
-for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','lumen-api.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md']) exists(p);
+for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','compatibility.js','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','lumen-api.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md']) exists(p);
 
 for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html']) must(p,['<main']);
 
@@ -19,6 +19,13 @@ for(const p of ['index.html','compatibility/index.html']) must(p,['name="twitter
 
 must('index.html',['hreflang="ko"','hreflang="en"','hreflang="ja"','hreflang="tl"','hreflang="vi"','hreflang="zh-Hans"','hreflang="x-default"']);
 must('compatibility/index.html',['hreflang="ko"','hreflang="en"','hreflang="ja"','hreflang="tl"','hreflang="vi"','hreflang="zh-Hans"','hreflang="x-default"']);
+
+// Lock the compatibility calculation contract that previously caused Year [object Object].
+const compatibility=must('compatibility.js',['calculateSaju,lunarToSolar','return calculateSaju(y,m,day,h||0,min||0','lunarToSolar(y,m,day','yearPillar','monthPillar','dayPillar','hourPillar','compatibility_calculation_failed']);
+if(/calculateSaju\s*\(\s*\{/.test(compatibility)) throw new Error('compatibility.js: object-form calculateSaju call reintroduced');
+if(compatibility.includes("el.textContent=L.error+' '+(e.message||'')")) throw new Error('compatibility.js: raw engine error must not be exposed');
+must('compatibility/index.html',['aBirth','bBirth','aCalendar','bCalendar','aLeap','bLeap','lang']);
+must('compatibility-result/index.html',['compatibility.js','compatError','compatContent']);
 
 must('service-shell.js',['aria-pressed','aria-current','skip']);
 must('service-shell.css',[':focus-visible','prefers-reduced-motion:reduce','@media(max-width:520px){','.brand-language-stack{flex-direction:row!important']);
@@ -37,4 +44,4 @@ const sitemap=read('sitemap.xml');
 if(sitemap.includes('/consult')) throw new Error('sitemap must not expose paused consultation');
 if(sitemap.includes('/guardian-gift')) throw new Error('sitemap must not expose paused Guardian gifting');
 
-console.log('Experience release static audit passed. Public SEO/social metadata, private result indexing, paused gifting route, and client recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
+console.log('Experience release static audit passed. Public SEO/social metadata, compatibility calculation contract, private result indexing, paused gifting route, and client recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
