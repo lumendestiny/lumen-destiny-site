@@ -218,8 +218,13 @@ function goToFortune(hash, updateHash = true) {
   } else {
     setFocusedCard(hash);
     const target = document.querySelector(hash);
-    if (target) scrollElementBelowHeader(target, 12);
-    else if (fortuneServices) scrollElementBelowHeader(fortuneServices, 8);
+    if (window.matchMedia('(min-width: 781px)').matches && fortuneServices) {
+      scrollElementBelowHeader(fortuneServices, 0);
+    } else if (target) {
+      scrollElementBelowHeader(target, 12);
+    } else if (fortuneServices) {
+      scrollElementBelowHeader(fortuneServices, 8);
+    }
   }
   if (updateHash) history.replaceState(null, '', hash);
 }
