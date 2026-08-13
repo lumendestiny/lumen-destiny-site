@@ -4,11 +4,10 @@ const read=p=>fs.readFileSync(p,'utf8');
 const must=(p,needles)=>{const t=read(p);for(const n of needles){if(!t.includes(n))throw new Error(`${p}: missing ${n}`)}return t};
 const exists=p=>{if(!fs.existsSync(p))throw new Error(`missing required V1 file: ${p}`)};
 
-for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','compatibility.js','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','lumen-api.js','result-zh-v1.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md']) exists(p);
+for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','compatibility.js','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','lumen-api.js','result-zh-v1.js','result-enhance.js','result-deep.js','wealth-detail.js','transit-reading.js','current-ten-gods.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md']) exists(p);
 
 for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html']) must(p,['<main']);
 
-// Guardian gifting is intentionally paused for V1. The legacy route must stay closed and redirect to Guardian home.
 must('guardian-gift/index.html',['noindex,nofollow','url=/guardian/','location.replace(\'/guardian/\')']);
 if(read('guardian-gift/index.html').includes('<main')) throw new Error('guardian-gift must remain disabled until gifting is intentionally restored');
 
@@ -20,15 +19,15 @@ for(const p of ['index.html','compatibility/index.html']) must(p,['name="twitter
 must('index.html',['hreflang="ko"','hreflang="en"','hreflang="ja"','hreflang="tl"','hreflang="vi"','hreflang="zh-Hans"','hreflang="x-default"']);
 must('compatibility/index.html',['hreflang="ko"','hreflang="en"','hreflang="ja"','hreflang="tl"','hreflang="vi"','hreflang="zh-Hans"','hreflang="x-default"']);
 
-// Lock the compatibility calculation contract that previously caused Year [object Object].
 const compatibility=must('compatibility.js',['calculateSaju,lunarToSolar','return calculateSaju(y,m,day,h||0,min||0','lunarToSolar(y,m,day','yearPillar','monthPillar','dayPillar','hourPillar','compatibility_calculation_failed']);
 if(/calculateSaju\s*\(\s*\{/.test(compatibility)) throw new Error('compatibility.js: object-form calculateSaju call reintroduced');
 if(compatibility.includes("el.textContent=L.error+' '+(e.message||'')")) throw new Error('compatibility.js: raw engine error must not be exposed');
 must('compatibility/index.html',['aBirth','bBirth','aCalendar','bCalendar','aLeap','bLeap','lang']);
 must('compatibility-result/index.html',['compatibility.js','compatError','compatContent']);
 
-// Chinese result fallback must cover static and dynamic V1 panels until the core result engine has native zh branches.
-must('result-zh-v1.js',["q.get('lang')","zh-CN","재성 위치와 금전 흐름","세운 · 월운 · 일운 흐름","십신과 관계를 연결한 해설","정재","편재"]);
+// Core result modules currently use a dedicated zh post-processing layer. Lock both the modules and the Chinese coverage until native zh branches replace it.
+for(const p of ['result-enhance.js','result-deep.js','wealth-detail.js','transit-reading.js','current-ten-gods.js']) must('result.html',[p]);
+must('result-zh-v1.js',["q.get('lang')","zh-CN","核心摘要","财星位置与财运流向","年运 · 月运 · 日运走势","连接十神与关系的解读","当前天干形成的十神","正财","偏财","今年","本月","今天"]);
 must('result.html',['result-zh-v1.js']);
 
 must('service-shell.js',['aria-pressed','aria-current','skip']);
@@ -48,4 +47,4 @@ const sitemap=read('sitemap.xml');
 if(sitemap.includes('/consult')) throw new Error('sitemap must not expose paused consultation');
 if(sitemap.includes('/guardian-gift')) throw new Error('sitemap must not expose paused Guardian gifting');
 
-console.log('Experience release static audit passed. Public SEO/social metadata, compatibility calculation contract, Chinese dynamic result coverage, private result indexing, paused gifting route, and client recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
+console.log('Experience release static audit passed. SEO/social metadata, compatibility contract, full Chinese fortune-result coverage, private-result indexing, paused gifting route and recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
