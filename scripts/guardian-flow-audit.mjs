@@ -8,6 +8,7 @@ const required=[
 ['guardian-order-v2.js','serverRequired'],
 ['guardian-order-v2.js','guardian_order_not_created'],
 ['guardian-order-v2.js','serverFail'],
+['guardian-order-v2.js','zh:{giftTitle'],
 ['guardian-checkout.js','createGuardianCheckout'],
 ['guardian-checkout.js','policyAccepted:true'],
 ['functions/api/guardian/orders.js',"'pending','pending'"],
@@ -22,9 +23,16 @@ const required=[
 ['guardian-verify.js','editionLimit'],
 ['guardian-verify.js','issuedAt'],
 ['guardian-verify.js','hideQr'],
+['guardian-verify.js','zh:{checkTitle'],
 ['guardian-qr.js','/guardian-verify/'],
 ['guardian-payment-result.js','refund_pending'],
 ['guardian-payment-result.js','refunded'],
+['guardian-payment-result.html','guardian-payment-ux.js'],
+['guardian-payment-result.html','zh-guardian-payment-result.js'],
+['guardian-payment-ux.js',"lang.startsWith('zh')"],
+['guardian-payment-ux.js',"verify.href='/guardian-verify/?id='"],
+['zh-guardian-payment-result.js','/guardian-verify/?id='],
+['zh-guardian-payment-result.js','Guardian 付款状态'],
 ['guardian-gift/index.html','noindex,nofollow'],
 ['guardian-gift/index.html','url=/guardian/'],
 ['guardian-gallery.js','/api/guardian/stories-public']
@@ -37,4 +45,4 @@ for(const[file,needle]of required){
  else console.log(`OK: ${file} -> ${needle}`)
 }
 if(failed)process.exit(1);
-console.log('Guardian flow audit passed.');
+console.log('Guardian flow audit passed: order, payment, issuance, refund, verification, six-language UX and canonical verification routes are locked.');
