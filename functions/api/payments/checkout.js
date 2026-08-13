@@ -22,7 +22,7 @@ export async function onRequestPost({request,env}){
   if(!policyAccepted||policyVersion!==POLICY_VERSION)return json({ok:false,error:'policy_acceptance_required',policyVersion:POLICY_VERSION},409);
   let order;try{order=await env.GUARDIAN_DB.prepare(`SELECT id,tier,price_usd,display_name,payment_status,issuance_status,refund_status FROM guardian_orders WHERE id=? LIMIT 1`).bind(id).first()}catch{return json({ok:false,error:'storage_read_failed'},500)}
   if(!order)return json({ok:false,error:'not_found'},404);
-  if(order.payment_status==='paid'||order.payment_status==='refunded'||order.issuance_status==='issued'||order.refund_status==='pending'||order.refund_status==='processing')return json({ok:false,error:'order_not_payable',verifyUrl:`/guardian-verify.html?id=${encodeURIComponent(id)}&lang=${encodeURIComponent(lang)}`},409);
+  if(order.payment_status==='paid'||order.payment_status==='refunded'||order.issuance_status==='issued'||order.refund_status==='pending'||order.refund_status==='processing')return json({ok:false,error:'order_not_payable',verifyUrl:`/guardian-verify/?id=${encodeURIComponent(id)}&lang=${encodeURIComponent(lang)}`},409);
   const priceUsd=Number(order.price_usd),amountMinor=Math.round(priceUsd*100);
   if(!Number.isFinite(priceUsd)||priceUsd<=0||!Number.isInteger(amountMinor)||amountMinor<=0)return json({ok:false,error:'invalid_server_price'},500);
   const now=new Date().toISOString();
