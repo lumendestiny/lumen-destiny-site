@@ -13,6 +13,12 @@ async function cleanup(env,id,editionKey){
   ];
   for(const [sql,args] of attempts){try{await env.GUARDIAN_DB.prepare(sql).bind(...args).run()}catch{}}
 }
+async function holdDiagnostics(env){
+  let control=null,criticalIncident=null,controlError=null,incidentError=null;
+  try{control=await env.GUARDIAN_DB.prepare(`SELECT control_key,state,note,changed_at FROM guardian_payment_control WHERE control_key='checkout' LIMIT 1`).first()}catch(e){controlError=String(e?.message||e||'control_query_failed').slice(0,180)}
+  try{criticalIncident=await env.GUARDIAN_DB.prepare(`SELECT incident_id,guardian_id,provider,incident_type,status,severity,summary,updated_at FROM guardian_payment_incidents WHERE status!='resolved' AND severity='critical' ORDER BY updated_at DESC LIMIT 1`).first()}catch(e){incidentError=String(e?.message||e||'incident_query_failed').slice(0,180)}
+  return{manualEmergencyHold:env?.LUMEN_PAYMENT_EMERGENCY_HOLD==='true',control,criticalIncident,controlError,incidentError};
+}
 export async function onRequestGet({request,env}){
   const u=new URL(request.url);
   if(u.searchParams.get('token')!==TOKEN)return json({ok:false,error:'not_found'},404);
@@ -28,7 +34,7 @@ export async function onRequestGet({request,env}){
 
     const checkoutRes=await fetch(`${origin}/api/payments/checkout`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({guardianId:id,lang:'ko',policyAccepted:true,policyVersion:POLICY_VERSION})});
     const checkoutData=await checkoutRes.json();
-    if(!checkoutRes.ok||!checkoutData?.checkoutUrl)throw new Error(`checkout:${checkoutRes.status}:${checkoutData?.error||'unknown'}`);
+    if(!checkoutRes.ok||!checkoutData?.checkoutUrl){const diagnostics=await holdDiagnostics(env);await cleanup(env,id,editionKey);return json({ok:false,stage:'checkout',checkoutStatus:checkoutRes.status,checkoutError:checkoutData?.error||'unknown',checkoutReason:checkoutData?.reason||null,diagnostics},500)}
 
     const completeRes=await fetch(`${origin}/api/payments/test-complete`,{method:'POST',headers:{'content-type':'application/json','x-lumen-internal-secret':env.LUMEN_INTERNAL_SECRET},body:JSON.stringify({guardianId:id,mode:'success',checkoutId:checkoutData.checkoutId})});
     const completeData=await completeRes.json();
