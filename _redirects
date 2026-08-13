@@ -1,20 +1,21 @@
-# Canonical service URLs are extensionless. Do not redirect extensionless paths.
-/compatibility.html /compatibility 301
-/compatibility-result.html /compatibility-result 301
-/consult.html /consult 301
-/guardian.html /guardian 301
-/guardian-order.html /guardian-order 301
-/guardian-gift.html /guardian-gift 301
-/guardian-campaigns.html /guardian-campaigns 301
-/guardian-gallery.html /guardian-gallery 301
-/guardian-physical-status.html /guardian-physical-status 301
-/guardian-verify.html /guardian-verify 301
-/guardian-story.html /guardian-story 301
-/privacy.html /privacy 301
-/terms.html /terms 301
-/refund-policy.html /refund-policy 301
-/support.html /support 301
+# Canonical directory service URLs use a trailing slash.
+# Redirect legacy .html links directly to the final directory URL so Cloudflare
+# never has to bounce /compatibility <-> /compatibility/.
+/compatibility.html /compatibility/ 301
+/compatibility-result.html /compatibility-result/ 301
+/consult.html /consult/ 301
+/guardian.html /guardian/ 301
+/guardian-order.html /guardian-order/ 301
+/guardian-gift.html /guardian-gift/ 301
+/guardian-campaigns.html /guardian-campaigns/ 301
+/guardian-gallery.html /guardian-gallery/ 301
+/guardian-physical-status.html /guardian-physical-status/ 301
+/guardian-verify.html /guardian-verify/ 301
+/guardian-story.html /guardian-story/ 301
 
-# Legacy story aliases.
-/guardian-stories.html /guardian-story 301
-/guardian-stories /guardian-story 301
+# Root-level policy/support pages are real .html files. Keep their legacy URLs
+# stable instead of redirecting them to extensionless paths.
+
+# Legacy story aliases go directly to the canonical directory URL.
+/guardian-stories.html /guardian-story/ 301
+/guardian-stories /guardian-story/ 301
