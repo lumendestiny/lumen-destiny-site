@@ -1,65 +1,51 @@
-# Lumen Destiny — Cloudflare AI activation checklist
+# Lumen Destiny — Cloudflare V1 activation checklist
 
 This file contains only variable names and safe example values. Never commit real secrets to GitHub.
 
-## 1. Required for AI consultation
+## V1 public scope
+V1 publicly exposes Saju / fortune / compatibility and Lumen Guardian. The 1:1 AI consultation route is paused and must remain hidden from navigation and search for V1.
 
-Add these in Cloudflare Pages → Settings → Environment variables / Secrets for Production (and Preview only if needed):
+Do not enable a paused feature merely because its backend code exists.
 
-- `LUMEN_AI_ENABLED` = `true`
-- `OPENAI_API_KEY` = **Secret** (real OpenAI API key; never place in GitHub)
+## 1. Current AI key state
+An OpenAI key may exist in Cloudflare for future/controlled use, but V1 launch does not require exposing 1:1 consultation.
 
-Optional tuning variables:
+If retained in Production:
+- `OPENAI_API_KEY` = Secret only
+- never place the key in GitHub or browser runtime configuration
+- keep consultation UI/navigation paused
 
-- `OPENAI_MODEL` = `gpt-5-mini`
-- `LUMEN_AI_REQUESTS_PER_MINUTE` = `6`
-- `LUMEN_AI_MAX_OUTPUT_TOKENS` = `600`
+Optional server tuning variables, only when the consultation feature is intentionally re-enabled in a later release:
+- `OPENAI_MODEL`
+- `LUMEN_AI_REQUESTS_PER_MINUTE`
+- `LUMEN_AI_MAX_OUTPUT_TOKENS`
 
-After saving, trigger a new production deployment.
-
-## 2. Verify deployment
-
-Open `/status.html` on the production domain.
-
-Expected AI state:
-
-- Pages Functions: `ONLINE`
-- AI consultation: `READY`
-
-If AI consultation is `OFF`, confirm both `LUMEN_AI_ENABLED=true` and the `OPENAI_API_KEY` secret exist in the Production environment, then redeploy.
-
-## 3. Functional smoke test
-
-Open `/consult.html`, enter a short question and submit.
-
-Expected behavior when enabled:
-
-- Question preview appears first.
-- AI answer is appended underneath.
-- Response language follows the selected site language.
-- The response is not stored by the consultation endpoint (`stored:false`).
-
-## 4. Cost and abuse guards already in code
-
-The consultation endpoint currently enforces:
-
-- JSON-only POST requests.
-- Question length cap.
-- Default per-client limit of 6 requests/minute (configurable).
-- Default output cap of 600 tokens (configurable).
-- 20-second provider timeout.
-- Provider 429 and timeout handling.
-- No API key exposure to the browser.
-- No consultation DB persistence in the current endpoint.
-
-## 5. Guardian server variables (later activation)
-
-Do not enable these until D1 and payment flow are ready:
-
-- `LUMEN_GUARDIAN_ENABLED=true`
-- D1 binding: `GUARDIAN_DB`
+## 2. Guardian server preflight
+Before enabling Guardian server-backed issuance, confirm in Cloudflare Pages Production:
+- D1 binding name: `GUARDIAN_DB`
 - `LUMEN_INTERNAL_SECRET` = Secret
-- `LUMEN_PAYMENTS_ENABLED=true`
-- `LUMEN_PAYMENT_WEBHOOK_SECRET` = Secret
+- `LUMEN_GUARDIAN_ENABLED=true` only after the D1 schema preflight passes
 
-Keep payment and Guardian secrets separate from the OpenAI key.
+Before enabling real payment checkout also require the payment/provider secrets and release gates documented in the payment runbooks. Do not turn payments on just to test page rendering.
+
+## 3. Production verification
+After any Production environment or D1 binding change, trigger/review a new production deployment.
+
+Verify only non-sensitive status information through public health/status routes. Admin release gates require the internal secret and must not be exposed publicly.
+
+## 4. Privacy and security rules
+- Secrets remain Cloudflare Secrets, never plain browser variables.
+- Saju/compatibility result URLs are noindex and input values are not intended for server DB persistence.
+- Guardian stores only fields required for order/issuance/payment/support operations.
+- V1 Privacy, Security, Experience and Payment gates remain fail-closed until their evidence is complete.
+
+## 5. D1 operations
+The repository `migrations/` directory is the schema source for Guardian operational data. Existing migration filenames must not be casually renamed or renumbered because a deployed database may already record them.
+
+Before launch:
+- verify the Production D1 binding points to the intended database
+- verify required tables/columns exist
+- export/backup D1 before risky migration/provider changes
+- perform restoration rehearsal on a non-production database, never by overwriting Production
+
+See `CLOUDFLARE_D1_PREFLIGHT.md` and `OPERATIONS_BACKUP_RECOVERY.md`.
