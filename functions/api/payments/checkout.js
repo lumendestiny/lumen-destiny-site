@@ -12,7 +12,9 @@ async function paymentEmergencyState(env){if(env?.LUMEN_PAYMENT_EMERGENCY_HOLD==
 export async function onRequestPost({request,env}){
   if(env?.LUMEN_PAYMENTS_ENABLED!=='true')return json({ok:false,error:'payments_not_enabled'},503);
   if(!env?.GUARDIAN_DB)return json({ok:false,error:'storage_not_configured'},503);
-  const emergency=await paymentEmergencyState(env);if(emergency.hold)return json({ok:false,error:'payments_temporarily_on_hold',reason:emergency.reason,incidentId:emergency.incident?.incident_id||null,support:'/support.html'},503,{'Retry-After':'300'});
+  const emergency=await paymentEmergencyState(env);
+  const sandboxOperatorHoldBypass=env?.LUMEN_PAYMENT_TEST_MODE==='true'&&clean(env?.LUMEN_PAYMENT_PROVIDER||'',40).toLowerCase()==='lumen-test'&&emergency.reason==='operator_payment_hold';
+  if(emergency.hold&&!sandboxOperatorHoldBypass)return json({ok:false,error:'payments_temporarily_on_hold',reason:emergency.reason,incidentId:emergency.incident?.incident_id||null,support:'/support.html'},503,{'Retry-After':'300'});
   const provider=clean(env?.LUMEN_PAYMENT_PROVIDER||'',40).toLowerCase(),adapterUrl=safeHttpsUrl(env?.LUMEN_PAYMENT_ADAPTER_URL);
   if(!provider||!adapterUrl||!env?.LUMEN_PAYMENT_ADAPTER_SECRET)return json({ok:false,error:'payment_provider_not_configured'},503);
   const ct=request.headers.get('content-type')||'';if(!ct.toLowerCase().includes('application/json'))return json({ok:false,error:'content_type_required'},415);
