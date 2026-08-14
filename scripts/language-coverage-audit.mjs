@@ -13,6 +13,7 @@ const shell=read('service-shell.js');
 for(const l of langs)need(shell.includes(`['${l}'`),`language switcher missing ${l}`);
 need(shell.includes("if(lang==='zh')")&&shell.includes("/zh-i18n.js"),'Chinese runtime patch is not loaded');
 need(shell.includes("lang.startsWith('zh')"),'service shell does not normalize zh locale');
+need(shell.includes("/guardian-i18n.js"),'Guardian common i18n runtime is not loaded');
 
 const home=read('i18n-stable.js');
 for(const l of ['ko','en','ja','tl','vi'])need(home.includes(`${l}:{`),`home translation block missing ${l}`);
@@ -26,8 +27,6 @@ for(const l of ['ko','en','ja','tl','vi']){
 const zh=read('zh-i18n.js');
 const zhHomeMarkers=['流明命运','免费四柱','查看结果','隐私政策','使用条款','客户支持'];
 for(const m of zhHomeMarkers)need(zh.includes(m),`home zh missing translated marker: ${m}`);
-const guardianKeys=['orderTitle','orderIntro','orderTier','orderWishType','orderName','orderWish','orderMessage','orderPreviewBtn','orderDisclaimer','orderPreviewTitle','orderConfirm','backArchive','verifyHero','verifyHeroCopy','verifyId','verifyButton','verifyResult','verifyNote','qrTitle','qrCopy'];
-for(const k of guardianKeys)need(new RegExp(`${k}\\s*:`).test(zh),`Guardian zh missing key ${k}`);
 
 const compat=read('compatibility-i18n.js');
 const compatKeys=['inputTitle','inputDesc','a','b','name','gender','birth','time','calendar','submit','privacy','resultTitle','resultDesc','charts','reading','retry','home'];
@@ -39,20 +38,34 @@ for(let i=0;i<compatOrder.length;i++){
   for(const k of compatKeys)need(new RegExp(`(?:^|[,\\n])\\s*${k}:`).test(s),`compatibility ${l} missing key ${k}`);
 }
 
+// Guardian uses Korean authored HTML as the baseline and one shared runtime for EN/JA/TL/VI/ZH.
 const guardian=read('guardian-i18n.js');
-const gOrder=['en','ja','tl','vi'];
-const gKeys=['giftHero','giftHeroCopy','giftDisclaimer','verifyHero','verifyHeroCopy','verifyId','verifyButton','verifyResult','verifyNote','qrTitle','qrCopy','orderHero','orderHeroCopy','orderTier','orderWishType','orderName','orderWish','orderMessage','orderPreview','orderConfirm','orderBack'];
+const gOrder=['en','ja','tl','vi','zh'];
+const gKeys=[
+  'orderTitle','orderIntro','orderTier','orderWishType','orderName','orderWish','orderMessage','orderPreviewBtn','orderDisclaimer','orderConfirm','backArchive',
+  'storyHero','storyHeroCopy','storyId','storyType','storyName','storyText','storySubmit','storyPrivacy',
+  'trackHero','trackHeroCopy','trackStoryId','trackButton','trackPrivacy',
+  'verifyHero','verifyHeroCopy','verifyId','verifyButton','verifyResult','verifyNote','qrTitle','qrCopy',
+  'archiveTitle','archiveCopy','archiveOrder','archivePick','archivePickCopy','examTitle','examCopy','careerTitle','careerCopy','promotionTitle','promotionCopy','wealthCopy','storyCardTitle','storyCardCopy',
+  'previewHelp','policy','storyTypes','storyNamePH','storyTextPH','wishPH','messagePH','giverPH','recipientPH'
+];
 for(let i=0;i<gOrder.length;i++){
   const l=gOrder[i], next=gOrder[i+1];
-  const s=segment(guardian,`${l}:{`,next?`,${next}:{`:'};');
+  const s=segment(guardian,`${l}:{`,next?`,\n${next}:{`:'}}[lang]');
   need(s.length>0,`Guardian translation block missing ${l}`);
   for(const k of gKeys)need(new RegExp(`${k}\\s*:`).test(s),`Guardian ${l} missing key ${k}`);
 }
+need(guardian.includes("location.pathname.replace(/\\/$/,'')==='/guardian'"),'Guardian archive runtime translation is not wired');
+need(guardian.includes("document.getElementById('guardianOrderForm')"),'Guardian order runtime translation is not wired');
+need(guardian.includes("document.getElementById('storyForm')"),'Guardian story runtime translation is not wired');
 
-// Korean is the authored HTML baseline; Chinese is supplied by zh-i18n/zh Guardian patches.
 const orderHtml=read('guardian-order/index.html');
+const storyHtml=read('guardian-story/index.html');
+const physicalHtml=read('guardian-physical-status/index.html');
 const verifyHtml=read('guardian-verify/index.html');
 for(const k of ['orderTier','orderWishType','orderName','orderWish','orderMessage','orderDisclaimer'])need(orderHtml.includes(`data-i18n=\"${k}\"`),`Guardian order HTML missing i18n hook ${k}`);
+for(const k of ['storyHero','storyHeroCopy','storyId','storyType','storyName','storyText','storySubmit'])need(storyHtml.includes(`data-i18n=\"${k}\"`),`Guardian story HTML missing i18n hook ${k}`);
+for(const k of ['trackHero','trackHeroCopy','storyId','trackStoryId','trackButton'])need(physicalHtml.includes(`data-i18n=\"${k}\"`),`Guardian physical status HTML missing i18n hook ${k}`);
 for(const k of ['verifyHero','verifyHeroCopy','verifyId','verifyButton','verifyResult','verifyNote','qrTitle','qrCopy'])need(verifyHtml.includes(`data-i18n=\"${k}\"`),`Guardian verify HTML missing i18n hook ${k}`);
 
 for(const f of ['zh-guardian-order.js','zh-guardian-checkout.js','zh-guardian-payment-result.js'])need(fs.existsSync(f),`Chinese Guardian patch missing ${f}`);
