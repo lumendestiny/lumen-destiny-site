@@ -1,0 +1,32 @@
+{
+  "version": "2026-08-14-hd20-stage2",
+  "requirements": {
+    "minWidth": 1600,
+    "minHeight": 2400,
+    "minBytes": 300000,
+    "allowedFormats": ["webp", "png"],
+    "uniqueArtworkRequired": true
+  },
+  "items": [
+    {"key":"fortune-cat","tier":"basic","price":5,"file":"guardian-basic-fortune-cat-hd.webp","name":"행운냥이","element":"금(金)","wish":"행운 · 재물 · 번성"},
+    {"key":"koi","tier":"basic","price":5,"file":"guardian-basic-koi-hd.webp","name":"비단잉어","element":"수(水)","wish":"출세 · 합격 · 도약"},
+    {"key":"sun-bird","tier":"basic","price":5,"file":"guardian-basic-sun-bird-hd.webp","name":"아기 봉황","element":"화(火)","wish":"기쁨 · 좋은 소식 · 활력"},
+    {"key":"new-deer","tier":"basic","price":5,"file":"guardian-basic-new-deer-hd.webp","name":"새벽사슴","element":"목(木)","wish":"새로운 시작 · 성장"},
+    {"key":"gold-hamster","tier":"basic","price":5,"file":"guardian-basic-gold-hamster-hd.webp","name":"복다람","element":"토(土)","wish":"모으기 · 지킴 · 풍요"},
+    {"key":"moon-rabbit","tier":"personal","price":10,"file":"guardian-wish-moon-rabbit-hd.webp","name":"월토끼","element":"금(金)","wish":"인연성취 · 행복"},
+    {"key":"dolphin","tier":"personal","price":10,"file":"guardian-wish-dolphin-hd.webp","name":"청돌고래","element":"수(水)","wish":"기회 · 여행 · 자유"},
+    {"key":"fire-fox","tier":"personal","price":10,"file":"guardian-wish-fire-fox-hd.webp","name":"불여우","element":"화(火)","wish":"열정 · 자신감 · 행운"},
+    {"key":"leaf-turtle","tier":"personal","price":10,"file":"guardian-wish-leaf-turtle-hd.webp","name":"숲거북","element":"목(木)","wish":"건강 · 안정 · 보호"},
+    {"key":"star-owl","tier":"personal","price":10,"file":"guardian-wish-star-owl-hd.webp","name":"별부엉이","element":"토(土)","wish":"학업 · 합격 · 목표달성"},
+    {"key":"nine-fox","tier":"rare","price":50,"file":"guardian-rare-nine-fox-hd.webp","name":"백호 구미호","element":"금(金)","wish":"인연 · 지혜 · 매력"},
+    {"key":"sea-dragon","tier":"rare","price":50,"file":"guardian-rare-sea-dragon-hd.webp","name":"청룡 해신룡","element":"수(水)","wish":"재물 · 기회 · 흐름"},
+    {"key":"unicorn","tier":"rare","price":50,"file":"guardian-rare-unicorn-hd.webp","name":"천마 유니콘","element":"화(火)","wish":"도약 · 성공 · 명예"},
+    {"key":"forest-turtle","tier":"rare","price":50,"file":"guardian-rare-forest-turtle-hd.webp","name":"청거북 산수갑","element":"목(木)","wish":"장수 · 가족 · 평안"},
+    {"key":"wing-owl","tier":"rare","price":50,"file":"guardian-rare-wing-owl-hd.webp","name":"백운부엉이","element":"토(土)","wish":"합격 · 지혜 · 통찰"},
+    {"key":"sky-dragon","tier":"legendary","price":100,"file":"guardian-legendary-sky-dragon-hd.webp","name":"백룡 천운개벽","element":"금(金)","wish":"성공 · 권위 · 개운"},
+    {"key":"fire-phoenix","tier":"legendary","price":100,"file":"guardian-legendary-fire-phoenix-hd.webp","name":"주작 불사조","element":"화(火)","wish":"열정 · 재물 · 승진"},
+    {"key":"moon-tiger","tier":"legendary","price":100,"file":"guardian-legendary-moon-tiger-hd.webp","name":"청호 월광호","element":"수(水)","wish":"감각 · 수호 · 극복"},
+    {"key":"qilin","tier":"legendary","price":100,"file":"guardian-legendary-qilin-hd.webp","name":"녹기린 천록","element":"목(木)","wish":"성장 · 건강 · 번영"},
+    {"key":"black-turtle","tier":"legendary","price":100,"file":"guardian-legendary-black-turtle-hd.webp","name":"현무 장수거북","element":"토(土)","wish":"안정 · 장수 · 보호"}
+  ]
+}
