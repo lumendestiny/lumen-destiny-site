@@ -11,6 +11,13 @@
     금:{name:'금(金)',plain:'판단·원칙·정리',strength:'기준을 세우고 불필요한 것을 걷어내는 힘',watch:'기준이 강해지면 자신이나 타인에게 지나치게 엄격해질 수 있는 점',work:'결정 기준을 명확히 하되 예외와 여유를 함께 두는 방식'},
     수:{name:'수(水)',plain:'정보·유연성·통찰',strength:'상황을 읽고 여러 가능성을 연결하는 힘',watch:'생각이 많아져 실행 시점이 늦어질 수 있는 점',work:'정보 수집 시간과 실행 시간을 분리해 실제 행동으로 연결하는 방식'}
   };
+  const relation={
+    목:{gives:'화(火)',receives:'수(水)',controls:'토(土)',controlledBy:'금(金)',season:'봄 기운이 강한 시기, 대략 2~4월생에서 목 성향이 상대적으로 두드러질 수 있습니다.',people:'화 기운이 적절한 사람은 목의 아이디어와 성장을 밖으로 표현하게 도와주고, 금 기운이 적절한 사람은 지나친 확장을 정리해 주는 역할을 할 수 있습니다.'},
+    화:{gives:'토(土)',receives:'목(木)',controls:'금(金)',controlledBy:'수(水)',season:'초여름~여름 기운이 강한 시기, 대략 5~7월생에서 화 성향이 상대적으로 두드러질 수 있습니다.',people:'토 기운이 적절한 사람은 화의 에너지를 현실적인 결과로 굳히는 데 도움이 되고, 수 기운이 적절한 사람은 지나친 속도와 열기를 식혀 균형을 잡아줄 수 있습니다.'},
+    토:{gives:'금(金)',receives:'화(火)',controls:'수(水)',controlledBy:'목(木)',season:'토는 계절이 바뀌는 환절기의 성격이 강해 1월·4월·7월·10월 전후에서 상대적으로 드러날 수 있습니다.',people:'금 기운이 적절한 사람은 토의 안정성을 기준과 성과로 정리해 주고, 목 기운이 적절한 사람은 너무 고정된 상태에 변화와 성장의 자극을 줄 수 있습니다.'},
+    금:{gives:'수(水)',receives:'토(土)',controls:'목(木)',controlledBy:'화(火)',season:'가을 기운이 강한 시기, 대략 8~10월생에서 금 성향이 상대적으로 두드러질 수 있습니다.',people:'수 기운이 적절한 사람은 금의 판단력과 정보를 더 유연하게 흘려주고, 화 기운이 적절한 사람은 지나친 냉정함이나 경직성을 부드럽게 녹이는 역할을 할 수 있습니다.'},
+    수:{gives:'목(木)',receives:'금(金)',controls:'화(火)',controlledBy:'토(土)',season:'겨울 기운이 강한 시기, 대략 11~1월생에서 수 성향이 상대적으로 두드러질 수 있습니다.',people:'목 기운이 적절한 사람은 수의 정보와 통찰을 실제 성장으로 연결하고, 토 기운이 적절한 사람은 생각과 가능성이 너무 흩어지지 않게 현실적인 틀을 잡아줄 수 있습니다.'}
+  };
   const stemPlain={갑:'큰 나무처럼 방향을 세우고 앞으로 밀고 가려는 성향',을:'덩굴과 풀처럼 상황에 맞춰 유연하게 길을 찾는 성향',병:'햇빛처럼 존재감과 표현력이 비교적 분명한 성향',정:'등불처럼 세밀하게 살피고 필요한 곳에 집중하는 성향',무:'큰 땅처럼 안정감과 책임을 중시하는 성향',기:'밭과 흙처럼 현실적으로 돌보고 정리하는 성향',경:'단단한 쇠처럼 기준과 결단을 중시하는 성향',신:'보석처럼 섬세한 판단과 완성도를 중시하는 성향',임:'큰 물처럼 넓게 보고 흐름을 읽으려는 성향',계:'비와 이슬처럼 세밀하게 관찰하고 감지하는 성향'};
   function dominantElement(){const strong=txt(document.querySelector('#elementSummary strong'));const m=strong.match(/[목화토금수]/);if(m)return m[0];const bars=[...document.querySelectorAll('#elementChart .element-label')].map(x=>txt(x)).join(' ');return (bars.match(/[목화토금수]/)||['토'])[0]}
   function dayStem(){const cards=[...document.querySelectorAll('#pillarGrid .pillar-card')];const v=txt(cards[2]?.querySelector('strong'));return (v.match(/[갑을병정무기경신임계]/)||[''])[0]}
@@ -20,22 +27,29 @@
   function render(){
     const content=document.getElementById('manseContent');
     if(!content||content.hidden||document.getElementById('lumenRichReading'))return false;
-    const el=dominantElement(), tip=elementTips[el]||elementTips.토, stem=dayStem();
+    const el=dominantElement(), tip=elementTips[el]||elementTips.토, rel=relation[el]||relation.토, stem=dayStem();
     const wealth=existing('wealthText'), year=existing('yearText'), month=existing('monthText'), today=existing('todayText');
     const section=document.createElement('section');
-    section.id='lumenRichReading';section.className='result-panel';
+    section.id='lumenRichReading';section.className='result-panel plain-reading-panel';
     section.innerHTML=`<div class="panel-heading"><div><p class="section-label">EASY LUMEN READING</p><h2>쉽게 풀어보는 나의 사주와 운세</h2><p class="panel-copy">전문 용어를 그대로 나열하기보다 “그래서 내 생활에서는 어떻게 이해하면 되는지”를 중심으로 정리했습니다.</p></div><span class="engine-badge">쉬운 해설</span></div>
-      <div class="deep-reading-grid" style="margin-top:18px">
+      <div class="plain-reading-grid">
         <article><span>나의 기본 성향</span><h3>${esc(stem?stem+'일간':'일간 중심')}을 쉽게 말하면</h3><p>${esc(stemPlain[stem]||'한 가지 성향으로 단정하기보다 일간과 오행의 균형을 함께 보는 것이 중요합니다.')}</p><p>특히 <strong>${tip.name}</strong> 기운이 눈에 띄며, 일상에서는 <strong>${tip.plain}</strong>과 연결해서 이해하면 쉽습니다.</p></article>
         <article><span>내가 잘 쓰면 좋은 힘</span><h3>${tip.strength}</h3><p>${tip.work}이 현재 명식의 장점을 현실에서 활용하는 방법이 될 수 있습니다.</p></article>
         <article><span>조심해서 볼 부분</span><h3>장점이 과해질 때</h3><p>${tip.watch}을 체크해 보세요. 사주는 “좋다/나쁘다”보다 어떤 힘을 어느 정도로 쓰는지가 더 중요합니다.</p></article>
         <article><span>관계에서 보이는 흐름</span><h3>사람과 부딪히는 방식</h3><p>${esc(relationSummary())}</p><p>관계 표시는 상대와의 좋고 나쁨을 확정하는 신호가 아니라, 반응 방식이 달라질 수 있는 지점을 알려주는 참고자료입니다.</p></article>
       </div>
+      <div class="plain-glossary"><h3>오행의 상생·상극을 사람 관계로 쉽게 이해하면</h3><p><strong>${tip.name}</strong>을 기준으로 보면, <strong>${rel.receives}</strong>은 나를 북돋는 쪽, 나는 <strong>${rel.gives}</strong>을 북돋는 쪽으로 설명할 수 있습니다. 반대로 나는 <strong>${rel.controls}</strong>을 제어하는 관계이고, <strong>${rel.controlledBy}</strong>은 나를 조절하는 관계입니다. 다만 “상극=나쁜 사람”이라는 뜻은 아닙니다. 오히려 내가 너무 강할 때는 나를 적절히 조절하는 기운이 균형에 도움이 될 수 있습니다.</p></div>
+      <div class="plain-reading-grid">
+        <article><span>나를 보완하기 쉬운 기운</span><h3>${rel.gives} · ${rel.controlledBy}를 어떻게 볼까</h3><p>${rel.people}</p><p>특히 내 기운이 이미 강하다면 나를 더 키우는 기운만 찾기보다, <strong>내 힘을 잘 써주게 하거나 적절히 조절해 주는 기운</strong>도 좋은 보완이 될 수 있습니다.</p></article>
+        <article><span>태어난 달과 기운</span><h3>어떤 달에 이런 기운이 많을까?</h3><p>${rel.season}</p><p>다만 생월 하나만으로 사람의 오행을 확정할 수는 없습니다. 같은 달에 태어나도 연·일·시간과 전체 명식에 따라 기운 배치는 크게 달라집니다.</p></article>
+        <article><span>궁합 가능성을 볼 때</span><h3>“몇 월생이 나와 잘 맞나?”의 올바른 읽는 법</h3><p>계절상 나를 보완하는 기운이 강한 시기에 태어난 사람은 <strong>궁합이 맞을 가능성을 살펴볼 단서</strong>가 될 수 있습니다. 하지만 실제 궁합은 상대의 일간·오행 전체·지지의 합충 관계를 함께 비교해야 더 정확합니다.</p></article>
+        <article><span>나를 해하는 기운?</span><h3>해로운 기운보다 ‘과한 기운’을 찾는 것이 중요</h3><p>명리에서는 어떤 오행 하나를 무조건 해롭다고 보지 않습니다. 예를 들어 나를 생해주는 기운도 너무 많으면 내 기운을 과하게 키울 수 있고, 나를 극하는 기운도 적절하면 균형을 잡아줄 수 있습니다. 그래서 <strong>상생·상극보다 전체 균형</strong>을 먼저 봅니다.</p></article>
+      </div>
       <div class="reading-box" style="margin-top:18px"><p><strong>금전운 — 돈을 버는 것보다 돈을 다루는 방식까지 봅니다.</strong></p><p>${esc(wealth||'수입 기회만 보지 말고 지출, 저축, 투자 한도를 함께 정해 두는 것이 좋습니다.')}</p><p>실생활에서는 ① 고정비 ② 비상자금 ③ 투자·도전 자금처럼 돈의 역할을 나누면 판단이 쉬워집니다. 큰 기회가 보여도 “얼마까지 감당할 수 있는가”를 먼저 정하는 방식이 좋습니다.</p></div>
       <div class="reading-box" style="margin-top:12px"><p><strong>신년운세 — 한 해 전체의 방향</strong></p><p>${esc(year||'올해는 한 번에 모든 것을 바꾸기보다 우선순위를 정하고 중요한 일부터 움직이는 흐름으로 활용해 보세요.')}</p><p>신년운세는 사건을 맞히는 예언이라기보다, 올해 무엇을 늘리고 무엇을 줄이면 좋은지 보는 연간 계획표처럼 읽는 것이 가장 실용적입니다.</p></div>
       <div class="reading-box" style="margin-top:12px"><p><strong>월간운세 — 이번 달의 운영 방법</strong></p><p>${esc(month||'이번 달에는 해야 할 일을 작게 나누고 실제 결과를 확인하면서 다음 행동을 조정해 보세요.')}</p><p>일·돈·관계에서 동시에 무리하기보다 이번 달의 한 가지 핵심 목표를 정하고, 나머지는 유지하는 방식이 부담을 줄이는 데 도움이 됩니다.</p></div>
       <div class="reading-box" style="margin-top:12px"><p><strong>오늘의 운세 — ${currentDateCopy()}</strong></p><p>${esc(today||'오늘은 큰 결론보다 지금 바로 할 수 있는 한 가지 행동을 정해 실행해 보세요.')}</p><p>오늘의 운세는 하루 전체를 결정하는 점수가 아니라, 오늘의 선택을 조금 더 의식적으로 만드는 체크포인트로 활용해 주세요.</p></div>
-      <div class="deep-reading-grid" style="margin-top:18px">
+      <div class="plain-reading-grid">
         <article><span>용어가 어렵다면</span><h3>일간</h3><p>나를 대표하는 중심 기운입니다. 성격 전체를 뜻하기보다 “내가 세상을 받아들이고 반응하는 기본 방식”에 가깝습니다.</p></article>
         <article><span>용어가 어렵다면</span><h3>오행</h3><p>목·화·토·금·수 다섯 흐름의 균형입니다. 많다고 무조건 좋고 적다고 무조건 나쁜 것은 아닙니다.</p></article>
         <article><span>용어가 어렵다면</span><h3>십신</h3><p>일, 돈, 표현, 책임, 배움, 경쟁 같은 역할을 일간과의 관계로 분류한 전통적 해석 도구입니다.</p></article>
