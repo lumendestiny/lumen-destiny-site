@@ -1,0 +1,32 @@
+name: SEO Release Audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'compatibility/**'
+      - 'guardian/**'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - 'scripts/seo-release-audit.mjs'
+      - '.github/workflows/seo-release-audit.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'compatibility/**'
+      - 'guardian/**'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - 'scripts/seo-release-audit.mjs'
+      - '.github/workflows/seo-release-audit.yml'
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Audit public SEO and discovery boundaries
+        run: node scripts/seo-release-audit.mjs
