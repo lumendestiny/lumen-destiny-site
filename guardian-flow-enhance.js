@@ -1,8 +1,37 @@
 (()=>{
   const path=location.pathname.replace(/\.html$/,'').replace(/\/$/,'')||'/';
   const lang=(window.__LUMEN_LANG__||localStorage.getItem('lumen-lang')||'ko').toLowerCase();
-  const isKo=lang==='ko';
   const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+  const centeredPages=new Set(['/guardian-gift','/guardian-campaigns','/guardian-gallery','/guardian-story','/guardian-payment-result','/guardian-verify','/guardian-physical-status']);
+  if(centeredPages.has(path)){
+    const main=document.querySelector('main');
+    if(main)main.classList.add('guardian-balanced-page');
+    const balance=document.createElement('style');
+    balance.textContent=`
+      @media (min-width:901px){
+        main.guardian-balanced-page{box-sizing:border-box;margin-inline:auto!important}
+        main.guardian-balanced-page>.result-hero{margin-left:auto!important;margin-right:auto!important;text-align:center}
+        main.guardian-balanced-page>.result-panel{margin-left:auto!important;margin-right:auto!important}
+        main.guardian-balanced-page>.result-panel>.panel-heading{align-items:center}
+        main.guardian-balanced-page .result-actions{justify-content:center}
+        main.guardian-balanced-page .result-disclaimer{text-wrap:balance}
+      }
+      @media (min-width:901px) and (min-height:950px){
+        main.guardian-balanced-page>.result-hero{padding-top:clamp(18px,2.4vh,30px)!important;padding-bottom:clamp(14px,2vh,24px)!important}
+        main.guardian-balanced-page>.result-panel{padding-top:clamp(20px,2.6vh,32px);padding-bottom:clamp(20px,2.6vh,32px)}
+      }
+      @media (min-width:901px) and (max-height:820px){
+        main.guardian-balanced-page>.result-hero{padding-top:8px!important;padding-bottom:8px!important;margin-bottom:7px!important}
+        main.guardian-balanced-page>.result-panel{margin-top:7px!important;margin-bottom:7px!important}
+      }
+      @media (max-width:900px){
+        main.guardian-balanced-page{width:min(100%,760px);margin-inline:auto!important}
+        main.guardian-balanced-page>.result-hero{text-align:center}
+      }
+    `;
+    document.head.appendChild(balance);
+  }
 
   if(path==='/guardian-order'){
     const style=document.createElement('style');
