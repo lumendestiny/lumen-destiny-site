@@ -6,17 +6,14 @@
   const frame=document.querySelector('.guardian-card-frame');
   if(!tier||!card||!frame)return;
 
-  const art={
-    basic:'/assets/guardian/basic-master.svg',
-    custom:'/assets/guardian/personal-master.svg',
-    rare:'/assets/guardian/rare-master.svg',
-    legendary:'/assets/guardian/legendary-master.svg'
-  };
+  const approved=window.__LUMEN_GUARDIAN_APPROVED_ASSETS__;
+  if(!approved){console.error('Guardian approved asset manifest missing');return;}
+
   const valueMap={
-    basic:'기본 Guardian · 고해상도 벡터 원본 · 100개 한정',
-    custom:'Personal Wish · 고해상도 벡터 원본 · 100개 한정',
-    rare:'Rare Edition · 고해상도 벡터 원본 · 5개 한정 · 변화하는 테두리',
-    legendary:'Legendary Motion · 고해상도 벡터 원본 · 1/1 · 메인 이미지 모션'
+    basic:'Guardian Basic · 승인된 판매용 마스터 · 100개 한정',
+    custom:'Personal Wish · 승인된 판매용 마스터 · 100개 한정',
+    rare:'Rare Edition · 승인된 판매용 마스터 · 5개 한정 · 변화하는 테두리',
+    legendary:'Legendary Motion · 승인된 판매용 마스터 · 1/1 · 라이브 모션'
   };
 
   function ensure(){
@@ -26,7 +23,8 @@
       shell.className='guardian-tier-art-shell';
       const img=document.createElement('img');
       img.className='guardian-tier-art';
-      img.alt='Guardian tier card preview';
+      img.alt='Guardian approved sale artwork preview';
+      img.decoding='async';
       shell.append(img);
       frame.append(shell);
     }
@@ -64,11 +62,13 @@
 
   function render(){
     ensure();
-    const key=tier.value in art?tier.value:'basic';
+    const key=approved[tier.value]?tier.value:'basic';
+    const asset=approved[key];
     card.dataset.tier=key;
+    card.dataset.assetPolicy=asset.kind;
     const img=frame.querySelector('.guardian-tier-art');
-    img.src=art[key]+'?v=20260814-vector-preview-1';
-    img.alt=(tier.options[tier.selectedIndex]?.textContent||'Guardian')+' 고해상도 벡터 카드 미리보기';
+    if(img.getAttribute('src')!==asset.src)img.setAttribute('src',asset.src);
+    img.alt=(tier.options[tier.selectedIndex]?.textContent||'Guardian')+' 승인 판매용 카드 미리보기';
     const value=card.parentElement?.querySelector('.guardian-tier-value');
     if(value)value.textContent=valueMap[key];
   }
