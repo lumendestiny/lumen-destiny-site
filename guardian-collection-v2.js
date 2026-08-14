@@ -5,14 +5,14 @@
     {key:'personal',price:10,label:'PERSONAL WISH',limit:'100',tone:'#7ec8ff',bg1:'#06182e',bg2:'#123d69',items:[
       ['moon-rabbit','달토끼','금(金)','인연성취 · 행복'],['dolphin','소망돌고래','수(水)','기회 · 여행 · 자유'],['fire-fox','불여우','화(火)','열정 · 자신감 · 행운'],['leaf-turtle','잎새거북','목(木)','건강 · 안정 · 보호'],['star-owl','별부엉이','토(土)','학업 · 합격 · 목표달성']]},
     {key:'rare',price:50,label:'RARE EDITION',limit:'5',tone:'#b991ff',bg1:'#12091f',bg2:'#3b1760',items:[
-      ['nine-fox','백호 구미호','금(金)','인연 · 지혜 · 매력'],['sea-dragon','청룡 해신룡','수(水)','재물 · 기회 · 흐름'],['unicorn','천마 유니콘','화(火)','도약 · 성공 · 명예'],['forest-turtle','청거북 산수갑','목(木)','장수 · 가족 · 평안'],['wing-owl','백운부엉이','토(土)','합격 · 지혜 · 통찰']]},
+      ['nine-fox','백호','금(金)','수호 · 승리 · 권위'],['sea-dragon','청룡','목(木)','성장 · 기회 · 도약'],['unicorn','주작','화(火)','열정 · 성공 · 명예'],['forest-turtle','현무','수(水)','안정 · 보호 · 장수'],['wing-owl','황금기린','토(土)','재물 · 번영 · 행운']]},
     {key:'legendary',price:100,label:'LEGENDARY 1/1',limit:'1',tone:'#ffd568',bg1:'#0b0702',bg2:'#4b2d04',items:[
       ['sky-dragon','백룡 천운개벽','금(金)','성공 · 권위 · 개운'],['fire-phoenix','주작 불사조','화(火)','열정 · 재물 · 승진'],['moon-tiger','청호 월광호','수(水)','감각 · 수호 · 극복'],['qilin','녹기린 천록','목(木)','성장 · 건강 · 번영'],['black-turtle','현무 장수거북','토(土)','안정 · 장수 · 보호']]}
   ];
   const motifs={
     'fortune-cat':'🐯','koi':'🐟','sun-bird':'🦅','new-deer':'🦌','gold-hamster':'🐹',
     'moon-rabbit':'🐇','dolphin':'🐬','fire-fox':'🦊','leaf-turtle':'🐢','star-owl':'🦉',
-    'nine-fox':'🦊','sea-dragon':'🐉','unicorn':'🦄','forest-turtle':'🐢','wing-owl':'🦉',
+    'nine-fox':'🐅','sea-dragon':'🐉','unicorn':'🦅','forest-turtle':'🐢','wing-owl':'🦌',
     'sky-dragon':'🐉','fire-phoenix':'🦅','moon-tiger':'🐅','qilin':'🦌','black-turtle':'🐢'
   };
   const esc=s=>String(s).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));

@@ -1,5 +1,5 @@
 window.LUMEN_GUARDIAN_ARCHIVE_HD = Object.freeze({
-  version: '2026-08-15-hd20-personal-live-2',
+  version: '2026-08-15-hd20-rare-live-1',
   basePath: '/assets/guardian/archive-hd/',
   items: {
     'fortune-cat': 'guardian-basic-fortune-cat-hd.webp',
@@ -12,11 +12,11 @@ window.LUMEN_GUARDIAN_ARCHIVE_HD = Object.freeze({
     'fire-fox': 'guardian-personal-fire-fox-hd.webp',
     'leaf-turtle': 'guardian-personal-leaf-turtle-hd.webp',
     'star-owl': 'guardian-personal-star-owl-hd.webp',
-    'nine-fox': null,
-    'sea-dragon': null,
-    'unicorn': null,
-    'forest-turtle': null,
-    'wing-owl': null,
+    'nine-fox': 'guardian-rare-white-tiger-hd.webp',
+    'sea-dragon': 'guardian-rare-blue-dragon-hd.webp',
+    'unicorn': 'guardian-rare-phoenix-hd.webp',
+    'forest-turtle': 'guardian-rare-black-tortoise-hd.webp',
+    'wing-owl': 'guardian-rare-golden-qilin-hd.webp',
     'sky-dragon': null,
     'fire-phoenix': null,
     'moon-tiger': null,
