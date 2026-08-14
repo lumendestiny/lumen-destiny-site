@@ -3,8 +3,7 @@ import fs from 'node:fs';
 const read=p=>fs.readFileSync(p,'utf8');
 const fail=[];
 const need=(ok,msg)=>{if(!ok)fail.push(msg)};
-const hasAll=(text,items)=>items.every(x=>text.includes(x));
-const segment=(text,start,end)=>{const a=text.indexOf(start);if(a<0)return'';const b=end?text.indexOf(end,a+start.length):-1;return text.slice(a,b<0?text.length:b)};
+const segment=(text,start,end)=>{const a=text.indexOf(start);if(a<0)return'';const from=a+start.length;const b=end?text.indexOf(end,from):-1;return text.slice(from,b<0?text.length:b)};
 
 const langs=['ko','en','ja','tl','vi','zh'];
 const smoke=read('scripts/production-smoke.mjs');
@@ -37,7 +36,7 @@ for(let i=0;i<compatOrder.length;i++){
   const l=compatOrder[i], next=compatOrder[i+1];
   const s=segment(compat,`${l}:{`,next?`,\n${next}:{`:'}}[l]');
   need(s.length>0,`compatibility translation block missing ${l}`);
-  for(const k of compatKeys)need(new RegExp(`(?:^|[,\\n])${k}:`).test(s),`compatibility ${l} missing key ${k}`);
+  for(const k of compatKeys)need(new RegExp(`(?:^|[,\\n])\\s*${k}:`).test(s),`compatibility ${l} missing key ${k}`);
 }
 
 const guardian=read('guardian-i18n.js');
