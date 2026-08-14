@@ -1,7 +1,7 @@
 const headers={'Cache-Control':'no-store','Content-Type':'application/json; charset=utf-8','X-Content-Type-Options':'nosniff'};
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
-const TOKEN='4f97c2e8b1a643';
 const POLICY_VERSION='guardian-refund-2026-08-12-v1';
+const authorized=(request,env)=>!!env?.LUMEN_INTERNAL_SECRET&&(request.headers.get('x-lumen-internal-secret')||'')===env.LUMEN_INTERNAL_SECRET;
 async function cleanup(env,id,editionKey){
   const attempts=[
     [`UPDATE guardian_edition_slots SET order_id=NULL,reserved_at=NULL WHERE order_id=?`,[id]],
@@ -19,12 +19,11 @@ async function holdDiagnostics(env){
   try{criticalIncident=await env.GUARDIAN_DB.prepare(`SELECT incident_id,guardian_id,provider,incident_type,status,severity,summary,updated_at FROM guardian_payment_incidents WHERE status!='resolved' AND severity='critical' ORDER BY updated_at DESC LIMIT 1`).first()}catch(e){incidentError=String(e?.message||e||'incident_query_failed').slice(0,180)}
   return{manualEmergencyHold:env?.LUMEN_PAYMENT_EMERGENCY_HOLD==='true',control,criticalIncident,controlError,incidentError};
 }
-export async function onRequestGet({request,env}){
-  const u=new URL(request.url);
-  if(u.searchParams.get('token')!==TOKEN)return json({ok:false,error:'not_found'},404);
+export async function onRequestPost({request,env}){
+  if(!authorized(request,env))return json({ok:false,error:'not_found'},404);
   if(env?.LUMEN_PAYMENT_TEST_MODE!=='true'||env?.LUMEN_PAYMENTS_ENABLED!=='true')return json({ok:false,error:'test_mode_not_ready'},503);
-  if(!env?.GUARDIAN_DB||!env?.LUMEN_INTERNAL_SECRET||!env?.LUMEN_PAYMENT_WEBHOOK_SECRET||!env?.LUMEN_PAYMENT_ADAPTER_SECRET)return json({ok:false,error:'test_dependencies_missing'},503);
-  const origin=u.origin,editionKey=`e2e-pay-${crypto.randomUUID().replace(/-/g,'').slice(0,12).toLowerCase()}`;
+  if(!env?.GUARDIAN_DB||!env?.LUMEN_PAYMENT_WEBHOOK_SECRET||!env?.LUMEN_PAYMENT_ADAPTER_SECRET)return json({ok:false,error:'test_dependencies_missing'},503);
+  const origin=new URL(request.url).origin,editionKey=`e2e-pay-${crypto.randomUUID().replace(/-/g,'').slice(0,12).toLowerCase()}`;
   let id='';
   try{
     const orderRes=await fetch(`${origin}/api/guardian/orders`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tier:'basic',name:'E2E PAYMENT TEST',wishType:'custom',editionKey})});
@@ -34,7 +33,7 @@ export async function onRequestGet({request,env}){
 
     const checkoutRes=await fetch(`${origin}/api/payments/checkout`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({guardianId:id,lang:'ko',policyAccepted:true,policyVersion:POLICY_VERSION})});
     const checkoutData=await checkoutRes.json();
-    if(!checkoutRes.ok||!checkoutData?.checkoutUrl){const diagnostics=await holdDiagnostics(env);await cleanup(env,id,editionKey);return json({ok:false,stage:'checkout',checkoutStatus:checkoutRes.status,checkoutError:checkoutData?.error||'unknown',checkoutReason:checkoutData?.reason||null,diagnostics},500)}
+    if(!checkoutRes.ok||!checkoutData?.checkoutUrl){const diagnostics=await holdDiagnostics(env);await cleanup(env,id,editionKey);return json({ok:false,stage:'checkout',checkoutStatus:checkoutRes.status,checkoutError:checkoutData?.error||'unknown',checkoutReason:checkoutData?.reason||null,diagnostics},409)}
 
     const completeRes=await fetch(`${origin}/api/payments/test-complete`,{method:'POST',headers:{'content-type':'application/json','x-lumen-internal-secret':env.LUMEN_INTERNAL_SECRET},body:JSON.stringify({guardianId:id,mode:'success',checkoutId:checkoutData.checkoutId})});
     const completeData=await completeRes.json();
