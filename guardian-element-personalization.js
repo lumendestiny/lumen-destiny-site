@@ -37,6 +37,15 @@
     if(brand)brand.style.color=d.accent;
     if(nameText)nameText.style.color=d.accent;
   }
+  function persist(id){
+    if(!/^LG-\d{8}-[A-Z0-9]{5,12}$/.test(id||''))return;
+    try{
+      const key='lumen-guardian-personalization';
+      const all=JSON.parse(localStorage.getItem(key)||'{}');
+      all[id]={element,name:d.name,theme:d.theme,animal:d.animal,symbol:d.symbol,title:d.title,cardBg:d.cardBg,frameBg:d.frameBg,border:d.border,accent:d.accent,displayName:(nameInput?.value||incomingName||'').trim(),wishType:wishType?.value||'',savedAt:new Date().toISOString()};
+      localStorage.setItem(key,JSON.stringify(all));
+    }catch{}
+  }
   applyVisual();
   tier?.addEventListener('change',()=>setTimeout(applyVisual,0));
   wishType?.addEventListener('change',()=>setTimeout(applyVisual,0));
@@ -49,5 +58,11 @@
     box.style.borderLeft='4px solid '+d.border;
     box.innerHTML=`<strong>사주 결과 맞춤 추천 · ${d.name}</strong><br>현재 무료사주에서 상대적으로 부족하게 나타난 ${d.name}의 <b>${d.theme}</b> 의미를 카드에 반영했습니다. ${d.reason}<br><span style="display:block;margin-top:5px">※ Guardian은 오행이나 운을 실제로 바꾸는 상품이 아니라, 사용자가 키우고 싶은 태도와 소망을 기억하도록 돕는 상징적 디지털 콘텐츠입니다.</span>`;
     panel.prepend(box);
+  }
+  const note=document.getElementById('guardianConfirmNote');
+  if(note){
+    const scan=()=>{const m=(note.textContent||'').match(/LG-\d{8}-[A-Z0-9]{5,12}/);if(m)persist(m[0])};
+    new MutationObserver(scan).observe(note,{childList:true,subtree:true,characterData:true,attributes:true});
+    scan();
   }
 })();
