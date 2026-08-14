@@ -1,7 +1,7 @@
 (()=>{
   const path=location.pathname.replace(/\.html$/,'').replace(/\/$/,'')||'/';
   const lang=(window.__LUMEN_LANG__||localStorage.getItem('lumen-lang')||'ko').toLowerCase();
-  const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
 
   const centeredPages=new Set(['/guardian-gift','/guardian-campaigns','/guardian-gallery','/guardian-story','/guardian-payment-result','/guardian-verify','/guardian-physical-status']);
   if(centeredPages.has(path)){
@@ -9,21 +9,37 @@
     if(main)main.classList.add('guardian-balanced-page');
     const balance=document.createElement('style');
     balance.textContent=`
+      main.guardian-balanced-page{box-sizing:border-box;margin-inline:auto!important}
+      main.guardian-balanced-page>.result-hero{margin-left:auto!important;margin-right:auto!important;text-align:center}
+      main.guardian-balanced-page>.result-panel{margin-left:auto!important;margin-right:auto!important}
+      main.guardian-balanced-page .result-actions{justify-content:center}
+      main.guardian-balanced-page .result-disclaimer{text-wrap:balance}
       @media (min-width:901px){
-        main.guardian-balanced-page{box-sizing:border-box;margin-inline:auto!important}
-        main.guardian-balanced-page>.result-hero{margin-left:auto!important;margin-right:auto!important;text-align:center}
-        main.guardian-balanced-page>.result-panel{margin-left:auto!important;margin-right:auto!important}
+        main.guardian-balanced-page{width:calc(100% - 56px);max-width:1240px;padding-left:0!important;padding-right:0!important}
+        main.guardian-balanced-page>.result-hero{max-width:1040px;width:100%}
+        main.guardian-balanced-page>.result-panel{max-width:1180px;width:100%}
         main.guardian-balanced-page>.result-panel>.panel-heading{align-items:center}
-        main.guardian-balanced-page .result-actions{justify-content:center}
-        main.guardian-balanced-page .result-disclaimer{text-wrap:balance}
+        main.guardian-balanced-page>.result-panel>.panel-heading>div{min-width:0}
+        main.guardian-balanced-page .result-actions{gap:10px;flex-wrap:wrap}
       }
-      @media (min-width:901px) and (min-height:950px){
-        main.guardian-balanced-page>.result-hero{padding-top:clamp(18px,2.4vh,30px)!important;padding-bottom:clamp(14px,2vh,24px)!important}
-        main.guardian-balanced-page>.result-panel{padding-top:clamp(20px,2.6vh,32px);padding-bottom:clamp(20px,2.6vh,32px)}
+      @media (min-width:901px) and (max-height:900px){
+        main.guardian-balanced-page{padding-top:8px!important;padding-bottom:12px!important}
+        main.guardian-balanced-page>.result-hero{padding-top:10px!important;padding-bottom:9px!important;margin-bottom:8px!important}
+        main.guardian-balanced-page>.result-hero .section-label{margin-bottom:5px!important}
+        main.guardian-balanced-page>.result-hero h1{font-size:clamp(2rem,2.7vw,2.7rem)!important;line-height:1.06!important;margin-top:0!important;margin-bottom:7px!important}
+        main.guardian-balanced-page>.result-hero>p:last-child{font-size:.8rem!important;line-height:1.38!important;max-width:900px!important;margin-left:auto!important;margin-right:auto!important}
+        main.guardian-balanced-page>.result-panel{margin-top:8px!important;margin-bottom:8px!important;padding-top:16px!important;padding-bottom:16px!important}
+        main.guardian-balanced-page>.result-panel h2{margin-top:.1rem!important;margin-bottom:.45rem!important}
+        main.guardian-balanced-page .deep-reading-grid{gap:10px!important}
+        main.guardian-balanced-page .deep-reading-grid article{padding:12px 14px!important;min-height:0!important}
+        main.guardian-balanced-page .result-actions{margin-top:10px!important}
+        main.guardian-balanced-page .button{min-height:40px!important;padding-top:8px!important;padding-bottom:8px!important}
+        main.guardian-balanced-page .result-disclaimer{margin-top:8px!important;padding:7px 10px!important;font-size:.65rem!important;line-height:1.35!important;text-align:center}
       }
-      @media (min-width:901px) and (max-height:820px){
-        main.guardian-balanced-page>.result-hero{padding-top:8px!important;padding-bottom:8px!important;margin-bottom:7px!important}
-        main.guardian-balanced-page>.result-panel{margin-top:7px!important;margin-bottom:7px!important}
+      @media (min-width:901px) and (min-height:1000px){
+        main.guardian-balanced-page{padding-top:clamp(18px,3vh,34px)!important;padding-bottom:clamp(24px,4vh,46px)!important}
+        main.guardian-balanced-page>.result-hero{padding-top:clamp(20px,3vh,34px)!important;padding-bottom:clamp(16px,2.4vh,28px)!important}
+        main.guardian-balanced-page>.result-panel{padding-top:clamp(22px,3vh,34px)!important;padding-bottom:clamp(22px,3vh,34px)!important}
       }
       @media (max-width:900px){
         main.guardian-balanced-page{width:min(100%,760px);margin-inline:auto!important}
@@ -67,6 +83,28 @@
   }
 
   if(path==='/guardian'){
+    const style=document.createElement('style');
+    style.textContent=`
+      @media (min-width:1100px){
+        .archive-hero{padding-left:max(28px,calc((100vw - 1180px)/2))!important;padding-right:max(28px,calc((100vw - 1180px)/2))!important}
+        .archive-note{max-width:840px!important;text-wrap:balance}
+        .archive-hero .result-actions{justify-content:center!important;flex-wrap:wrap}
+        #purpose-guardians.section{padding-left:max(28px,calc((100vw - 1240px)/2))!important;padding-right:max(28px,calc((100vw - 1240px)/2))!important}
+        .purpose-guardian-heading{text-align:center!important;max-width:980px!important;margin-left:auto!important;margin-right:auto!important}
+        .archive-grid{max-width:1240px!important;margin-left:auto!important;margin-right:auto!important}
+      }
+      @media (min-width:1100px) and (max-height:900px){
+        .archive-hero{min-height:calc(100vh - 80px)!important;padding-top:14px!important;padding-bottom:14px!important}
+        .archive-hero h1{font-size:2.15rem!important;margin-bottom:.38rem!important}
+        .archive-note{font-size:.82rem!important;line-height:1.45!important}
+        .archive-hero .result-actions{margin-top:10px!important}
+        #purpose-guardians.section{min-height:calc(100vh - 80px)!important;padding-top:16px!important;padding-bottom:16px!important}
+        .purpose-guardian-heading{margin-bottom:10px!important}
+        .guardian-purpose-visual{height:88px!important}
+        .archive-card{min-height:258px!important;padding:10px!important}
+      }
+    `;
+    document.head.appendChild(style);
     const actions=document.querySelector('.archive-hero .result-actions');
     if(actions&&!actions.querySelector('[data-gift-entry]')){
       const a=document.createElement('a');a.className='button secondary';a.dataset.giftEntry='1';a.href='/guardian-gift/?lang='+encodeURIComponent(lang);a.textContent=({ko:'Guardian 선물하기',en:'Gift a Guardian',ja:'Guardianを贈る',tl:'Magregalo ng Guardian',vi:'Tặng Guardian',zh:'赠送 Guardian'}[lang]||'Gift a Guardian');actions.appendChild(a);
