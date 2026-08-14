@@ -3,7 +3,7 @@
     {key:'basic',price:5,label:'BASIC',limit:'100',tone:'#d9b46a',bg1:'#1b1208',bg2:'#4a2b0d',items:[
       ['fortune-cat','행운냥이','금(金)','행운 · 재물 · 번성'],['koi','비단잉어','수(水)','출세 · 합격 · 도약'],['sun-bird','아기 봉황','화(火)','기쁨 · 좋은 소식 · 활력'],['new-deer','새벽사슴','목(木)','새로운 시작 · 성장'],['gold-hamster','복다람','토(土)','모으기 · 지킴 · 풍요']]},
     {key:'personal',price:10,label:'PERSONAL WISH',limit:'100',tone:'#7ec8ff',bg1:'#06182e',bg2:'#123d69',items:[
-      ['moon-rabbit','월토끼','금(金)','인연성취 · 행복'],['dolphin','청돌고래','수(水)','기회 · 여행 · 자유'],['fire-fox','불여우','화(火)','열정 · 자신감 · 행운'],['leaf-turtle','숲거북','목(木)','건강 · 안정 · 보호'],['star-owl','별부엉이','토(土)','학업 · 합격 · 목표달성']]},
+      ['moon-rabbit','달토끼','금(金)','인연성취 · 행복'],['dolphin','소망돌고래','수(水)','기회 · 여행 · 자유'],['fire-fox','불여우','화(火)','열정 · 자신감 · 행운'],['leaf-turtle','잎새거북','목(木)','건강 · 안정 · 보호'],['star-owl','별부엉이','토(土)','학업 · 합격 · 목표달성']]},
     {key:'rare',price:50,label:'RARE EDITION',limit:'5',tone:'#b991ff',bg1:'#12091f',bg2:'#3b1760',items:[
       ['nine-fox','백호 구미호','금(金)','인연 · 지혜 · 매력'],['sea-dragon','청룡 해신룡','수(水)','재물 · 기회 · 흐름'],['unicorn','천마 유니콘','화(火)','도약 · 성공 · 명예'],['forest-turtle','청거북 산수갑','목(木)','장수 · 가족 · 평안'],['wing-owl','백운부엉이','토(土)','합격 · 지혜 · 통찰']]},
     {key:'legendary',price:100,label:'LEGENDARY 1/1',limit:'1',tone:'#ffd568',bg1:'#0b0702',bg2:'#4b2d04',items:[
