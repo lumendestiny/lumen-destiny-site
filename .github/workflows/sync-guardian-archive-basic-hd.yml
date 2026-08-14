@@ -1,0 +1,74 @@
+name: Sync Guardian Archive Basic HD
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sync-guardian-archive-basic-hd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image tools
+        run: pip install pillow gdown
+      - name: Download approved Basic masters from Lumen Drive
+        run: |
+          mkdir -p /tmp/guardian-basic assets/guardian/archive-hd
+          gdown 'https://drive.google.com/uc?id=150vjvKXxQ4N_QS5ma3zAGUeOtOelpwvW' -O /tmp/guardian-basic/fortune-cat.png
+          gdown 'https://drive.google.com/uc?id=1TzN2fNAdCQNZydx6JwGZ-J9F15MWrHij' -O /tmp/guardian-basic/koi.png
+          gdown 'https://drive.google.com/uc?id=1Hz9lWvYSdY1UwJ_v9lC6HwsMPbis7eKm' -O /tmp/guardian-basic/sun-bird.png
+          gdown 'https://drive.google.com/uc?id=1EeMSJvMLGVUjij4Souqhxbm0SfCc7cTF' -O /tmp/guardian-basic/new-deer.png
+          gdown 'https://drive.google.com/uc?id=1aF1tqee60fXC_zIvVGpqLuYr9ffPf-RH' -O /tmp/guardian-basic/gold-hamster.png
+      - name: Verify and create square archive HD masters
+        run: |
+          python - <<'PY'
+          from PIL import Image, ImageFilter
+          from pathlib import Path
+
+          items = {
+              'fortune-cat.png': 'guardian-basic-fortune-cat-hd.webp',
+              'koi.png': 'guardian-basic-koi-hd.webp',
+              'sun-bird.png': 'guardian-basic-sun-bird-hd.webp',
+              'new-deer.png': 'guardian-basic-new-deer-hd.webp',
+              'gold-hamster.png': 'guardian-basic-gold-hamster-hd.webp',
+          }
+          src = Path('/tmp/guardian-basic')
+          dst = Path('assets/guardian/archive-hd')
+          dst.mkdir(parents=True, exist_ok=True)
+
+          for inp, out in items.items():
+              p = src / inp
+              if not p.exists() or p.stat().st_size < 2_000_000:
+                  raise RuntimeError(f'{inp}: source master missing or unexpectedly small')
+              with Image.open(p) as check:
+                  check.verify()
+              with Image.open(p) as im:
+                  im = im.convert('RGB')
+                  if im.width < 1200 or im.height < 1200:
+                      raise RuntimeError(f'{inp}: source resolution too small: {im.size}')
+                  # Preserve the approved square composition and create a web/archive 2400px master.
+                  im = im.resize((2400, 2400), Image.Resampling.LANCZOS)
+                  im = im.filter(ImageFilter.UnsharpMask(radius=1.2, percent=80, threshold=3))
+                  q = dst / out
+                  im.save(q, 'WEBP', quality=94, method=6)
+              with Image.open(q) as verify:
+                  verify.verify()
+              if q.stat().st_size < 300_000:
+                  raise RuntimeError(f'{out}: converted archive asset unexpectedly small: {q.stat().st_size}')
+              print(out, q.stat().st_size)
+          PY
+      - name: Commit approved Basic archive assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/guardian/archive-hd/guardian-basic-*-hd.webp
+          git commit -m 'Add approved Basic Guardian archive HD artwork' || exit 0
+          git push
