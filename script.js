@@ -39,12 +39,25 @@ function guardianLabel(lang) {
 
 function ensureGuardianNav() {
   const nav = document.querySelector('.main-fortune-nav');
-  if (!nav || nav.querySelector('a[href="/guardian"],a[href="/guardian.html"]')) return;
-  const link = document.createElement('a');
-  link.href = '/guardian';
-  link.className = 'guardian-nav-link';
+  if (!nav) return;
+  const links = [...nav.querySelectorAll('a')].filter(a => {
+    try {
+      const href = a.getAttribute('href') || '';
+      const u = new URL(href, location.origin);
+      return u.origin === location.origin && u.pathname.replace(/\/$/, '') === '/guardian' && !u.hash;
+    } catch {
+      return false;
+    }
+  });
+  let link = links[0];
+  if (!link) {
+    link = document.createElement('a');
+    link.href = '/guardian';
+    nav.appendChild(link);
+  }
+  link.classList.add('guardian-nav-link');
   link.textContent = guardianLabel(currentUiLang());
-  nav.appendChild(link);
+  links.slice(1).forEach(extra => extra.remove());
 }
 ensureGuardianNav();
 
@@ -139,15 +152,13 @@ document.addEventListener('click', event => {
   localStorage.setItem('lumen-lang', lang);
   setTimeout(() => {
     refreshBirthDateLabels(lang);
-    const guardian = document.querySelector('.guardian-nav-link');
-    if (guardian) guardian.textContent = guardianLabel(lang);
+    ensureGuardianNav();
   }, 0);
 });
 
 window.addEventListener('lumen-language-change', event => {
   refreshBirthDateLabels(event.detail?.lang);
-  const guardian = document.querySelector('.guardian-nav-link');
-  if (guardian) guardian.textContent = guardianLabel(event.detail?.lang);
+  ensureGuardianNav();
 });
 
 setTimeout(() => {
@@ -155,6 +166,9 @@ setTimeout(() => {
   refreshBirthDateLabels();
   ensureGuardianNav();
 }, 80);
+
+setTimeout(ensureGuardianNav, 250);
+window.addEventListener('load', () => setTimeout(ensureGuardianNav, 0), { once: true });
 
 const sajuForm = document.getElementById('sajuForm');
 if (sajuForm) {
