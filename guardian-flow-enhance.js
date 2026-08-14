@@ -49,6 +49,31 @@
     document.head.appendChild(balance);
   }
 
+  if(lang==='ko'){
+    const replacements=[
+      ['Guardian ID 없음','Guardian 발급번호 없음'],
+      ['Guardian ID를','Guardian 발급번호를'],
+      ['Guardian ID가','Guardian 발급번호가'],
+      ['Guardian ID와','Guardian 발급번호와'],
+      ['Guardian ID','Guardian 발급번호'],
+      ['후기 검토','이야기 검토'],
+      ['스토리 이벤트','좋은 소식 이벤트'],
+      ['후기 고객','좋은 소식을 남긴 고객']
+    ];
+    const normalizeKoText=root=>{
+      if(!root)return;
+      const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+      const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+      nodes.forEach(node=>{let next=node.nodeValue;replacements.forEach(([a,b])=>{next=next.split(a).join(b)});if(next!==node.nodeValue)node.nodeValue=next});
+    };
+    const main=document.querySelector('main');
+    normalizeKoText(main);
+    if(main){
+      const koObserver=new MutationObserver(records=>records.forEach(r=>{if(r.type==='characterData')normalizeKoText(r.target.parentNode);r.addedNodes.forEach(n=>{if(n.nodeType===1||n.nodeType===3)normalizeKoText(n.nodeType===1?n:n.parentNode)})}));
+      koObserver.observe(main,{subtree:true,childList:true,characterData:true});
+    }
+  }
+
   if(path==='/guardian-order'){
     const style=document.createElement('style');
     style.textContent=`
@@ -105,6 +130,12 @@
       }
     `;
     document.head.appendChild(style);
+    if(lang==='ko'){
+      const storyLink=document.querySelector('.archive-hero a[href*="guardian-story"]');
+      if(storyLink)storyLink.textContent='좋은 소식 이야기 → 실물 카드 이벤트';
+      const storyCard=[...document.querySelectorAll('.archive-card')].find(card=>card.textContent.includes('좋은 소식'));
+      if(storyCard){const metaStrong=storyCard.querySelector('.meta strong');const button=storyCard.querySelector('.button');if(metaStrong)metaStrong.textContent='이야기 검토';if(button)button.textContent='좋은 소식 이벤트';}
+    }
     const actions=document.querySelector('.archive-hero .result-actions');
     if(actions&&!actions.querySelector('[data-gift-entry]')){
       const a=document.createElement('a');a.className='button secondary';a.dataset.giftEntry='1';a.href='/guardian-gift/?lang='+encodeURIComponent(lang);a.textContent=({ko:'Guardian 선물하기',en:'Gift a Guardian',ja:'Guardianを贈る',tl:'Magregalo ng Guardian',vi:'Tặng Guardian',zh:'赠送 Guardian'}[lang]||'Gift a Guardian');actions.appendChild(a);
