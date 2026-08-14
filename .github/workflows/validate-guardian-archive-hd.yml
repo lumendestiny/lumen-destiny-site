@@ -1,0 +1,67 @@
+name: Validate Guardian Archive HD
+
+on:
+  push:
+    paths:
+      - 'assets/guardian/archive-hd/**'
+      - 'guardian-archive-hd-spec.json'
+      - '.github/workflows/validate-guardian-archive-hd.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow
+        run: pip install pillow
+      - name: Validate available Guardian archive HD assets
+        run: |
+          python - <<'PY'
+          import json, hashlib
+          from pathlib import Path
+          from PIL import Image
+
+          spec = json.loads(Path('guardian-archive-hd-spec.json').read_text())
+          req = spec['requirements']
+          base = Path('assets/guardian/archive-hd')
+          base.mkdir(parents=True, exist_ok=True)
+
+          seen = {}
+          present = 0
+          errors = []
+          for item in spec['items']:
+              p = base / item['file']
+              if not p.exists():
+                  print(f"PENDING {item['key']}: {p}")
+                  continue
+              present += 1
+              size = p.stat().st_size
+              if size < req['minBytes']:
+                  errors.append(f"{item['key']}: {size} bytes < {req['minBytes']}")
+              try:
+                  with Image.open(p) as im:
+                      w, h = im.size
+                      fmt = (im.format or '').lower()
+                  if w < req['minWidth'] or h < req['minHeight']:
+                      errors.append(f"{item['key']}: resolution {w}x{h} below {req['minWidth']}x{req['minHeight']}")
+                  if fmt not in req['allowedFormats']:
+                      errors.append(f"{item['key']}: format {fmt} not allowed")
+              except Exception as e:
+                  errors.append(f"{item['key']}: cannot decode image: {e}")
+                  continue
+              digest = hashlib.sha256(p.read_bytes()).hexdigest()
+              if digest in seen:
+                  errors.append(f"DUPLICATE: {item['key']} matches {seen[digest]}")
+              else:
+                  seen[digest] = item['key']
+              print(f"OK {item['key']}: {w}x{h}, {size} bytes, sha256={digest[:12]}")
+
+          print(f"Validated {present}/20 HD assets; {20-present} pending.")
+          if errors:
+              print('\n'.join('ERROR '+e for e in errors))
+              raise SystemExit(1)
+          PY
