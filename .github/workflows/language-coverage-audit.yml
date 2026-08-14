@@ -1,0 +1,30 @@
+name: Language Coverage Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'i18n-stable.js'
+      - 'zh-i18n.js'
+      - 'compatibility-i18n.js'
+      - 'guardian-i18n.js'
+      - 'zh-guardian-*.js'
+      - 'guardian-order/index.html'
+      - 'guardian-verify/index.html'
+      - 'service-shell.js'
+      - 'scripts/production-smoke.mjs'
+      - 'scripts/language-coverage-audit.mjs'
+      - '.github/workflows/language-coverage-audit.yml'
+  pull_request:
+    branches: [main]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify KO EN JA TL VI ZH V1 language coverage
+        run: node scripts/language-coverage-audit.mjs
