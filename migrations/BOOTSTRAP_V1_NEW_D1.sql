@@ -24,6 +24,9 @@ CREATE TABLE IF NOT EXISTS guardian_orders (
   payment_event_id TEXT,
   edition_key TEXT,
   issuance_serial INTEGER,
+  guardian_element TEXT,
+  guardian_design_key TEXT,
+  personalization_source TEXT,
   fulfillment_status TEXT NOT NULL DEFAULT 'not_started',
   refund_status TEXT NOT NULL DEFAULT 'none',
   refund_reference TEXT,
@@ -43,6 +46,8 @@ CREATE INDEX IF NOT EXISTS idx_guardian_orders_gift ON guardian_orders(is_gift);
 CREATE INDEX IF NOT EXISTS idx_guardian_orders_provider_reference ON guardian_orders(payment_provider,payment_reference);
 CREATE INDEX IF NOT EXISTS idx_guardian_orders_refund_status ON guardian_orders(refund_status);
 CREATE INDEX IF NOT EXISTS idx_guardian_orders_support_status ON guardian_orders(support_status);
+CREATE INDEX IF NOT EXISTS idx_guardian_orders_element ON guardian_orders(guardian_element);
+CREATE INDEX IF NOT EXISTS idx_guardian_orders_design_key ON guardian_orders(guardian_design_key);
 
 CREATE TABLE IF NOT EXISTS guardian_editions (
   edition_key TEXT PRIMARY KEY,
