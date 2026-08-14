@@ -5,7 +5,7 @@
     const card=document.querySelector('.guardian-card-preview'),frame=document.querySelector('.guardian-card-frame');
     const approved=window.__LUMEN_GUARDIAN_APPROVED_ASSETS__;
     if(!tier||!card||!frame||!approved)return;
-    const labels={basic:'Guardian Basic · 승인 판매용 이미지 · 100개 한정',custom:'Personal Wish · 승인 판매용 이미지 · 100개 한정',rare:'Rare Edition · 승인 판매용 이미지 · 5개 한정 · 변화하는 테두리',legendary:'Legendary Motion · 승인 고해상도 황금 용 · 1/1 · 라이브 모션'};
+    const labels={basic:'Guardian Basic · 승인 판매용 이미지 · 100개 한정',custom:'Personal Wish · 승인 판매용 이미지 · 100개 한정',rare:'Rare Edition · 승인 판매용 이미지 · 5개 한정 · 변화하는 테두리',legendary:'Legendary Motion · 승인 황금 용 판매 이미지 · 1/1 · 라이브 모션'};
     const fallback={basic:'/assets/guardian/sales/basic-illustrated-master.webp',custom:'/assets/guardian/sales/personal-illustrated-master.webp',rare:'/assets/guardian/sales/rare-illustrated-master.webp',legendary:'/assets/guardian/sales/legendary-illustrated-master.webp'};
     let guarding=false;
     function ensure(){
@@ -40,7 +40,7 @@
       const shell=ensure(),key=approved[tier.value]?tier.value:'basic',asset=approved[key],img=shell.querySelector('.guardian-tier-art');
       card.dataset.tier=key;card.dataset.assetPolicy=asset.kind;guarding=true;
       img.dataset.fallback='0';
-      img.onerror=()=>{if(img.dataset.fallback==='1')return;img.dataset.fallback='1';img.src=fallback[key]+'?v=guardian-safe-fallback-20260814';};
+      img.onerror=()=>{if(img.dataset.fallback==='1')return;img.dataset.fallback='1';img.src=fallback[key]+'?v=guardian-safe-fallback-20260814-2';};
       if(img.getAttribute('src')!==asset.src)img.setAttribute('src',asset.src);
       img.alt=(tier.options[tier.selectedIndex]?.textContent||'Guardian')+' 승인 판매용 카드 이미지';
       const value=card.parentElement?.querySelector('.guardian-tier-value');if(value)value.textContent=labels[key];
@@ -51,5 +51,5 @@
     tier.addEventListener('change',render);wish?.addEventListener('change',render);render();
   }
   document.querySelectorAll('script[data-guardian-approved-manifest]').forEach(x=>x.remove());
-  const s=document.createElement('script');s.src='/guardian-asset-manifest.js?v=guardian-approved-sales-lock-20260814-2';s.dataset.guardianApprovedManifest='true';s.onload=start;s.onerror=()=>console.error('Failed to load Guardian approved asset manifest');document.head.appendChild(s);
+  const s=document.createElement('script');s.src='/guardian-asset-manifest.js?v=guardian-approved-safe-20260814-3';s.dataset.guardianApprovedManifest='true';s.onload=start;s.onerror=()=>console.error('Failed to load Guardian approved asset manifest');document.head.appendChild(s);
 })();
