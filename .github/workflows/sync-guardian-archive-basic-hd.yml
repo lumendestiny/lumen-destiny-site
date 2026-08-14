@@ -54,7 +54,6 @@ jobs:
                   im = im.convert('RGB')
                   if im.width < 1200 or im.height < 1200:
                       raise RuntimeError(f'{inp}: source resolution too small: {im.size}')
-                  # Preserve the approved square composition and create a web/archive 2400px master.
                   im = im.resize((2400, 2400), Image.Resampling.LANCZOS)
                   im = im.filter(ImageFilter.UnsharpMask(radius=1.2, percent=80, threshold=3))
                   q = dst / out
@@ -69,6 +68,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --rebase origin main
           git add assets/guardian/archive-hd/guardian-basic-*-hd.webp
           git commit -m 'Add approved Basic Guardian archive HD artwork' || exit 0
           git push
