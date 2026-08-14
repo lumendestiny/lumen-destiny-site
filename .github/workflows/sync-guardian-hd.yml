@@ -19,13 +19,13 @@ jobs:
           python-version: '3.12'
       - name: Install image tools
         run: pip install pillow gdown
-      - name: Download approved Drive masters
+      - name: Download approved Lumen Destiny Drive masters
         run: |
           mkdir -p /tmp/guardian assets/guardian/sales
-          gdown 'https://drive.google.com/uc?id=1ZjdPj5HPVvoqFgJF1EGfwJQ7eNI5yuw5' -O /tmp/guardian/basic.png
-          gdown 'https://drive.google.com/uc?id=12AnVi4yPCujY_NPDQG79hXATCzJsr2yw' -O /tmp/guardian/wish.png
-          gdown 'https://drive.google.com/uc?id=1fhRIbAimz0f_E-J5hUinkKQ54Ws6Xn7Q' -O /tmp/guardian/rare.png
-          gdown 'https://drive.google.com/uc?id=151dWg5smHK_4XVsIP39Imr1LRvQjfoYR' -O /tmp/guardian/legendary.png
+          gdown 'https://drive.google.com/uc?id=14nr4kvN-Ow5KQKKIthNKH2p-1rx-vlNh' -O /tmp/guardian/basic.png
+          gdown 'https://drive.google.com/uc?id=15x1lGtbm2qC4pvlqbvAYRMG45UJE-Mcj' -O /tmp/guardian/wish.png
+          gdown 'https://drive.google.com/uc?id=1e2qjXjR-02i2Ol5kHWyLiiJm8qMO7NNj' -O /tmp/guardian/rare.png
+          gdown 'https://drive.google.com/uc?id=1siZSZ0bwN63rAj7m2oa2l-Fud8IrssEr' -O /tmp/guardian/legendary.png
       - name: Verify and create web masters
         run: |
           python - <<'PY'
@@ -60,5 +60,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add assets/guardian/sales/*-hd.webp
-          git commit -m 'Replace Guardian sales art with verified HD masters' || exit 0
+          git commit -m 'Replace Guardian sales art with verified Lumen Drive HD masters' || exit 0
           git push
