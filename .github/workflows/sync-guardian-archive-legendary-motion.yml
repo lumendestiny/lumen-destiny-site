@@ -1,0 +1,126 @@
+# Legendary archive motion sync 2026-08-15
+name: Sync Guardian Archive Legendary Motion
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sync-guardian-archive-legendary-motion.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image tools
+        run: pip install pillow gdown
+      - name: Download approved Legendary animated WEBP from Lumen Drive
+        run: |
+          mkdir -p assets/guardian/archive-hd
+          gdown 'https://drive.google.com/uc?id=1w3Ud_fWUc7YucSt5SYaTk0NaWpSt6GZB' -O assets/guardian/archive-hd/guardian-legendary-white-dragon-motion.webp
+          gdown 'https://drive.google.com/uc?id=17oTiryHERFuEi6yz3l5MI-4lo4orpfWo' -O assets/guardian/archive-hd/guardian-legendary-vermilion-bird-motion.webp
+          gdown 'https://drive.google.com/uc?id=1-4tGly6tXrCTLzNO9IfFRt0vdKjT87Qk' -O assets/guardian/archive-hd/guardian-legendary-blue-tiger-motion.webp
+          gdown 'https://drive.google.com/uc?id=1F56zyIQ3cUjPYZ98e4J_h-mMBfrTXBJv' -O assets/guardian/archive-hd/guardian-legendary-green-qilin-motion.webp
+          gdown 'https://drive.google.com/uc?id=1IdHPTaOKUs_qg04BmKfYTz4-JIkJqLqy' -O assets/guardian/archive-hd/guardian-legendary-black-tortoise-motion.webp
+      - name: Verify Legendary animated WEBP assets
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+
+          files = [
+              'guardian-legendary-white-dragon-motion.webp',
+              'guardian-legendary-vermilion-bird-motion.webp',
+              'guardian-legendary-blue-tiger-motion.webp',
+              'guardian-legendary-green-qilin-motion.webp',
+              'guardian-legendary-black-tortoise-motion.webp',
+          ]
+          root = Path('assets/guardian/archive-hd')
+          for name in files:
+              p = root / name
+              if not p.exists() or p.stat().st_size < 500_000:
+                  raise RuntimeError(f'{name}: missing or unexpectedly small')
+              with Image.open(p) as im:
+                  if im.format != 'WEBP':
+                      raise RuntimeError(f'{name}: expected WEBP, got {im.format}')
+                  if not getattr(im, 'is_animated', False) or getattr(im, 'n_frames', 1) < 2:
+                      raise RuntimeError(f'{name}: expected animated WEBP')
+                  if im.width < 1000 or im.height < 1000:
+                      raise RuntimeError(f'{name}: resolution too small: {im.size}')
+                  print(name, im.size, im.n_frames, p.stat().st_size)
+          PY
+      - name: Enable Legendary motion artwork in archive
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          manifest = Path('guardian-archive-hd-manifest.js')
+          manifest.write_text("""window.LUMEN_GUARDIAN_ARCHIVE_HD = Object.freeze({
+            version: '2026-08-15-hd25-legendary-motion-live-1',
+            basePath: '/assets/guardian/archive-hd/',
+            items: {
+              'fortune-cat': 'guardian-basic-fortune-cat-hd.webp',
+              'koi': 'guardian-basic-koi-hd.webp',
+              'sun-bird': 'guardian-basic-sun-bird-hd.webp',
+              'new-deer': 'guardian-basic-new-deer-hd.webp',
+              'gold-hamster': 'guardian-basic-gold-hamster-hd.webp',
+              'moon-rabbit': 'guardian-personal-moon-rabbit-hd.webp',
+              'dolphin': 'guardian-personal-dolphin-hd.webp',
+              'fire-fox': 'guardian-personal-fire-fox-hd.webp',
+              'leaf-turtle': 'guardian-personal-leaf-turtle-hd.webp',
+              'star-owl': 'guardian-personal-star-owl-hd.webp',
+              'nine-fox': 'guardian-rare-white-tiger-hd.webp',
+              'sea-dragon': 'guardian-rare-blue-dragon-hd.webp',
+              'unicorn': 'guardian-rare-phoenix-hd.webp',
+              'forest-turtle': 'guardian-rare-black-tortoise-hd.webp',
+              'wing-owl': 'guardian-rare-golden-qilin-hd.webp',
+              'sky-dragon': 'guardian-legendary-white-dragon-motion.webp',
+              'fire-phoenix': 'guardian-legendary-vermilion-bird-motion.webp',
+              'moon-tiger': 'guardian-legendary-blue-tiger-motion.webp',
+              'qilin': 'guardian-legendary-green-qilin-motion.webp',
+              'black-turtle': 'guardian-legendary-black-tortoise-motion.webp'
+            }
+          });
+          """, encoding='utf-8')
+
+          collection = Path('guardian-collection-v2.js')
+          text = collection.read_text(encoding='utf-8')
+          old = """      ['sky-dragon','백룡 천운개벽','금(金)','성공 · 권위 · 개운'],['fire-phoenix','주작 불사조','화(火)','열정 · 재물 · 승진'],['moon-tiger','청호 월광호','수(水)','감각 · 수호 · 극복'],['qilin','녹기린 천록','목(木)','성장 · 건강 · 번영'],['black-turtle','현무 장수거북','토(土)','안정 · 장수 · 보호']]}"""
+          new = """      ['sky-dragon','백룡','금(金)','성공 · 권위 · 개운'],['fire-phoenix','주작','화(火)','열정 · 재물 · 승진'],['moon-tiger','청호','목(木)','수호 · 극복 · 도약'],['qilin','녹기린','토(土)','번영 · 성장 · 행운'],['black-turtle','현무','수(水)','안정 · 장수 · 보호']]}"""
+          if old not in text:
+              raise RuntimeError('Legendary collection source block not found; refusing unsafe replacement')
+          text = text.replace(old, new)
+
+          old_css = ".gc2-legendary .gc2-art{animation:gc2LegendaryGlow 4.6s ease-in-out infinite alternate}@keyframes gc2RareBorder{to{background-position:300% 0}}@keyframes gc2LegendaryGlow{from{filter:brightness(1)}to{filter:brightness(1.12) saturate(1.12)}}"
+          new_css = ".gc2-legendary{position:relative;box-shadow:0 0 18px rgba(210,235,255,.38),0 0 34px rgba(120,190,255,.18)}.gc2-legendary:before{content:\"\";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:14px;padding:3px;background:linear-gradient(120deg,#fff,#aee7ff,#eefcff,#7fc7ff,#fff,#d9f4ff);background-size:350% 350%;animation:gc2DiamondBorder 3.2s linear infinite;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}.gc2-legendary .gc2-art{aspect-ratio:1/1;animation:gc2LegendaryGlow 4.6s ease-in-out infinite alternate}.gc2-legendary .gc2-hd-img{object-fit:contain}@keyframes gc2RareBorder{to{background-position:300% 0}}@keyframes gc2DiamondBorder{to{background-position:350% 0}}@keyframes gc2LegendaryGlow{from{filter:brightness(1)}to{filter:brightness(1.08) saturate(1.08)}}"
+          if old_css not in text:
+              raise RuntimeError('Legendary CSS source block not found; refusing unsafe replacement')
+          text = text.replace(old_css, new_css)
+          collection.write_text(text, encoding='utf-8')
+
+          page = Path('guardian/index.html')
+          html = page.read_text(encoding='utf-8')
+          html = html.replace('/guardian-archive-hd-manifest.js?v=20260815-hd20-rare-live-1', '/guardian-archive-hd-manifest.js?v=20260815-hd25-legendary-motion-live-1')
+          html = html.replace('/guardian-collection-v2.js?v=20260815-hd20-rare-live-1', '/guardian-collection-v2.js?v=20260815-hd25-legendary-motion-live-1')
+          page.write_text(html, encoding='utf-8')
+          PY
+      - name: Commit approved Legendary motion archive assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/guardian/archive-hd/guardian-legendary-*-motion.webp guardian-archive-hd-manifest.js guardian-collection-v2.js guardian/index.html
+          if git diff --cached --quiet; then
+            echo 'No changes to commit'
+            exit 0
+          fi
+          git commit -m 'Add Legendary animated Guardian archive artwork'
+          git pull --rebase origin main
+          git push origin main
