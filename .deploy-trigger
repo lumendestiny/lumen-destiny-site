@@ -1,3 +1,3 @@
 Lumen Destiny production redeploy trigger
-Date: 2026-08-14 21:47 +07
-Purpose: Recover Guardian preview from invalid/truncated HD WebP blobs and serve verified browser-decodable sale images.
+Date: 2026-08-14 22:28 +07
+Purpose: Deploy verified Guardian HD masters generated from llumendestiny@gmail.com Drive originals and switch Guardian preview to the new HD manifest.
