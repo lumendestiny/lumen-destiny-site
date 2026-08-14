@@ -1,0 +1,64 @@
+name: Sync Guardian HD masters
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sync-guardian-hd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image tools
+        run: pip install pillow gdown
+      - name: Download approved Drive masters
+        run: |
+          mkdir -p /tmp/guardian assets/guardian/sales
+          gdown 'https://drive.google.com/uc?id=1ZjdPj5HPVvoqFgJF1EGfwJQ7eNI5yuw5' -O /tmp/guardian/basic.png
+          gdown 'https://drive.google.com/uc?id=12AnVi4yPCujY_NPDQG79hXATCzJsr2yw' -O /tmp/guardian/wish.png
+          gdown 'https://drive.google.com/uc?id=1fhRIbAimz0f_E-J5hUinkKQ54Ws6Xn7Q' -O /tmp/guardian/rare.png
+          gdown 'https://drive.google.com/uc?id=151dWg5smHK_4XVsIP39Imr1LRvQjfoYR' -O /tmp/guardian/legendary.png
+      - name: Verify and create web masters
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          items = {
+            'basic.png':'guardian-basic-5-hd.webp',
+            'wish.png':'guardian-wish-10-hd.webp',
+            'rare.png':'guardian-rare-50-hd.webp',
+            'legendary.png':'guardian-legendary-100-hd.webp',
+          }
+          src = Path('/tmp/guardian')
+          dst = Path('assets/guardian/sales')
+          for inp, out in items.items():
+              p = src/inp
+              if p.stat().st_size < 500_000:
+                  raise RuntimeError(f'{inp}: master download too small: {p.stat().st_size}')
+              im = Image.open(p)
+              im.verify()
+              im = Image.open(p).convert('RGB')
+              if im.width < 1000 or im.height < 1000:
+                  raise RuntimeError(f'{inp}: resolution too small: {im.size}')
+              im.save(dst/out, 'WEBP', quality=94, method=6)
+              q = dst/out
+              Image.open(q).verify()
+              if q.stat().st_size < 300_000:
+                  raise RuntimeError(f'{out}: web asset unexpectedly small: {q.stat().st_size}')
+              print(out, im.size, q.stat().st_size)
+          PY
+      - name: Commit verified HD assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/guardian/sales/*-hd.webp
+          git commit -m 'Replace Guardian sales art with verified HD masters' || exit 0
+          git push
