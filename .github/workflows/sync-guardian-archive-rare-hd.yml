@@ -1,0 +1,130 @@
+name: Sync Guardian Archive Rare HD
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sync-guardian-archive-rare-hd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image tools
+        run: pip install pillow gdown
+      - name: Download approved Rare masters from Lumen Drive
+        run: |
+          mkdir -p /tmp/guardian-rare assets/guardian/archive-hd
+          gdown 'https://drive.google.com/uc?id=1gtx0yBdIl3bhjLfwjbV0dUVa6m3YotBV' -O /tmp/guardian-rare/white-tiger.png
+          gdown 'https://drive.google.com/uc?id=1n6-4KHQUe3Wg2f4-HeShaAM_llOL2qsG' -O /tmp/guardian-rare/blue-dragon.png
+          gdown 'https://drive.google.com/uc?id=1jUrMv7OigGyH1d4aMKmCiCBHbyCcLU0O' -O /tmp/guardian-rare/phoenix.png
+          gdown 'https://drive.google.com/uc?id=1qi1nyrfNLDSPf6pBg3BsGfPi_AlH0kOK' -O /tmp/guardian-rare/black-tortoise.png
+          gdown 'https://drive.google.com/uc?id=1TjvJUE8x7SY2G1Di2bUU0j-PxbhqAbSj' -O /tmp/guardian-rare/golden-qilin.png
+      - name: Verify and create square Rare archive HD masters
+        run: |
+          python - <<'PY'
+          from PIL import Image, ImageFilter
+          from pathlib import Path
+
+          items = {
+              'white-tiger.png': 'guardian-rare-white-tiger-hd.webp',
+              'blue-dragon.png': 'guardian-rare-blue-dragon-hd.webp',
+              'phoenix.png': 'guardian-rare-phoenix-hd.webp',
+              'black-tortoise.png': 'guardian-rare-black-tortoise-hd.webp',
+              'golden-qilin.png': 'guardian-rare-golden-qilin-hd.webp',
+          }
+          src = Path('/tmp/guardian-rare')
+          dst = Path('assets/guardian/archive-hd')
+          dst.mkdir(parents=True, exist_ok=True)
+
+          for inp, out in items.items():
+              p = src / inp
+              if not p.exists() or p.stat().st_size < 2_000_000:
+                  raise RuntimeError(f'{inp}: source master missing or unexpectedly small')
+              with Image.open(p) as check:
+                  check.verify()
+              with Image.open(p) as im:
+                  im = im.convert('RGB')
+                  if im.width < 1200 or im.height < 1200:
+                      raise RuntimeError(f'{inp}: source resolution too small: {im.size}')
+                  im = im.resize((2400, 2400), Image.Resampling.LANCZOS)
+                  im = im.filter(ImageFilter.UnsharpMask(radius=1.2, percent=80, threshold=3))
+                  q = dst / out
+                  im.save(q, 'WEBP', quality=94, method=6)
+              with Image.open(q) as verify:
+                  verify.verify()
+              if q.stat().st_size < 300_000:
+                  raise RuntimeError(f'{out}: converted archive asset unexpectedly small: {q.stat().st_size}')
+              print(out, q.stat().st_size)
+          PY
+      - name: Enable Rare HD masters in archive
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          manifest = Path('guardian-archive-hd-manifest.js')
+          manifest.write_text("""window.LUMEN_GUARDIAN_ARCHIVE_HD = Object.freeze({
+            version: '2026-08-15-hd20-rare-live-1',
+            basePath: '/assets/guardian/archive-hd/',
+            items: {
+              'fortune-cat': 'guardian-basic-fortune-cat-hd.webp',
+              'koi': 'guardian-basic-koi-hd.webp',
+              'sun-bird': 'guardian-basic-sun-bird-hd.webp',
+              'new-deer': 'guardian-basic-new-deer-hd.webp',
+              'gold-hamster': 'guardian-basic-gold-hamster-hd.webp',
+              'moon-rabbit': 'guardian-personal-moon-rabbit-hd.webp',
+              'dolphin': 'guardian-personal-dolphin-hd.webp',
+              'fire-fox': 'guardian-personal-fire-fox-hd.webp',
+              'leaf-turtle': 'guardian-personal-leaf-turtle-hd.webp',
+              'star-owl': 'guardian-personal-star-owl-hd.webp',
+              'nine-fox': 'guardian-rare-white-tiger-hd.webp',
+              'sea-dragon': 'guardian-rare-blue-dragon-hd.webp',
+              'unicorn': 'guardian-rare-phoenix-hd.webp',
+              'forest-turtle': 'guardian-rare-black-tortoise-hd.webp',
+              'wing-owl': 'guardian-rare-golden-qilin-hd.webp',
+              'sky-dragon': null,
+              'fire-phoenix': null,
+              'moon-tiger': null,
+              'qilin': null,
+              'black-turtle': null
+            }
+          });
+          """, encoding='utf-8')
+
+          collection = Path('guardian-collection-v2.js')
+          text = collection.read_text(encoding='utf-8')
+          old = """      ['nine-fox','백호 구미호','금(金)','인연 · 지혜 · 매력'],['sea-dragon','청룡 해신룡','수(水)','재물 · 기회 · 흐름'],['unicorn','천마 유니콘','화(火)','도약 · 성공 · 명예'],['forest-turtle','청거북 산수갑','목(木)','장수 · 가족 · 평안'],['wing-owl','백운부엉이','토(土)','합격 · 지혜 · 통찰']]},"""
+          new = """      ['nine-fox','백호','금(金)','수호 · 승리 · 권위'],['sea-dragon','청룡','목(木)','성장 · 기회 · 도약'],['unicorn','주작','화(火)','열정 · 성공 · 명예'],['forest-turtle','현무','수(水)','안정 · 보호 · 장수'],['wing-owl','황금기린','토(土)','재물 · 번영 · 행운']]},"""
+          if old not in text:
+              raise RuntimeError('Rare collection source block not found; refusing unsafe replacement')
+          text = text.replace(old, new)
+          text = text.replace("'nine-fox':'🦊','sea-dragon':'🐉','unicorn':'🦄','forest-turtle':'🐢','wing-owl':'🦉'", "'nine-fox':'🐅','sea-dragon':'🐉','unicorn':'🦅','forest-turtle':'🐢','wing-owl':'🦌'")
+          collection.write_text(text, encoding='utf-8')
+
+          page = Path('guardian/index.html')
+          html = page.read_text(encoding='utf-8')
+          html = html.replace('/guardian-archive-hd-manifest.js?v=20260815-hd20-personal-live-1', '/guardian-archive-hd-manifest.js?v=20260815-hd20-rare-live-1')
+          html = html.replace('/guardian-collection-v2.js?v=20260815-hd20-personal-live-1', '/guardian-collection-v2.js?v=20260815-hd20-rare-live-1')
+          page.write_text(html, encoding='utf-8')
+          PY
+      - name: Commit approved Rare archive assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/guardian/archive-hd/guardian-rare-*-hd.webp guardian-archive-hd-manifest.js guardian-collection-v2.js guardian/index.html
+          if git diff --cached --quiet; then
+            echo 'No changes to commit'
+            exit 0
+          fi
+          git commit -m 'Add approved Rare Guardian archive HD artwork'
+          git pull --rebase origin main
+          git push origin main
