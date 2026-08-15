@@ -1,4 +1,4 @@
-name: App V1 Debug APK
+name: App V1 Standalone APK
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-debug-apk:
+  build-standalone-apk:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,14 +38,20 @@ jobs:
       - name: Generate Android native project
         run: npx expo prebuild --platform android --clean --no-install
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon
+      - name: Bundle JavaScript for standalone APK
+        run: npx expo export:embed --platform android --dev false --entry-file node_modules/expo-router/entry.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+
+      - name: Verify embedded bundle
+        run: test -s android/app/src/main/assets/index.android.bundle && ls -lh android/app/src/main/assets/index.android.bundle
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease --no-daemon
         working-directory: app/android
 
-      - name: Upload debug APK
+      - name: Upload standalone APK
         uses: actions/upload-artifact@v4
         with:
-          name: lumen-destiny-app-v1-debug-apk
-          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          name: lumen-destiny-app-v1-standalone-apk
+          path: app/android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 14
