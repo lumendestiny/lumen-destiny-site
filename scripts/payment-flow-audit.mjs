@@ -21,6 +21,9 @@ add('production checkout blocks test mode', checkout.includes('payment_test_mode
 add('checkout DB control requires explicit open', checkout.includes("if(!control)return{hold:true,reason:'payment_control_missing'}") && checkout.includes("if(control.state!=='open')") && checkout.includes("payment_control_invalid"));
 add('checkout DB control read failure is hold', checkout.includes("catch{return{hold:true,reason:'incident_state_unavailable'}}"));
 add('admin payment control defaults missing row to hold', paymentControl.includes("state:'hold',note:'Missing control row is treated as fail-closed HOLD'") && paymentControl.includes("state(env)||{state:'hold'}"));
+add('admin open command requires PG evidence', ['pgApproved','pgKycComplete','pgSandboxVerified','pgProductionReady','payment_release_prerequisites_incomplete'].every(x=>paymentControl.includes(x)));
+add('admin open command requires privacy evidence', ['privacyPolicyFinalized','dataRetentionVerified','deleteRequestFlowVerified','sensitiveLoggingVerified'].every(x=>paymentControl.includes(x)));
+add('admin open command requires final public arm and test mode off', paymentControl.includes('publicCheckoutArmed') && paymentControl.includes('paymentTestModeOff') && paymentControl.includes('emergencyHoldOff'));
 add('health separates backend and public payment readiness', health.includes('paymentsBackendEnabled') && health.includes('paymentPublicCheckoutEnabled') && health.includes('pgEvidenceReady') && health.includes('publicPaymentsEnabled'));
 add('browser checkout rechecks consent at final action', (checkoutUi.match(/if\(agree&&!agree\.checked\)/g)||[]).length >= 2 && checkoutUi.includes('policyAccepted:true'));
 add('checkout policy links preserve language', checkoutUi.includes('/refund-policy.html?lang=${encodeURIComponent(lang)}') && checkoutUi.includes('/terms.html?lang=${encodeURIComponent(lang)}'));
