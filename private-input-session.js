@@ -53,4 +53,6 @@
       location.href=`/compatibility-result/?lang=${encodeURIComponent(payload.lang)}`;
     }
   },true);
+
+  window.__LUMEN_PRIVATE_INPUT_READY__=true;
 })();
