@@ -26,9 +26,11 @@ The excluded features remain future-upgrade candidates only.
 | V1 scope lock | PASS | `/consult` redirects to home; public consultation API requires a separate future flag; production smoke requires `consult=false`. |
 | Production route smoke | PASS | Core V1 and public legal/support URLs are checked across all six languages. |
 | Core V1 Saju + compatibility runtime | PASS | Chromium completed 12/12 KO / EN / JA / TL / VI / ZH form → result journeys with populated Saju/compatibility results and 390px fit. |
-| Core language coverage | PASS | KO / EN / JA / TL / VI / ZH static coverage audit. |
+| Free-reading private-input runtime | PASS | Chromium completed 12/12 KO / EN / JA / TL / VI / ZH Saju/compatibility journeys with private input absent from network URLs, result URL/session cleanup after success, and public Guardian verification source excluding gift/private-token fields. |
+| Core language coverage | PASS | KO / EN / JA / TL / VI / ZH static coverage audit, including shared recovery UI. |
 | Legal/support language coverage | PASS | Terms, Refund/Cancellation, Privacy and Support are wired for all six languages. |
 | Rendered legal pages | PASS | Chromium runtime audit verifies localized headings, no Korean body/footer leakage on non-Korean pages, language-preserving internal links and 390px layout. |
+| Recovery/error runtime | PASS | Chromium exercised offline and temporary-error UI in KO / EN / JA / TL / VI / ZH and verified localized actions, language-preserving home links and mobile-safe layout. |
 | Payment flow safety | PASS | Static payment-flow audit locks policy consent, server-confirmed issuance, duplicate/refund handling and fail-closed public-payment gates. |
 | Public real payment | HOLD | Must remain disabled until PG approval, KYC, provider sandbox verification, production credentials, TEST MODE off and explicit public checkout arm are all evidenced. |
 | Mobile static audit | PASS | Existing CSS/static mobile audit. |
@@ -39,6 +41,19 @@ The excluded features remain future-upgrade candidates only.
 | Guardian D1 schema audit | PASS | Existing schema workflow. |
 | Flag integrity audit | PASS | Existing flag-integrity workflow. |
 | SEO release audit | PASS | Existing SEO workflow, with consultation excluded from V1 indexing. |
+| Privacy operational release gate | HOLD | Free-reading minimization now has automated evidence, but final Guardian/payment retention periods, deployed sensitive-log review, real deletion-request handling and privacy environment flags still require operational evidence. |
+
+## Free-reading privacy hardening completed
+
+- Free Saju and compatibility form inputs now use a temporary browser-session handoff rather than intentionally placing names/birth inputs in the initial result-page network URL.
+- Existing calculation modules are preserved by reconstructing their legacy query only inside browser history state, without a second network request carrying the private fields.
+- Result pages use `referrer=no-referrer` while the compatibility bridge exists.
+- After a successful calculation, the temporary session record is removed and the result URL is reduced back to the language parameter.
+- Saved handoffs older than 30 minutes are not reused by the bridge.
+- The dedicated Privacy Runtime Audit verifies all six supported languages for both Saju and compatibility.
+- `V1_DATA_INVENTORY.md` now records current browser/D1 data classes and separates technical cleanup evidence from legal/provider retention decisions.
+
+This PASS is **not** permission to mark the entire privacy release gate ready. Guardian/payment retention, deletion operations and deployed logging evidence remain separate HOLD items.
 
 ## Mobile issues discovered by real browser rendering and fixed
 
@@ -50,6 +65,12 @@ The Chromium mobile audit caught issues that static CSS inspection did not relia
 - The audit itself counted hidden zero-height actions as touch-target failures; the audit now evaluates visible controls only.
 
 The corresponding header/flag alignment, Guardian verify sticky behavior, Chinese observer loop, audit-visibility and mobile form sizing fixes are committed. The final 144-combination rendered audit passed at 320/360/390/430px across all six supported languages and all six tested core/Guardian routes.
+
+## Error/recovery hardening completed
+
+- Shared offline/temporary-error UI now has KO / EN / JA / TL / VI / ZH copy.
+- Chinese no longer falls back to generic English recovery text.
+- The recovery runtime audit opens each language on a mobile viewport, exercises offline and error states, checks action labels, confirms the home link preserves language and verifies the recovery UI does not create page-level horizontal overflow.
 
 ## Guardian checkout hardening completed
 
@@ -75,20 +96,34 @@ These translations do not change the underlying business/legal policy. Final cou
 These items must not be auto-marked PASS:
 
 1. **Physical-device UX verification**
-   - 320 / 360 / 390 / 430px browser references are automated and now PASS, but at least one real iOS and one real Android device should still be manually checked for touch, keyboard, browser chrome and visual quality.
+   - 320 / 360 / 390 / 430px browser references are automated and PASS, but at least one real iOS and one real Android device must still be manually checked for touch, keyboard, browser chrome, rotation/resume and visual quality.
 
-2. **PG business approval / KYC**
+2. **Privacy operational evidence**
+   - Finalize Guardian/payment retention periods and deletion/anonymization triggers after the actual merchant/provider/legal obligations are known.
+   - Review deployed Cloudflare/Functions logs during success and forced-error cases for birth inputs, gift messages and secrets.
+   - Run one real end-to-end privacy/deletion request through `llumendestiny@gmail.com` and the deployed operations process.
+   - Reconcile the final public privacy wording with that approved retention/operations process.
+   - Set privacy environment flags only after each evidence item is complete and require authenticated `/api/admin/privacy-gate` to report ready.
+
+3. **PG business approval / KYC**
    - Written business/category approval
    - KYC/business verification
    - Provider sandbox suite
    - Production credentials/account activation
 
-3. **Real payment cutover**
+4. **Real payment cutover**
    - TEST MODE off
    - Provider webhook/refund mapping verified against the approved account
-   - All payment release gates green
+   - All payment and privacy release gates green
    - Explicit `LUMEN_PAYMENT_PUBLIC_CHECKOUT_ENABLED=true` only as the final arm step
 
 ## Current release posture
 
-Core Saju/compatibility, six-language Guardian preview journeys, rendered mobile layouts, legal/support localization and rendered accessibility now have PASS evidence. The remaining launch HOLD items are external/manual rather than unresolved core V1 implementation: real iOS/Android physical-device verification and the payment-provider approval/KYC/sandbox/production credential chain. Do not open real customer payment until the external evidence chain is complete.
+Core Saju/compatibility, free-reading privacy minimization, six-language Guardian preview journeys, rendered mobile layouts, legal/support localization, shared recovery UX and rendered accessibility now have PASS evidence.
+
+The remaining launch HOLD items are no longer unresolved core V1 page implementation. They are:
+- real iOS/Android physical-device verification,
+- privacy operational/retention/logging/deletion evidence,
+- payment-provider approval/KYC/sandbox/production credential chain.
+
+Do not open real customer payment until the external payment evidence and the applicable privacy operational gates are complete.
