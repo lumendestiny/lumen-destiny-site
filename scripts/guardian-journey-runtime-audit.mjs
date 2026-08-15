@@ -7,10 +7,16 @@ const failures=[];
 let checks=0;
 const fail=(lang,flow,msg)=>failures.push(`${lang} ${flow}: ${msg}`);
 
+async function makePage(){
+  const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+  page.setDefaultTimeout(3500);
+  page.setDefaultNavigationTimeout(15000);
+  return page;
+}
 async function open(page,path){
-  const res=await page.goto(`${base}${path}`,{waitUntil:'domcontentloaded',timeout:25000});
+  const res=await page.goto(`${base}${path}`,{waitUntil:'domcontentloaded',timeout:15000});
   if(!res?.ok())throw new Error(`HTTP ${res?.status()}`);
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(450);
 }
 async function assertNoOverflow(page,lang,flow){
   const n=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
@@ -18,52 +24,51 @@ async function assertNoOverflow(page,lang,flow){
 }
 
 for(const lang of langs){
-  // Archive -> selected Guardian -> personalized preview. This stops before creating a server order.
   {
-    const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    const page=await makePage();
     try{
       await open(page,`/guardian/?lang=${lang}&journey_runtime_audit=1`);
-      const href=await page.locator('#purpose-guardians .archive-card a.button').first().getAttribute('href');
+      const cta=page.locator('#purpose-guardians .archive-card a.button').first();
+      await cta.waitFor({state:'visible'});
+      const href=await cta.getAttribute('href');
       if(!href){fail(lang,'archive','no Guardian selection CTA');continue}
       const u=new URL(href,base);
       if(!u.pathname.startsWith('/guardian-order'))fail(lang,'archive',`selection did not lead to Guardian order (${href})`);
       if(u.searchParams.get('lang')!==lang)fail(lang,'archive',`selection lost language (${href})`);
-      await page.goto(u.toString(),{waitUntil:'domcontentloaded',timeout:25000});
-      await page.waitForTimeout(600);
+      const res=await page.goto(u.toString(),{waitUntil:'domcontentloaded',timeout:15000});
+      if(!res?.ok())throw new Error(`order HTTP ${res?.status()}`);
+      await page.waitForTimeout(500);
       if(new URL(page.url()).searchParams.get('lang')!==lang)fail(lang,'order',`order URL lost language (${page.url()})`);
-      const fields=page.locator('#guardianOrderForm');
-      if(await fields.count()!==1){fail(lang,'order','order form missing');continue}
+      await page.locator('#guardianOrderForm').waitFor({state:'visible'});
       await page.locator('#guardianName').fill(`Runtime ${lang}`);
       await page.locator('#guardianWish').fill(`Guardian preview test ${lang}`);
       await page.locator('#guardianOrderForm button[type="submit"]').click();
-      await page.waitForTimeout(250);
-      const hidden=await page.locator('#guardianPreview').evaluate(el=>el.hidden);
-      if(hidden)fail(lang,'order','personalized preview remained hidden');
+      await page.locator('#guardianPreview').waitFor({state:'visible'});
       const preview=await page.locator('#guardianPreview').innerText();
       if(!preview.includes(`Runtime ${lang}`))fail(lang,'order','preview did not contain entered display name');
       if(!preview.includes(`Guardian preview test ${lang}`))fail(lang,'order','preview did not contain entered wish');
-      const consentVisible=await page.locator('#guardianPolicyAgree').isVisible();
-      if(!consentVisible)fail(lang,'order','policy consent is not visible before issuance preparation');
+      if(!(await page.locator('#guardianPolicyAgree').isVisible()))fail(lang,'order','policy consent is not visible before issuance preparation');
       await assertNoOverflow(page,lang,'order');
       checks++;
     }catch(e){fail(lang,'archive/order',e?.message||String(e))}finally{await page.close()}
   }
 
-  // Gift landing -> gift order -> recipient preview. Stops before server order/payment.
   {
-    const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    const page=await makePage();
     try{
       await open(page,`/guardian-gift/?lang=${lang}&journey_runtime_audit=1`);
       const giftCta=page.locator('.gift-entry .deep-reading-grid a.button.primary').first();
+      await giftCta.waitFor({state:'visible'});
       const href=await giftCta.getAttribute('href');
       if(!href){fail(lang,'gift','gift CTA missing');continue}
       const u=new URL(href,base);
       if(u.searchParams.get('gift')!=='1')fail(lang,'gift',`gift flag missing (${href})`);
       if(u.searchParams.get('lang')!==lang)fail(lang,'gift',`gift CTA lost language (${href})`);
-      await page.goto(u.toString(),{waitUntil:'domcontentloaded',timeout:25000});
-      await page.waitForTimeout(600);
-      const giftHidden=await page.locator('#giftFields').evaluate(el=>el.hidden);
-      if(giftHidden)fail(lang,'gift-order','gift recipient fields remained hidden');
+      const res=await page.goto(u.toString(),{waitUntil:'domcontentloaded',timeout:15000});
+      if(!res?.ok())throw new Error(`gift order HTTP ${res?.status()}`);
+      await page.waitForTimeout(500);
+      const giftFields=page.locator('#giftFields');
+      await giftFields.waitFor({state:'visible'});
       if(!(await page.locator('#guardianRecipient').evaluate(el=>el.required)))fail(lang,'gift-order','recipient is not required in gift mode');
       await page.locator('#guardianName').fill(`Gift ${lang}`);
       await page.locator('#guardianWish').fill(`Gift wish ${lang}`);
@@ -71,7 +76,7 @@ for(const lang of langs){
       await page.locator('#guardianRecipient').fill(`Recipient ${lang}`);
       await page.locator('#guardianMessage').fill(`Message ${lang}`);
       await page.locator('#guardianOrderForm button[type="submit"]').click();
-      await page.waitForTimeout(250);
+      await page.locator('#guardianPreview').waitFor({state:'visible'});
       const preview=await page.locator('#guardianPreview').innerText();
       if(!preview.includes(`Recipient ${lang}`))fail(lang,'gift-order','gift preview did not contain recipient');
       if(!preview.includes(`Message ${lang}`))fail(lang,'gift-order','gift preview did not contain gift message');
