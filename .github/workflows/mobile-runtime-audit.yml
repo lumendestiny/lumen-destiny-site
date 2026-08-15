@@ -19,6 +19,10 @@ on:
       - 'scripts/mobile-runtime-audit.mjs'
       - '.github/workflows/mobile-runtime-audit.yml'
 
+concurrency:
+  group: mobile-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   runtime-mobile:
     runs-on: ubuntu-latest
