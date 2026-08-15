@@ -1,0 +1,37 @@
+name: Operations Recovery Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'migrations/**'
+      - 'scripts/d1-export-validate.mjs'
+      - 'scripts/d1-export-validator-selftest.mjs'
+      - 'OPERATIONS_BACKUP_RECOVERY.md'
+      - 'PRIVACY_REQUEST_OPERATIONS.md'
+      - '.github/workflows/operations-recovery-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  operations-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check backup validator syntax
+        run: node --check scripts/d1-export-validate.mjs
+      - name: Self-test export validator from current migrations
+        run: node scripts/d1-export-validator-selftest.mjs
+      - name: Verify recovery runbook safety markers
+        run: |
+          grep -q "wrangler d1 export" OPERATIONS_BACKUP_RECOVERY.md
+          grep -q "d1 time-travel info" OPERATIONS_BACKUP_RECOVERY.md
+          grep -q "NONPROD_REHEARSAL_DATABASE" OPERATIONS_BACKUP_RECOVERY.md
+          grep -q "Never store a production export" OPERATIONS_BACKUP_RECOVERY.md
+          grep -q "mutationAvailable" PRIVACY_REQUEST_OPERATIONS.md
+          echo "Operations recovery static audit passed."
