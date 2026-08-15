@@ -9,6 +9,7 @@ on:
       - 'header-language-v2.css'
       - 'styles.css'
       - 'fortune-ui.css'
+      - 'script.js'
       - 'guardian/**'
       - 'guardian-order/**'
       - 'guardian-gift/**'
@@ -24,6 +25,7 @@ on:
       - 'guardian-checkout.js'
       - 'scripts/mobile-runtime-audit.mjs'
       - 'scripts/guardian-archive-anchor-runtime-audit.mjs'
+      - 'scripts/fortune-nav-mobile-runtime-audit.mjs'
       - '.github/workflows/mobile-runtime-audit.yml'
 
 concurrency:
@@ -54,6 +56,10 @@ jobs:
         env:
           LUMEN_PROD_BASE_URL: https://lumendestiny.com
         run: node scripts/guardian-archive-anchor-runtime-audit.mjs
+      - name: Audit fortune navigation alignment
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/fortune-nav-mobile-runtime-audit.mjs
       - name: Upload failure screenshots
         if: failure()
         uses: actions/upload-artifact@v4
