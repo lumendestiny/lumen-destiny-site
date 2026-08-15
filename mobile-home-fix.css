@@ -95,16 +95,20 @@
   }
 
   .compact-hero h1{
-    font-size:clamp(2.25rem,10vw,3.15rem);
+    width:100%;
+    font-size:clamp(2rem,8.6vw,2.85rem);
+    letter-spacing:-0.045em;
     line-height:1.14;
     margin:0;
     text-align:center!important;
+    white-space:nowrap;
   }
 
   .compact-hero .hero-copy{
+    width:100%;
     margin:30px auto 0;
     max-width:650px;
-    text-align:center!important;
+    text-align:left!important;
     line-height:1.65;
   }
 
@@ -122,5 +126,5 @@
   .fortune-header .brand{font-size:1.32rem!important}
   .lang-choice{min-width:28px!important;width:28px!important}
   .main-fortune-nav a{padding:0 11px;font-size:.84rem!important}
-  .compact-hero h1{font-size:clamp(2.05rem,10.2vw,2.75rem)}
+  .compact-hero h1{font-size:clamp(1.9rem,8.5vw,2.5rem)}
 }
