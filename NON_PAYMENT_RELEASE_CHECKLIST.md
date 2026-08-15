@@ -59,39 +59,30 @@ The dedicated Privacy Runtime Audit verifies all six supported languages for bot
 - Free-reading names/birth inputs do not appear in the audited network request URLs during the private handoff.
 - Successful calculation removes temporary private `sessionStorage` input.
 - Successful result URLs are reduced back to language-only state.
-- Guardian public verification source excludes gift message, giver/recipient private fields and the private verification token from its public response contract.
+- Guardian public verification excludes gift/private verification fields from the public response contract.
 - Core Saju/compatibility functionality remains PASS after the privacy hardening.
 
-`V1_DATA_INVENTORY.md` documents the current browser and D1 data classes.
+Engineering support also includes a protected read-only privacy record map for identifying record classes without returning raw gift/shipping/token values.
 
 ### Operational/config evidence — HOLD
-Do not mark the overall privacy release ready yet. Still verify:
+Still verify:
 
 - Final Guardian/payment/checkout/policy retention periods and deletion/anonymization triggers.
 - One real privacy/deletion request through `llumendestiny@gmail.com` and the deployed operations process.
 - Deployed Cloudflare/Functions logs during success and forced-error cases do not expose birth data, personal gift messages or secrets.
 - Final public privacy policy wording matches the approved retention/operations process.
 
-Environment flags remain manual evidence gates:
-
-- `LUMEN_PRIVACY_POLICY_FINALIZED`
-- `LUMEN_FACE_PHOTO_EPHEMERAL_VERIFIED` — not a V1 launch dependency while face reading remains disabled; do not set it merely to clear a gate.
-- `LUMEN_DATA_RETENTION_VERIFIED`
-- `LUMEN_DELETE_REQUEST_FLOW_VERIFIED`
-- `LUMEN_SENSITIVE_LOGGING_VERIFIED`
-
-Use `PRIVACY_RELEASE_CHECKLIST.md` for the evidence sequence. Set flags true only after the corresponding deployed/operational evidence exists.
+Use `V1_DATA_INVENTORY.md`, `PRIVACY_REQUEST_OPERATIONS.md` and `PRIVACY_RELEASE_CHECKLIST.md` for the evidence sequence.
 
 ## 4. Error/recovery UX — AUTOMATED PASS + PHYSICAL SPOT CHECK
 
-Automated evidence now covers:
+Automated evidence covers:
 - Friendly localized 404 recovery page.
 - Shared offline/temporary-error recovery UI in KO / EN / JA / TL / VI / ZH.
-- Runtime exercise of offline and error states on a 390px mobile viewport.
-- Localized recovery action labels and language-preserving home link.
-- No page-level horizontal overflow caused by the recovery panel.
-- Core result watchdog/retry paths remain present.
-- Guardian payment states continue to be covered by payment-flow/production smoke gates.
+- Runtime exercise of offline and error states on a mobile viewport.
+- Localized recovery actions and language-preserving home links.
+- No page-level overflow caused by recovery UI.
+- Core result watchdog/retry paths.
 
 Real iOS/Android review should still confirm browser-native offline/keyboard behavior feels usable.
 
@@ -104,26 +95,36 @@ Real iOS/Android review should still confirm browser-native offline/keyboard beh
 - AI Discovery Layer files/pages must not expose internal APIs or secrets.
 
 ## 6. Accessibility/basic quality — RENDERED PASS + PHYSICAL SPOT CHECK
-Rendered Chromium + axe testing has no remaining serious/critical WCAG 2.0/2.1 A/AA findings on the tested V1 pages after the current fixes.
+Rendered Chromium + axe testing has no remaining serious/critical tested WCAG 2.0/2.1 A/AA findings on current V1 pages.
 
-Keep verifying:
+Additional premium-motion evidence now PASS:
+- Guardian decorative CSS motion respects `prefers-reduced-motion`.
+- Legendary Guardian switches from live-motion media to the approved static Legendary asset when the OS/browser requests reduced motion.
+- The reduced-motion runtime audit confirms the static asset is used and the Legendary sweep animation is `none`.
 
-- Form labels remain associated with inputs.
-- Keyboard navigation and visible focus remain intact.
-- Images use meaningful alt text or empty alt when decorative.
-- Contrast/readability remains acceptable.
-- Guardian decorative CSS motion respects reduced-motion preference; any live image/media motion should also be checked on a physical device where applicable.
-- Real-device zoom/keyboard behavior does not create an accessibility regression.
+Real-device zoom, keyboard and OS accessibility behavior still receive a physical spot check.
 
-## 7. Operational readiness
-- Admin Guardian dashboard works only with Internal Secret.
-- Production real customer payment remains disabled until the external payment gate is complete.
-- Backup/export procedure is documented for D1 operational records.
-- A real backup export and non-production restore rehearsal still require operations evidence before they should be called verified.
-- Refund/support email is `llumendestiny@gmail.com` and must be monitored before paid launch.
-- Error logging must not contain raw secrets; deployed log review remains part of the privacy HOLD gate.
-- Deployment rollback method is documented.
-- Release/status documents must reflect enabled/disabled features accurately.
+## 7. Operational readiness — ENGINEERING SUPPORT PASS + LIVE OPERATIONS HOLD
+
+Engineering-side support now exists for:
+- Admin Guardian dashboard protected with Internal Secret.
+- Admin D1 Preflight control that returns schema/index/control evidence without customer rows.
+- Production Smoke rejection of unauthenticated D1/privacy admin endpoints.
+- D1 export structure validator that refuses production-style backups stored inside the public repository.
+- Canonical V1 Bootstrap self-test against empty SQLite.
+- Backup/export/recovery runbook.
+- Privacy-request operations runbook.
+- Checkout fail-closed behavior when DB control is missing, invalid or unreadable.
+- Payment-control `open` command blocked until PG/KYC, privacy, TEST MODE and public-arm prerequisites are complete.
+
+Still HOLD for live operations:
+- authenticated D1 Preflight against the bound Production `GUARDIAN_DB`,
+- confirmation that Production checkout control is currently `hold`,
+- secure real D1 export,
+- import/restore rehearsal into a separate non-production D1,
+- deployed sensitive-log review,
+- real privacy/deletion request rehearsal,
+- support inbox monitoring before paid launch.
 
 ## 8. Current launch rule
 
@@ -136,21 +137,24 @@ Keep verifying:
 6. Six-language Guardian preview/gift journeys.
 7. Rendered mobile audit.
 8. Rendered legal/support localization.
-9. Rendered accessibility audit.
+9. Rendered accessibility + Legendary reduced-motion audit.
 10. Recovery/error runtime audit.
-11. Payment-flow safety / fail-closed architecture.
+11. Payment-flow fail-closed safety.
 12. Security, schema, flag-integrity and SEO release audits.
+13. Operations recovery validator/bootstrap self-test.
+14. Guardian Admin D1 Preflight UI runtime audit.
 
 ### Remaining HOLD gates
 1. Real iOS physical-device UX verification.
 2. Real Android physical-device UX verification.
 3. Privacy retention/anonymization finalization for Guardian/payment records.
 4. Real deletion-request rehearsal and deployed sensitive-log review.
-5. D1 operational backup/restore rehearsal where required for launch operations.
-6. PG/provider business-category approval.
-7. KYC and settlement approval.
-8. Provider sandbox acceptance suite.
-9. Production credentials/webhook/refund mapping.
-10. TEST MODE off and explicit public checkout arm only after every payment/privacy gate is green.
+5. Authenticated live Production D1 preflight and checkout-HOLD confirmation.
+6. Secure real D1 export and non-production restore rehearsal.
+7. PG/provider business-category approval.
+8. KYC and settlement approval.
+9. Provider sandbox acceptance suite.
+10. Production credentials/webhook/refund mapping.
+11. TEST MODE off, public checkout arm, and deliberate DB checkout `open` only after every applicable payment/privacy/D1 gate is green.
 
-Do not switch a manual verification flag to true simply to clear the gate. Public real payment must remain disabled until the external payment and applicable privacy evidence chains are complete.
+Do not switch a manual verification flag to true simply to clear the gate. Public real payment must remain disabled until the external payment and applicable operational evidence chains are complete.
