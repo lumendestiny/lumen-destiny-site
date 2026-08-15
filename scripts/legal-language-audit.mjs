@@ -10,7 +10,7 @@ for(const lang of ['en','ja','tl','vi','zh'])need(legal.includes(`${lang}:{`),`l
 for(const marker of [
   'Refund & Cancellation Policy','返金・キャンセルポリシー','Refund & Cancellation Policy | Lumen Destiny',
   'Chính sách hoàn tiền và hủy','退款与取消政策','Privacy Policy | Lumen Destiny','プライバシーポリシー',
-  'Chính sách quyền riêng tư','隐私政策','1:1 consultation','1:1相談','1:1 tư vấn','1:1 咨询'
+  'Chính sách quyền riêng tư','隐私政策','1:1 consultation','1:1相談','Tư vấn 1:1','1:1 咨询'
 ]) need(legal.includes(marker),`legal/support translation marker missing: ${marker}`);
 
 for(const p of ['terms.html','refund-policy.html','privacy.html','support.html']){
