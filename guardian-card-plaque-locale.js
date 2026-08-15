@@ -1,6 +1,16 @@
 (()=>{
 'use strict';
 
+function currentLang(){
+  const raw=String(window.__LUMEN_LANG__||new URLSearchParams(location.search).get('lang')||localStorage.getItem('lumen-lang')||document.documentElement.lang||'ko').toLowerCase();
+  if(raw.startsWith('en'))return'en';
+  if(raw.startsWith('ja'))return'ja';
+  if(raw.startsWith('vi'))return'vi';
+  if(raw.startsWith('tl')||raw.startsWith('fil'))return'tl';
+  if(raw.startsWith('zh'))return'zh';
+  return'ko';
+}
+
 function ensureStyle(){
   if(document.getElementById('guardian-card-plaque-locale-style')) return;
   const style=document.createElement('style');
@@ -47,14 +57,20 @@ function cleanElement(text){
   text=String(text||'').trim();
   const dot=text.indexOf('·');
   if(dot>=0) text=text.slice(0,dot).trim();
+  if(currentLang()==='ko') text=text.replace(/\s*\([^)]*\)\s*/g,'').trim();
   return text.replace(/\s+/g,' ');
 }
 
 function syncCard(card){
   const art=card.querySelector('.gc2-art');
   const name=(card.querySelector('.gc2-info h3')?.textContent||'').trim();
-  const element=cleanElement(card.querySelector('.gc2-info p strong')?.textContent||'');
+  const strong=card.querySelector('.gc2-info p strong');
+  let element=cleanElement(strong?.textContent||'');
   if(!art||!name||!element) return;
+
+  if(currentLang()==='ko'&&strong&&strong.textContent.trim()!==element){
+    strong.textContent=element;
+  }
 
   let plaque=art.querySelector('.guardian-card-local-plaque');
   if(!plaque){
@@ -85,6 +101,8 @@ function init(){
   new MutationObserver(queue).observe(root,{childList:true,subtree:true,characterData:true});
   window.addEventListener('storage',queue);
   document.addEventListener('lumen:language-changed',queue);
+  setTimeout(queue,100);
+  setTimeout(queue,500);
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
