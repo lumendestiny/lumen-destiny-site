@@ -49,14 +49,15 @@ const critical={
 const normalized=sql.toLowerCase();
 const missingColumns=[];
 for(const [table,columns] of Object.entries(critical)){
-  const tableStart=normalized.search(new RegExp(`create\\s+table\\s+(?:if\\s+not\\s+exists\\s+)?[\\\"\\\`\\[]?${table}[\\\"\\\`\\]]?\\s*\\(`,'i'));
+  const tablePattern=new RegExp('create\\s+table\\s+(?:if\\s+not\\s+exists\\s+)?["`\\[]?'+table+'["`\\]]?\\s*\\(','i');
+  const tableStart=normalized.search(tablePattern);
   if(tableStart<0)continue;
   const after=normalized.slice(tableStart);
   const end=after.indexOf(');');
   const schema=end>=0?after.slice(0,end+2):after.slice(0,12000);
   for(const column of columns){
-    const re=new RegExp(`(?:^|[\\s,(\\\"\\\`\\[])${column}(?:[\\s,\\)\\\"\\\`\\]])`,'i');
-    if(!re.test(schema))missingColumns.push(`${table}.${column}`);
+    const columnPattern=new RegExp('(?:^|[\\s,("`\\[])'+column+'(?:[\\s,)"`\\]])','i');
+    if(!columnPattern.test(schema))missingColumns.push(`${table}.${column}`);
   }
 }
 
@@ -66,7 +67,7 @@ for(const m of sql.matchAll(/INSERT\s+INTO\s+["`\[]?([A-Za-z0-9_]+)["`\]]?/gi))i
 
 console.log(JSON.stringify({
   file:path.basename(file),
-  bytes:Buffer.byteLength(sql),
+  bytes:Buffer.byteLength(sql,'utf8'),
   migrationFiles:migrations.length,
   expectedTables:expectedTables.size,
   exportedTables:exportedTables.size,
