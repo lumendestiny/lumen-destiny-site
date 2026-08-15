@@ -29,7 +29,7 @@ for(const lang of langs){
     try{
       const r=await page.goto(`${base}/?lang=${lang}&privacy_runtime_audit=1`,{waitUntil:'domcontentloaded'});
       if(!r?.ok())throw new Error(`home HTTP ${r?.status()}`);
-      await page.waitForFunction(()=>document.querySelector('#birthYear')?.options.length>100&&document.querySelector('script[src*="private-input-session"]'));
+      await page.waitForFunction(()=>document.querySelector('#birthYear')?.options.length>100&&window.__LUMEN_PRIVATE_INPUT_READY__===true);
       await page.locator('#userName').fill(sentinel);
       await page.locator('#gender').selectOption('male');
       await page.locator('#birthYear').selectOption('1990');
@@ -67,7 +67,7 @@ for(const lang of langs){
     try{
       const r=await page.goto(`${base}/compatibility/?lang=${lang}&privacy_runtime_audit=1`,{waitUntil:'domcontentloaded'});
       if(!r?.ok())throw new Error(`compatibility HTTP ${r?.status()}`);
-      await page.waitForFunction(()=>document.querySelector('#aYear')?.options.length>100&&document.querySelector('script[src*="private-input-session"]'));
+      await page.waitForFunction(()=>document.querySelector('#aYear')?.options.length>100&&window.__LUMEN_PRIVATE_INPUT_READY__===true);
       await page.locator('#aName').fill(a);await page.locator('#bName').fill(b);
       await page.locator('#aGender').selectOption('male');await page.locator('#bGender').selectOption('female');
       await page.locator('#aYear').selectOption('1990');await page.locator('#aMonth').selectOption('05');await page.locator('#aDay').selectOption('15');await page.locator('#aTime').selectOption('10:00');await page.locator('#aCalendar').selectOption('solar');
