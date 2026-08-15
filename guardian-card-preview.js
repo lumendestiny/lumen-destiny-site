@@ -2,70 +2,34 @@
   const get=id=>document.getElementById(id);
   const qs=new URLSearchParams(location.search);
   const archiveGuardian=qs.get('fromArchive')==='1'?(qs.get('guardian')||''):'';
+  const versioned=(src,version)=>src+(src.includes('?')?'&':'?')+'v='+encodeURIComponent(version||'1');
   function start(){
     const tier=get('guardianTier'),wish=get('guardianWishType');
     const card=document.querySelector('.guardian-card-preview'),frame=document.querySelector('.guardian-card-frame');
-    const approved=window.__LUMEN_GUARDIAN_APPROVED_ASSETS__;
-    const archive=window.LUMEN_GUARDIAN_ARCHIVE_HD;
+    const approved=window.__LUMEN_GUARDIAN_APPROVED_ASSETS__,archive=window.LUMEN_GUARDIAN_ARCHIVE_HD;
     if(!tier||!card||!frame||!approved)return;
     const labels={basic:'Guardian Basic · 승인 HD 판매 이미지 · 100개 한정',custom:'Personal Wish · 승인 HD 판매 이미지 · 100개 한정',rare:'Rare Edition · 승인 HD 판매 이미지 · 5개 한정 · 변화하는 테두리',legendary:'Legendary Motion · 승인 HD · 1/1 · 라이브 모션'};
     const fallback={basic:'/assets/guardian/sales/guardian-basic-5-hd.webp',custom:'/assets/guardian/sales/guardian-wish-10-hd.webp',rare:'/assets/guardian/sales/guardian-rare-50-hd.webp',legendary:'/assets/guardian/sales/guardian-legendary-100-hd.webp'};
-    const archiveNames={
-      'fortune-cat':'행운냥이','koi':'비단잉어','sun-bird':'아기 봉황','new-deer':'새벽사슴','gold-hamster':'복다람',
-      'moon-rabbit':'달토끼','dolphin':'소망돌고래','fire-fox':'불여우','leaf-turtle':'잎새거북','star-owl':'별부엉이',
-      'nine-fox':'백호','sea-dragon':'청룡','unicorn':'주작','forest-turtle':'현무','wing-owl':'황금기린',
-      'sky-dragon':'백룡','fire-phoenix':'주작','moon-tiger':'청호','qilin':'녹기린','black-turtle':'현무'
-    };
+    const archiveNames={'fortune-cat':'행운냥이','koi':'비단잉어','sun-bird':'아기 봉황','new-deer':'새벽사슴','gold-hamster':'복다람','moon-rabbit':'달토끼','dolphin':'소망돌고래','fire-fox':'불여우','leaf-turtle':'잎새거북','star-owl':'별부엉이','nine-fox':'백호','sea-dragon':'청룡','unicorn':'주작','forest-turtle':'현무','wing-owl':'황금기린','sky-dragon':'백룡','fire-phoenix':'주작','moon-tiger':'청호','qilin':'녹기린','black-turtle':'현무'};
     let guarding=false;
     function ensure(){
       let shell=frame.querySelector('.guardian-tier-art-shell');
       if(!shell){shell=document.createElement('div');shell.className='guardian-tier-art-shell';const img=document.createElement('img');img.className='guardian-tier-art';img.decoding='async';img.loading='eager';shell.append(img);frame.append(shell)}
       let value=card.parentElement?.querySelector('.guardian-tier-value');if(!value&&card.parentElement){value=document.createElement('div');value.className='guardian-tier-value';card.insertAdjacentElement('afterend',value)}
-      if(!get('guardian-tier-art-style')){const s=document.createElement('style');s.id='guardian-tier-art-style';s.textContent=`
-        .guardian-card-preview{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;height:auto!important;min-height:0!important;overflow:visible!important}
-        .guardian-card-frame{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;min-height:0!important}
-        .guardian-card-frame>:not(.guardian-tier-art-shell){display:none!important}
-        .guardian-tier-art-shell{position:relative;width:100%;max-width:306px;margin:0 auto;border-radius:16px;isolation:isolate;overflow:hidden;display:flex;align-items:center;justify-content:center;background:transparent}
-        .guardian-tier-art{display:block;width:100%;height:auto;max-height:472px;object-fit:contain;object-position:center;border-radius:15px;filter:drop-shadow(0 9px 16px rgba(24,28,38,.14));image-rendering:auto;backface-visibility:hidden}
-        .guardian-tier-value{margin:5px 4px 0;text-align:center;color:#555d6a;font-size:.68rem;line-height:1.25;font-weight:750}
-        .guardian-order-panel select,.guardian-order-shell select{height:48px!important;min-height:48px!important;line-height:normal!important;padding:0 42px 0 14px!important;overflow:visible!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:15px!important;font-weight:700!important;box-sizing:border-box!important;background-position:right 13px center!important}
-        .guardian-order-panel select:disabled{opacity:1;color:#111827;background:#f1f3f8;cursor:not-allowed}
-        .guardian-tier-lock-note{display:block;margin-top:5px;color:#6b7280;font-size:.68rem;font-weight:700}
-        .guardian-order-panel article,.guardian-order-panel label,.deep-reading-grid article{overflow:visible!important;min-height:0!important}
-        .guardian-order-panel input{height:42px!important;min-height:42px!important;line-height:1.3!important;box-sizing:border-box!important}
-        .guardian-order-panel textarea{line-height:1.35!important;box-sizing:border-box!important;overflow:auto!important}
-        .guardian-card-preview[data-tier="rare"] .guardian-tier-art-shell{padding:4px;background:linear-gradient(115deg,#7c3aed,#d946ef,#22d3ee,#fbbf24,#7c3aed);background-size:320% 320%;animation:guardianRareBorder 4.6s linear infinite;box-shadow:0 9px 20px rgba(80,39,129,.16)}
-        .guardian-card-preview[data-tier="legendary"] .guardian-tier-art-shell{box-shadow:0 0 0 2px rgba(219,174,65,.5),0 10px 22px rgba(173,116,9,.18)}
-        .guardian-card-preview[data-tier="legendary"] .guardian-tier-art-shell:after{content:"";position:absolute;inset:-35% -70%;pointer-events:none;background:linear-gradient(112deg,transparent 43%,rgba(255,244,190,.04) 47%,rgba(255,255,255,.42) 50%,rgba(255,220,108,.08) 54%,transparent 60%);animation:guardianLegendarySweep 5.2s ease-in-out infinite;z-index:2}
-        @keyframes guardianRareBorder{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-        @keyframes guardianLegendarySweep{0%,55%{transform:translateX(-42%) rotate(3deg);opacity:0}67%{opacity:1}88%,100%{transform:translateX(42%) rotate(3deg);opacity:0}}
-        @media(min-width:901px) and (max-height:900px){.guardian-tier-art-shell{max-width:276px}.guardian-tier-art{max-height:428px}.guardian-tier-value{font-size:.64rem}}
-        @media(max-width:900px){.guardian-tier-art-shell{max-width:380px}.guardian-tier-art{max-height:560px}.guardian-order-panel select,.guardian-order-shell select{font-size:15px!important}}
-        @media(prefers-reduced-motion:reduce){.guardian-card-preview[data-tier="rare"] .guardian-tier-art-shell,.guardian-card-preview[data-tier="legendary"] .guardian-tier-art-shell:after{animation:none!important}}
-      `;document.head.append(s)}
+      if(!get('guardian-tier-art-style')){const s=document.createElement('style');s.id='guardian-tier-art-style';s.textContent=`.guardian-card-preview{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;height:auto!important;min-height:0!important;overflow:visible!important}.guardian-card-frame{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;min-height:0!important}.guardian-card-frame>:not(.guardian-tier-art-shell){display:none!important}.guardian-tier-art-shell{position:relative;width:100%;max-width:306px;margin:0 auto;border-radius:16px;isolation:isolate;overflow:hidden;display:flex;align-items:center;justify-content:center;background:transparent}.guardian-tier-art{display:block;width:100%;height:auto;max-height:472px;object-fit:contain;object-position:center;border-radius:15px;filter:drop-shadow(0 9px 16px rgba(24,28,38,.14));image-rendering:auto;backface-visibility:hidden}.guardian-tier-value{margin:5px 4px 0;text-align:center;color:#555d6a;font-size:.68rem;line-height:1.25;font-weight:750}.guardian-order-panel select,.guardian-order-shell select{height:48px!important;min-height:48px!important;line-height:normal!important;padding:0 42px 0 14px!important;overflow:visible!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:15px!important;font-weight:700!important;box-sizing:border-box!important;background-position:right 13px center!important}.guardian-order-panel select:disabled{opacity:1;color:#111827;background:#f1f3f8;cursor:not-allowed}.guardian-tier-lock-note{display:block;margin-top:5px;color:#6b7280;font-size:.68rem;font-weight:700}.guardian-order-panel article,.guardian-order-panel label,.deep-reading-grid article{overflow:visible!important;min-height:0!important}.guardian-order-panel input{height:42px!important;min-height:42px!important;line-height:1.3!important;box-sizing:border-box!important}.guardian-order-panel textarea{line-height:1.35!important;box-sizing:border-box!important;overflow:auto!important}.guardian-card-preview[data-tier="rare"] .guardian-tier-art-shell{padding:4px;background:linear-gradient(115deg,#7c3aed,#d946ef,#22d3ee,#fbbf24,#7c3aed);background-size:320% 320%;animation:guardianRareBorder 4.6s linear infinite;box-shadow:0 9px 20px rgba(80,39,129,.16)}.guardian-card-preview[data-tier="legendary"] .guardian-tier-art-shell{box-shadow:0 0 0 2px rgba(219,174,65,.5),0 10px 22px rgba(173,116,9,.18)}.guardian-card-preview[data-tier="legendary"] .guardian-tier-art-shell:after{content:"";position:absolute;inset:-35% -70%;pointer-events:none;background:linear-gradient(112deg,transparent 43%,rgba(255,244,190,.04) 47%,rgba(255,255,255,.42) 50%,rgba(255,220,108,.08) 54%,transparent 60%);animation:guardianLegendarySweep 5.2s ease-in-out infinite;z-index:2}@keyframes guardianRareBorder{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}@keyframes guardianLegendarySweep{0%,55%{transform:translateX(-42%) rotate(3deg);opacity:0}67%{opacity:1}88%,100%{transform:translateX(42%) rotate(3deg);opacity:0}}@media(min-width:901px) and (max-height:900px){.guardian-tier-art-shell{max-width:276px}.guardian-tier-art{max-height:428px}.guardian-tier-value{font-size:.64rem}}@media(max-width:900px){.guardian-tier-art-shell{max-width:380px}.guardian-tier-art{max-height:560px}.guardian-order-panel select,.guardian-order-shell select{font-size:15px!important}}@media(prefers-reduced-motion:reduce){.guardian-card-preview[data-tier="rare"] .guardian-tier-art-shell,.guardian-card-preview[data-tier="legendary"] .guardian-tier-art-shell:after{animation:none!important}}`;document.head.append(s)}
       return shell;
     }
-    function archiveSrc(){
-      if(!archiveGuardian||!archive?.items?.[archiveGuardian])return'';
-      return (archive.basePath||'')+archive.items[archiveGuardian]+'?v='+encodeURIComponent(archive.version||'1');
-    }
+    function archiveSrc(){if(!archiveGuardian||!archive?.items?.[archiveGuardian])return'';return versioned((archive.basePath||'')+archive.items[archiveGuardian],archive.version||'1')}
     function render(){
       const shell=ensure(),key=approved[tier.value]?tier.value:'basic',asset=approved[key],img=shell.querySelector('.guardian-tier-art');
-      card.dataset.tier=key;card.dataset.assetPolicy=archiveGuardian?'archive-selected':asset.kind;guarding=true;
-      img.dataset.fallback='0';
-      img.onerror=()=>{if(img.dataset.fallback==='1')return;img.dataset.fallback='1';img.src=fallback[key]+'?v=guardian-hd-fallback-20260814-1';};
-      const selectedSrc=archiveSrc()||asset.src;
-      if(img.getAttribute('src')!==selectedSrc)img.setAttribute('src',selectedSrc);
-      const selectedName=archiveGuardian?(archiveNames[archiveGuardian]||'선택 Guardian'):(tier.options[tier.selectedIndex]?.textContent||'Guardian');
-      img.alt=selectedName+' 승인 HD 판매용 카드 이미지';
-      const value=card.parentElement?.querySelector('.guardian-tier-value');
-      if(value)value.textContent=archiveGuardian?`${selectedName} · ${labels[key]}`:labels[key];
-      guarding=false;
+      card.dataset.tier=key;card.dataset.assetPolicy=archiveGuardian?'archive-selected':asset.kind;guarding=true;img.dataset.fallback='0';
+      img.onerror=()=>{if(img.dataset.fallback==='1')return;img.dataset.fallback='1';img.src=fallback[key]+'?v=guardian-hd-fallback-20260814-1'};
+      const selectedSrc=archiveSrc()||asset.src;if(img.getAttribute('src')!==selectedSrc)img.setAttribute('src',selectedSrc);
+      const selectedName=archiveGuardian?(archiveNames[archiveGuardian]||'선택 Guardian'):(tier.options[tier.selectedIndex]?.textContent||'Guardian');img.alt=selectedName+' 승인 HD 판매용 카드 이미지';
+      const value=card.parentElement?.querySelector('.guardian-tier-value');if(value)value.textContent=archiveGuardian?`${selectedName} · ${labels[key]}`:labels[key];guarding=false;
     }
-    const img=ensure().querySelector('.guardian-tier-art');
-    new MutationObserver(()=>{if(guarding)return;const key=approved[tier.value]?tier.value:'basic',asset=approved[key],expected=archiveSrc()||asset.src;if(img.dataset.fallback!=='1'&&img.getAttribute('src')!==expected)render()}).observe(img,{attributes:true,attributeFilter:['src']});
+    const img=ensure().querySelector('.guardian-tier-art');new MutationObserver(()=>{if(guarding)return;const key=approved[tier.value]?tier.value:'basic',asset=approved[key],expected=archiveSrc()||asset.src;if(img.dataset.fallback!=='1'&&img.getAttribute('src')!==expected)render()}).observe(img,{attributes:true,attributeFilter:['src']});
     tier.addEventListener('change',render);wish?.addEventListener('change',render);render();
   }
-  document.querySelectorAll('script[data-guardian-approved-manifest]').forEach(x=>x.remove());
-  const s=document.createElement('script');s.src='/guardian-asset-manifest.js?v=guardian-hd-masters-20260814-1';s.dataset.guardianApprovedManifest='true';s.onload=start;s.onerror=()=>console.error('Failed to load Guardian approved HD asset manifest');document.head.appendChild(s);
+  document.querySelectorAll('script[data-guardian-approved-manifest]').forEach(x=>x.remove());const s=document.createElement('script');s.src='/guardian-asset-manifest.js?v=guardian-hd-masters-20260814-1';s.dataset.guardianApprovedManifest='true';s.onload=start;s.onerror=()=>console.error('Failed to load Guardian approved HD asset manifest');document.head.appendChild(s);
 })();
