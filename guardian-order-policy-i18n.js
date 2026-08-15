@@ -40,10 +40,24 @@
     if(preview)preview.setAttribute('aria-label',copy.preview);
     const agree=document.getElementById('guardianPolicyAgree');
     if(agree)agree.setAttribute('aria-label',copy.agree);
+
+    // Mobile Chromium/WebKit can keep the native select at 15px even when the
+    // surrounding page inherits 16px. An inline important value prevents that
+    // browser-default fallback and also avoids iOS focus zoom on these controls.
+    if(window.matchMedia('(max-width:900px)').matches){
+      for(const id of ['guardianTier','guardianWishType']){
+        const el=document.getElementById(id);
+        if(el){
+          el.style.setProperty('font-size','16px','important');
+          el.style.setProperty('line-height','1.4','important');
+        }
+      }
+    }
   }
 
   // service-shell may inject this helper before the page's deferred guardian-i18n.js
-  // has executed. Apply after window load so the localized policy always wins the race.
+  // has executed. Apply after window load so the localized policy and mobile
+  // native-control sizing always win the race.
   if(document.readyState==='complete')apply();
   else window.addEventListener('load',apply,{once:true});
 })();
