@@ -1,4 +1,5 @@
 export async function onRequestGet({env}){
+  const bool=v=>String(v||'').toLowerCase()==='true';
   const guardianDb=!!env?.GUARDIAN_DB;
   let guardianDbQuery=false;
   let guardianDbError=null;
@@ -11,13 +12,18 @@ export async function onRequestGet({env}){
     }
   }
 
-  const guardianEnabled=env?.LUMEN_GUARDIAN_ENABLED==='true';
-  const paymentsBackendEnabled=env?.LUMEN_PAYMENTS_ENABLED==='true';
-  const paymentPublicCheckoutEnabled=env?.LUMEN_PAYMENT_PUBLIC_CHECKOUT_ENABLED==='true';
-  const paymentTestMode=env?.LUMEN_PAYMENT_TEST_MODE==='true';
-  const publicPaymentsEnabled=paymentsBackendEnabled&&paymentPublicCheckoutEnabled&&!paymentTestMode;
-  const aiBackendEnabled=env?.LUMEN_AI_ENABLED==='true';
-  const publicConsultEnabled=env?.LUMEN_PUBLIC_CONSULT_ENABLED==='true';
+  const guardianEnabled=bool(env?.LUMEN_GUARDIAN_ENABLED);
+  const paymentsBackendEnabled=bool(env?.LUMEN_PAYMENTS_ENABLED);
+  const paymentPublicCheckoutEnabled=bool(env?.LUMEN_PAYMENT_PUBLIC_CHECKOUT_ENABLED);
+  const paymentTestMode=bool(env?.LUMEN_PAYMENT_TEST_MODE);
+  const pgApproved=bool(env?.LUMEN_PG_APPROVED);
+  const pgKycComplete=bool(env?.LUMEN_PG_KYC_COMPLETE);
+  const pgSandboxVerified=bool(env?.LUMEN_PG_SANDBOX_VERIFIED);
+  const pgProductionReady=bool(env?.LUMEN_PG_PRODUCTION_READY);
+  const pgEvidenceReady=pgApproved&&pgKycComplete&&pgSandboxVerified&&pgProductionReady;
+  const publicPaymentsEnabled=paymentsBackendEnabled&&paymentPublicCheckoutEnabled&&!paymentTestMode&&pgEvidenceReady;
+  const aiBackendEnabled=bool(env?.LUMEN_AI_ENABLED);
+  const publicConsultEnabled=bool(env?.LUMEN_PUBLIC_CONSULT_ENABLED);
   const aiProviderReady=!!env?.OPENAI_API_KEY;
   const paymentProvider=!!env?.LUMEN_PAYMENT_PROVIDER;
   const paymentAdapterUrl=!!env?.LUMEN_PAYMENT_ADAPTER_URL;
@@ -53,6 +59,11 @@ export async function onRequestGet({env}){
     guardianDbQuery,
     paymentsEnabled:paymentsBackendEnabled,
     paymentPublicCheckoutEnabled,
+    pgApproved,
+    pgKycComplete,
+    pgSandboxVerified,
+    pgProductionReady,
+    pgEvidenceReady,
     paymentProvider,
     paymentAdapterUrl,
     paymentAdapterSecret,
@@ -64,7 +75,7 @@ export async function onRequestGet({env}){
   return Response.json({
     ok:true,
     service:'lumen-destiny-api',
-    version:'2026-08-15.1',
+    version:'2026-08-15.2',
     scope:'v1-saju-fortune-compatibility-guardian',
     features,
     configured,
