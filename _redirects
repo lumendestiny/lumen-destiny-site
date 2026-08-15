@@ -1,9 +1,15 @@
+# Lumen Destiny V1 excludes 1:1 AI consultation. Keep source code for a possible
+# later upgrade, but do not expose a public V1 route. Temporary redirects make
+# re-enabling the feature later possible without preserving a permanent 301.
+/consult.html / 302
+/consult / 302
+/consult/ / 302
+
 # Canonical directory service URLs use a trailing slash.
 # Redirect legacy .html links directly to the final directory URL so Cloudflare
 # never has to bounce /compatibility <-> /compatibility/.
 /compatibility.html /compatibility/ 301
 /compatibility-result.html /compatibility-result/ 301
-/consult.html /consult/ 301
 /guardian.html /guardian/ 301
 /guardian-order.html /guardian-order/ 301
 /guardian-gift.html /guardian-gift/ 301
