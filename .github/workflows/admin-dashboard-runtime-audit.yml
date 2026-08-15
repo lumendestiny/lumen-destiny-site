@@ -1,0 +1,40 @@
+name: Admin Dashboard Runtime Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'admin-guardian.html'
+      - 'admin-guardian.js'
+      - 'admin-audit-links.js'
+      - 'admin-e2e-history.js'
+      - 'admin-security-gate.js'
+      - 'admin-go-live-gate.js'
+      - 'functions/api/admin/d1-preflight.js'
+      - 'scripts/admin-dashboard-runtime-audit.mjs'
+      - '.github/workflows/admin-dashboard-runtime-audit.yml'
+
+concurrency:
+  group: admin-dashboard-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  admin-dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Wait for production deployment
+        run: sleep 60
+      - name: Check Guardian admin dashboard controls
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/admin-dashboard-runtime-audit.mjs
