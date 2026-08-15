@@ -16,6 +16,8 @@ on:
       - 'guardian-i18n.js'
       - 'guardian-gift-i18n.js'
       - 'guardian-order-policy-i18n.js'
+      - 'zh-guardian-*.js'
+      - 'guardian-checkout.js'
       - 'scripts/mobile-runtime-audit.mjs'
       - '.github/workflows/mobile-runtime-audit.yml'
 
@@ -38,7 +40,7 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
       - name: Wait for production deployment
-        run: sleep 25
+        run: sleep 60
       - name: Audit rendered mobile layouts
         env:
           LUMEN_PROD_BASE_URL: https://lumendestiny.com
