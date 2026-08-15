@@ -20,6 +20,8 @@ The deployed Privacy Runtime Audit now verifies KO / EN / JA / TL / VI / ZH for 
 - Public Guardian verification source excludes gift message, giver name, recipient name and the private verification token from its public response contract.
 - Core V1 Saju/compatibility functional runtime remains PASS after the privacy handoff change.
 
+The Sensitive Logging static audit also scans server Function source for console output, direct request/header/body echo, direct exception-message response patterns, secret-response patterns and known public-verification private fields.
+
 See `V1_DATA_INVENTORY.md` for the current browser/D1 data inventory and the retention decisions that remain HOLD.
 
 This section is engineering evidence only. Sections 1, 3, 4 and 5 below still require their own operational evidence before `/api/admin/privacy-gate` may report READY.
@@ -87,28 +89,43 @@ Before setting the flag, run one end-to-end test request against the deployed su
 **Current status: HOLD** until a real test request is completed and the allowed deletion/anonymization scope is documented.
 
 ## 5. Sensitive logging — `LUMEN_SENSITIVE_LOGGING_VERIFIED`
-Inspect deployed Cloudflare/Functions logs during success and forced-error tests.
+
+### Static/code evidence — PASS
+The repository now has a dedicated Sensitive Logging Audit. It currently passes and checks server Function source for:
+- `console.log/info/warn/error/debug/trace` output,
+- request-header serialization/echo,
+- raw parsed request body returned as JSON,
+- direct exception-message exposure in JSON responses,
+- secret/API-key/token environment values placed in JSON responses,
+- known private fields referenced by public Guardian verification,
+- known raw private response keys in the internal privacy record map.
+
+This greatly reduces code-level logging/response risk but **does not prove what the deployed Cloudflare platform/runtime logs actually contain**.
+
+### Deployed runtime evidence — HOLD
+Inspect deployed Cloudflare/Functions logs during controlled success and forced-error tests.
 
 Must not log:
-- face image bytes/base64 or image URLs containing credentials (future face-reading feature)
-- birth date/time or full consultation questions unless strictly necessary for a short-lived diagnostic session
-- Guardian free-form personal messages
-- authorization headers, webhook secrets, internal secrets, API keys, tokens, raw payment credentials
+- face image bytes/base64 or image URLs containing credentials (future face-reading feature),
+- birth date/time or full consultation questions unless strictly necessary for a short-lived diagnostic session,
+- Guardian free-form personal messages,
+- authorization headers, webhook secrets, internal secrets, API keys, tokens, raw payment credentials.
 
-Errors returned to users should use stable error codes rather than echoing request bodies or secrets.
+Errors returned to users should continue to use stable error codes rather than echoing request bodies or secrets.
 
-**Current status: HOLD** until deployed log evidence is reviewed. Static/code audits alone are not enough to set the flag.
+**Current flag status rule: HOLD** until deployed log evidence is reviewed. Do not set `LUMEN_SENSITIVE_LOGGING_VERIFIED=true` from the static audit alone.
 
 ## V1 activation sequence
 1. Keep the four V1 blocker flags false by default: privacy policy, retention, deletion flow, sensitive logging.
 2. Face-photo verification remains optional/N/A until face reading is actually released.
 3. Dedicated free-reading Privacy Runtime Audit — **PASS**.
-4. Protected read-only privacy record map + public-access guard — **PASS engineering support**.
-5. Complete deployed log review and real deletion-request rehearsal.
-6. Finalize Guardian/payment retention after merchant/provider/legal obligations are known.
-7. Reconcile the public privacy policy with the final approved data inventory/retention process.
-8. Set each V1 blocker flag true individually only after evidence exists.
-9. Call authenticated `/api/admin/privacy-gate` and require `PRIVACY RELEASE READY` with zero blockers before enabling public paid processing that depends on those records.
+4. Sensitive Logging static code audit — **PASS**.
+5. Protected read-only privacy record map + public-access guard — **PASS engineering support**.
+6. Complete deployed log review and real deletion-request rehearsal.
+7. Finalize Guardian/payment retention after merchant/provider/legal obligations are known.
+8. Reconcile the public privacy policy with the final approved data inventory/retention process.
+9. Set each V1 blocker flag true individually only after evidence exists.
+10. Call authenticated `/api/admin/privacy-gate` and require `PRIVACY RELEASE READY` with zero blockers before enabling public paid processing that depends on those records.
 
 ## Principle
-Privacy readiness is an evidence gate, not a documentation checkbox. The automated free-reading privacy PASS and protected record-map tooling are meaningful implementation evidence, but they must not be misrepresented as proof of transaction retention, deletion operations or deployed log hygiene.
+Privacy readiness is an evidence gate, not a documentation checkbox. The automated free-reading privacy PASS, static sensitive-logging PASS and protected record-map tooling are meaningful engineering evidence, but they must not be misrepresented as proof of transaction retention, deletion operations or deployed log hygiene.
