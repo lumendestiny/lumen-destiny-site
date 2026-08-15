@@ -14,9 +14,12 @@ on:
       - 'refund-policy.html'
       - 'privacy.html'
       - 'support.html'
+      - 'styles.css'
+      - 'fortune-ui.css'
       - 'service-shell.js'
       - 'service-shell.css'
       - 'header-language-v2.css'
+      - 'accessibility-labels.js'
       - 'scripts/accessibility-runtime-audit.mjs'
       - '.github/workflows/accessibility-runtime-audit.yml'
 
