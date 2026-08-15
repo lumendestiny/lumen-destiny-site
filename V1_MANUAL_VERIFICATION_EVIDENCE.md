@@ -1,6 +1,6 @@
 # Lumen Destiny V1 — Manual Verification Evidence
 
-Updated: 2026-08-13
+Updated: 2026-08-15
 
 Purpose: retain human/runtime evidence for release flags that must never be set from static CI alone.
 
@@ -22,11 +22,15 @@ Record:
 - Guardian order/verify result
 
 Evidence/result:
-- Date:
-- Commit:
-- Devices:
-- Result: HOLD
+- Date: 2026-08-15
+- Commit: 99dd46b5e67c0ad2eed743c3f3fea7b07797a4be (latest observed mobile compatibility layout checkpoint)
+- Devices: Samsung Galaxy / Android mobile browser, portrait screenshots supplied by operator
+- Result: HOLD — partial real-device evidence recorded, not a full release PASS
 - Notes:
+  - Home hero/header/language bar was visually reviewed on a real Samsung Galaxy and iteratively adjusted.
+  - Compatibility intro/form/header was visually reviewed on the same real-device class and mobile wrapping was corrected.
+  - Latest GitHub push checks observed after the compatibility wrapping fix include successful Security Release Audit and Site Route Audit; no failure conclusion was present in the inspected latest-run response.
+  - Still required before PASS: full Android interaction journey (form input, keyboard/native controls, result page, Guardian order/verify, rotation/resume), a real iPhone/iOS journey, and the remaining language/device checks listed above.
 
 ## 2. Six-language runtime — `LUMEN_I18N_VERIFIED`
 Verify on production candidate:
