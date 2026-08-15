@@ -25,30 +25,31 @@ The excluded features remain future-upgrade candidates only.
 |---|---|---|
 | V1 scope lock | PASS | `/consult` redirects to home; public consultation API requires a separate future flag; production smoke requires `consult=false`. |
 | Production route smoke | PASS | Core V1 and public legal/support URLs are checked across all six languages. |
+| Core V1 Saju + compatibility runtime | PASS | Chromium completed 12/12 KO / EN / JA / TL / VI / ZH form → result journeys with populated Saju/compatibility results and 390px fit. |
 | Core language coverage | PASS | KO / EN / JA / TL / VI / ZH static coverage audit. |
 | Legal/support language coverage | PASS | Terms, Refund/Cancellation, Privacy and Support are wired for all six languages. |
 | Rendered legal pages | PASS | Chromium runtime audit verifies localized headings, no Korean body/footer leakage on non-Korean pages, language-preserving internal links and 390px layout. |
 | Payment flow safety | PASS | Static payment-flow audit locks policy consent, server-confirmed issuance, duplicate/refund handling and fail-closed public-payment gates. |
 | Public real payment | HOLD | Must remain disabled until PG approval, KYC, provider sandbox verification, production credentials, TEST MODE off and explicit public checkout arm are all evidenced. |
 | Mobile static audit | PASS | Existing CSS/static mobile audit. |
-| Mobile rendered audit | RETESTING | Chromium 320/360/390/430px audit found real issues; header/layout/font/Chinese-loop fixes are committed and a settled-production retest is running. |
-| Guardian preview journey | RETESTING | Chromium archive → order preview and gift → recipient preview flows are running without creating server orders/payments. |
-| Accessibility rendered audit | RETESTING | Serious/critical WCAG browser audit added; first run exposed an audit-context bug, which is fixed, and the corrected run is pending/running. |
+| Mobile rendered audit | RETESTING | Chromium 320/360/390/430px audit now has only the Guardian-order visible-control 15px finding left; exact offending element diagnostics are running. |
+| Guardian preview journey | PASS | Chromium completed 12 preview flows: 20-card archive → personalized preview and gift → recipient preview across all six languages, without creating server orders or payments. |
+| Accessibility rendered audit | PASS | Chromium + axe found no remaining serious/critical WCAG 2.0/2.1 A/AA violations on tested KO/EN V1 pages after contrast/select-name fixes; localized skip link can be focused and activated. |
 | Security release audit | PASS | Existing security release workflow. |
 | Guardian D1 schema audit | PASS | Existing schema workflow. |
 | Flag integrity audit | PASS | Existing flag-integrity workflow. |
 | SEO release audit | PASS | Existing SEO workflow, with consultation excluded from V1 indexing. |
 
-## Mobile issues discovered by real browser rendering and fixed
+## Mobile issues discovered by real browser rendering
 
-The first Chromium mobile audit caught issues that static CSS inspection did not reliably expose:
+The Chromium mobile audit caught issues that static CSS inspection did not reliably expose:
 - Brand and six language flags could fall out of the intended same-row mobile header layout.
 - Some mobile form controls rendered below 16px.
 - Guardian verification could render its header as `relative` instead of sticky.
 - Chinese Guardian order/checkout mutation observers could repeatedly mutate text and stall the page.
 - The audit itself counted hidden zero-height actions as touch-target failures; the audit now evaluates visible controls only.
 
-The corresponding CSS/runtime fixes are committed. PASS is intentionally withheld until the new rendered audit completes successfully.
+Header/flag alignment, Guardian verify sticky behavior, Chinese observer loops and hidden-control audit noise are fixed. The latest completed 144-combination rendered audit reduced the remaining issue to one repeated class: a visible Guardian-order form control computes to 15px at each tested width/language. The audit now reports the exact element and computed-style context before that final rule is corrected. PASS remains intentionally withheld until the next full rendered run succeeds.
 
 ## Guardian checkout hardening completed
 
@@ -90,4 +91,4 @@ These items must not be auto-marked PASS:
 
 ## Current release posture
 
-The remaining release risk is concentrated in **rendered mobile/accessibility evidence and external payment-provider approval**, rather than missing core V1 product structure. Do not open real customer payment until the external evidence chain is complete.
+Core Saju/compatibility, six-language Guardian preview journeys, legal/support localization and rendered accessibility now have PASS evidence. The remaining engineering-side launch risk is concentrated in the final rendered-mobile typography retest. External payment-provider approval/KYC/sandbox/production credentials and real physical-device checks remain separate HOLD items. Do not open real customer payment until the external evidence chain is complete.
