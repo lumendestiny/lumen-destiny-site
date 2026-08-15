@@ -38,7 +38,7 @@ for(const lang of langs){
       await page.locator('#birthTime').selectOption('10:00');
       await page.locator('#calendarType').selectOption('solar');
       await Promise.all([
-        page.waitForURL(url=>url.pathname.endsWith('/result.html'),{timeout:20000}),
+        page.waitForURL(url=>/^\/result(?:\.html)?\/?$/.test(url.pathname),{timeout:20000}),
         page.locator('#manseSubmit').click()
       ]);
       await page.locator('#manseContent').waitFor({state:'visible',timeout:15000});
