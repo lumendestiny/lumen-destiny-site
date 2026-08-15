@@ -18,25 +18,32 @@
   }[lang];
   if(!copy)return;
 
-  const consent=document.querySelector('.guardian-policy-consent>span');
-  if(consent){
-    const refund=document.createElement('a');
-    refund.href='/refund-policy.html';
-    refund.target='_blank';
-    refund.rel='noopener';
-    refund.textContent=copy.refund;
+  function apply(){
+    const consent=document.querySelector('.guardian-policy-consent>span');
+    if(consent){
+      const refund=document.createElement('a');
+      refund.href='/refund-policy.html';
+      refund.target='_blank';
+      refund.rel='noopener';
+      refund.textContent=copy.refund;
 
-    const terms=document.createElement('a');
-    terms.href='/terms.html';
-    terms.target='_blank';
-    terms.rel='noopener';
-    terms.textContent=copy.terms;
+      const terms=document.createElement('a');
+      terms.href='/terms.html';
+      terms.target='_blank';
+      terms.rel='noopener';
+      terms.textContent=copy.terms;
 
-    consent.replaceChildren(document.createTextNode(copy.lead),refund,document.createTextNode(' · '),terms);
+      consent.replaceChildren(document.createTextNode(copy.lead),refund,document.createTextNode(' · '),terms);
+    }
+
+    const preview=document.querySelector('.guardian-preview-column');
+    if(preview)preview.setAttribute('aria-label',copy.preview);
+    const agree=document.getElementById('guardianPolicyAgree');
+    if(agree)agree.setAttribute('aria-label',copy.agree);
   }
 
-  const preview=document.querySelector('.guardian-preview-column');
-  if(preview)preview.setAttribute('aria-label',copy.preview);
-  const agree=document.getElementById('guardianPolicyAgree');
-  if(agree)agree.setAttribute('aria-label',copy.agree);
+  // service-shell may inject this helper before the page's deferred guardian-i18n.js
+  // has executed. Apply after window load so the localized policy always wins the race.
+  if(document.readyState==='complete')apply();
+  else window.addEventListener('load',apply,{once:true});
 })();
