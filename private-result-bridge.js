@@ -23,6 +23,23 @@
     }catch{}
   }
 
+  document.addEventListener('click',event=>{
+    const choice=event.target.closest?.('.lang-choice');
+    if(!choice)return;
+    const q=new URLSearchParams(location.search);
+    if(!sensitive.some(k=>q.has(k)))return;
+    const code=String(choice.dataset.lang||'').trim();
+    if(!code)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    try{
+      const saved=JSON.parse(sessionStorage.getItem(key)||'null');
+      if(saved?.payload){saved.payload.lang=code;sessionStorage.setItem(key,JSON.stringify(saved));}
+    }catch{}
+    localStorage.setItem('lumen-lang',code);
+    location.href=`${path}?lang=${encodeURIComponent(code)}`;
+  },true);
+
   const cleanup=()=>{
     const success=isSaju?Boolean(document.getElementById('manseContent')&&!document.getElementById('manseContent').hidden):Boolean(document.getElementById('compatContent')&&!document.getElementById('compatContent').hidden);
     if(!success)return false;
