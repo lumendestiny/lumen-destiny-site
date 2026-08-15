@@ -1,0 +1,36 @@
+name: Recovery Runtime Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'service-shell.js'
+      - 'recovery-ui.js'
+      - 'recovery-ui.css'
+      - 'scripts/recovery-runtime-audit.mjs'
+      - '.github/workflows/recovery-runtime-audit.yml'
+
+concurrency:
+  group: recovery-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  recovery-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Wait for production deployment
+        run: sleep 60
+      - name: Verify localized offline and error recovery states
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/recovery-runtime-audit.mjs
