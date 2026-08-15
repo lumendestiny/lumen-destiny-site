@@ -6,6 +6,7 @@ const items = [
   ['운세', '금전운 · 신년운세 · 월간운세 · 오늘의 운세', '/fortune'],
   ['궁합', '두 사람의 흐름을 비교', '/compatibility'],
   ['LUMEN GUARDIAN', '사주 결과와 연결된 맞춤 Guardian', '/guardian'],
+  ['내 Guardian', '발급받거나 선물 받은 Guardian 보관함', '/my-guardian'],
 ] as const;
 
 export default function HomeScreen() {
