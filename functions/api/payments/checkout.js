@@ -10,7 +10,19 @@ const normalizeLang=v=>{const raw=String(v||'').trim().toLowerCase();if(raw==='z
 function safeHttpsUrl(value){try{const u=new URL(String(value||''));return u.protocol==='https:'?u:null}catch{return null}}
 function pgEvidenceReady(env){return bool(env?.LUMEN_PG_APPROVED)&&bool(env?.LUMEN_PG_KYC_COMPLETE)&&bool(env?.LUMEN_PG_SANDBOX_VERIFIED)&&bool(env?.LUMEN_PG_PRODUCTION_READY)}
 async function expireOld(env,guardianId,now){try{await env.GUARDIAN_DB.prepare(`UPDATE guardian_checkout_sessions SET status='expired',failure_code=COALESCE(failure_code,'checkout_expired'),updated_at=? WHERE guardian_id=? AND status IN ('creating','ready') AND expires_at IS NOT NULL AND expires_at<?`).bind(now,guardianId,now).run()}catch{}}
-async function paymentEmergencyState(env){if(env?.LUMEN_PAYMENT_EMERGENCY_HOLD==='true')return{hold:true,reason:'manual_emergency_hold'};try{const control=await env.GUARDIAN_DB.prepare(`SELECT state,note,changed_at FROM guardian_payment_control WHERE control_key='checkout' LIMIT 1`).first();if(control?.state==='hold')return{hold:true,reason:'operator_payment_hold',control};const row=await env.GUARDIAN_DB.prepare(`SELECT incident_id,guardian_id,provider,incident_type,status,severity,summary,updated_at FROM guardian_payment_incidents WHERE status!='resolved' AND severity='critical' ORDER BY updated_at DESC LIMIT 1`).first();if(row)return{hold:true,reason:'critical_payment_incident',incident:row};return{hold:false}}catch{return{hold:true,reason:'incident_state_unavailable'}}}
+async function paymentEmergencyState(env){
+  if(env?.LUMEN_PAYMENT_EMERGENCY_HOLD==='true')return{hold:true,reason:'manual_emergency_hold'};
+  try{
+    const control=await env.GUARDIAN_DB.prepare(`SELECT state,note,changed_at FROM guardian_payment_control WHERE control_key='checkout' LIMIT 1`).first();
+    // Fail closed: checkout is allowed only when the database control explicitly says open.
+    // Missing row, unknown state, or any non-open value remains HOLD.
+    if(!control)return{hold:true,reason:'payment_control_missing'};
+    if(control.state!=='open')return{hold:true,reason:control.state==='hold'?'operator_payment_hold':'payment_control_invalid',control};
+    const row=await env.GUARDIAN_DB.prepare(`SELECT incident_id,guardian_id,provider,incident_type,status,severity,summary,updated_at FROM guardian_payment_incidents WHERE status!='resolved' AND severity='critical' ORDER BY updated_at DESC LIMIT 1`).first();
+    if(row)return{hold:true,reason:'critical_payment_incident',incident:row};
+    return{hold:false,control};
+  }catch{return{hold:true,reason:'incident_state_unavailable'}}
+}
 export async function onRequestPost({request,env}){
   if(env?.LUMEN_PAYMENTS_ENABLED!=='true')return json({ok:false,error:'payments_not_enabled'},503);
   if(!env?.GUARDIAN_DB)return json({ok:false,error:'storage_not_configured'},503);
