@@ -12,9 +12,12 @@ export async function onRequestGet({env}){
   }
 
   const guardianEnabled=env?.LUMEN_GUARDIAN_ENABLED==='true';
-  const paymentsEnabled=env?.LUMEN_PAYMENTS_ENABLED==='true';
+  const paymentsBackendEnabled=env?.LUMEN_PAYMENTS_ENABLED==='true';
+  const paymentPublicCheckoutEnabled=env?.LUMEN_PAYMENT_PUBLIC_CHECKOUT_ENABLED==='true';
   const paymentTestMode=env?.LUMEN_PAYMENT_TEST_MODE==='true';
-  const aiEnabled=env?.LUMEN_AI_ENABLED==='true';
+  const publicPaymentsEnabled=paymentsBackendEnabled&&paymentPublicCheckoutEnabled&&!paymentTestMode;
+  const aiBackendEnabled=env?.LUMEN_AI_ENABLED==='true';
+  const publicConsultEnabled=env?.LUMEN_PUBLIC_CONSULT_ENABLED==='true';
   const aiProviderReady=!!env?.OPENAI_API_KEY;
   const paymentProvider=!!env?.LUMEN_PAYMENT_PROVIDER;
   const paymentAdapterUrl=!!env?.LUMEN_PAYMENT_ADAPTER_URL;
@@ -23,18 +26,18 @@ export async function onRequestGet({env}){
   const internalSecret=!!env?.LUMEN_INTERNAL_SECRET;
   const webhookSecret=!!env?.LUMEN_PAYMENT_WEBHOOK_SECRET;
 
-  const checkoutReady=paymentsEnabled&&guardianDbQuery&&paymentProvider&&paymentAdapterUrl&&paymentAdapterSecret;
-  const refundReady=paymentsEnabled&&guardianDbQuery&&refundAdapterUrl&&paymentAdapterSecret&&internalSecret;
+  const checkoutReady=publicPaymentsEnabled&&guardianDbQuery&&paymentProvider&&paymentAdapterUrl&&paymentAdapterSecret;
+  const refundReady=publicPaymentsEnabled&&guardianDbQuery&&refundAdapterUrl&&paymentAdapterSecret&&internalSecret;
   const opsReady=guardianDbQuery&&internalSecret;
-  const testReady=paymentTestMode&&paymentsEnabled&&guardianEnabled&&guardianDbQuery&&internalSecret&&webhookSecret&&paymentAdapterSecret&&paymentAdapterUrl;
+  const testReady=paymentTestMode&&paymentsBackendEnabled&&guardianEnabled&&guardianDbQuery&&internalSecret&&webhookSecret&&paymentAdapterSecret&&paymentAdapterUrl;
   const features={
-    consult:aiEnabled&&aiProviderReady,
+    consult:publicConsultEnabled&&aiBackendEnabled&&aiProviderReady,
     guardianOrders:guardianEnabled&&guardianDbQuery,
     guardianVerify:guardianEnabled&&guardianDbQuery,
     guardianFinalize:guardianEnabled&&guardianDbQuery&&internalSecret,
-    payments:paymentsEnabled,
+    payments:publicPaymentsEnabled,
     paymentCheckout:checkoutReady,
-    paymentWebhook:paymentsEnabled&&guardianDbQuery&&webhookSecret,
+    paymentWebhook:publicPaymentsEnabled&&guardianDbQuery&&webhookSecret,
     paymentRefunds:refundReady,
     paymentMaintenance:opsReady,
     guardianOperations:opsReady,
@@ -42,12 +45,14 @@ export async function onRequestGet({env}){
     testE2E:testReady
   };
   const configured={
-    aiEnabled,
+    aiEnabled:aiBackendEnabled,
     aiProviderReady,
+    publicConsultEnabled,
     guardianEnabled,
     guardianDb,
     guardianDbQuery,
-    paymentsEnabled,
+    paymentsEnabled:paymentsBackendEnabled,
+    paymentPublicCheckoutEnabled,
     paymentProvider,
     paymentAdapterUrl,
     paymentAdapterSecret,
@@ -59,7 +64,8 @@ export async function onRequestGet({env}){
   return Response.json({
     ok:true,
     service:'lumen-destiny-api',
-    version:'2026-08-13.1',
+    version:'2026-08-15.1',
+    scope:'v1-saju-fortune-compatibility-guardian',
     features,
     configured,
     diagnostics:{guardianDbError},
