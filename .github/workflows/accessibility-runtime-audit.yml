@@ -1,0 +1,46 @@
+name: Accessibility Runtime Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'compatibility/**'
+      - 'guardian/**'
+      - 'guardian-order/**'
+      - 'guardian-gift/**'
+      - 'guardian-verify/**'
+      - 'terms.html'
+      - 'refund-policy.html'
+      - 'privacy.html'
+      - 'support.html'
+      - 'service-shell.js'
+      - 'service-shell.css'
+      - 'header-language-v2.css'
+      - 'scripts/accessibility-runtime-audit.mjs'
+      - '.github/workflows/accessibility-runtime-audit.yml'
+
+concurrency:
+  group: accessibility-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  accessibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install accessibility browser tools
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0 @axe-core/playwright@4.10.2
+          npx playwright install --with-deps chromium
+      - name: Wait for production deployment
+        run: sleep 25
+      - name: Check rendered accessibility
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/accessibility-runtime-audit.mjs
