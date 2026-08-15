@@ -4,12 +4,18 @@ const read = (p) => fs.readFileSync(p, 'utf8');
 const checks = [];
 const add = (name, ok, detail='') => checks.push({name, ok, detail});
 
+const checkout = read('functions/api/payments/checkout.js');
+const health = read('functions/api/health.js');
 const webhook = read('functions/api/payments/webhook.js');
 const refunds = read('functions/api/payments/refunds.js');
 const testComplete = read('functions/api/payments/test-complete.js');
 const paymentResult = read('guardian-payment-result.js');
 const refundPolicy = read('refund-policy.html');
 
+add('public checkout has explicit final arm', checkout.includes('LUMEN_PAYMENT_PUBLIC_CHECKOUT_ENABLED') && checkout.includes('payment_public_checkout_not_enabled'));
+add('public checkout requires PG evidence', ['LUMEN_PG_APPROVED','LUMEN_PG_KYC_COMPLETE','LUMEN_PG_SANDBOX_VERIFIED','LUMEN_PG_PRODUCTION_READY','payment_pg_release_not_approved'].every(x=>checkout.includes(x)));
+add('production checkout blocks test mode', checkout.includes('payment_test_mode_active') && checkout.includes('productionHost'));
+add('health separates backend and public payment readiness', health.includes('paymentsBackendEnabled') && health.includes('paymentPublicCheckoutEnabled') && health.includes('pgEvidenceReady') && health.includes('publicPaymentsEnabled'));
 add('cancel webhook handled', webhook.includes("payment.cancelled") && webhook.includes("payment_status"));
 add('failed payment handled', webhook.includes("payment.failed") && webhook.includes("checkout.expired"));
 add('refund success handled', webhook.includes("payment.refunded") && webhook.includes("refund_status='refunded'"));
