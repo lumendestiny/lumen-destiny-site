@@ -44,10 +44,19 @@ function apply(explicit){
   localizeBirthTimeOption(document.getElementById('bTime'),lang);
 }
 
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>apply());
-else apply();
+function ensurePrivateInputSession(){
+  if(!document.getElementById('sajuForm')&&!document.getElementById('compatForm'))return;
+  if(document.querySelector('script[src*="/private-input-session.js"]'))return;
+  const script=document.createElement('script');
+  script.src='/private-input-session.js?v=20260815-1';
+  script.async=false;
+  document.head.appendChild(script);
+}
 
-window.addEventListener('load',()=>setTimeout(()=>apply(),0),{once:true});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{apply();ensurePrivateInputSession();});
+else{apply();ensurePrivateInputSession();}
+
+window.addEventListener('load',()=>setTimeout(()=>{apply();ensurePrivateInputSession();},0),{once:true});
 window.addEventListener('lumen-language-change',event=>setTimeout(()=>apply(event.detail?.lang),0));
 document.addEventListener('click',event=>{
   const choice=event.target.closest?.('.lang-choice');
@@ -55,6 +64,6 @@ document.addEventListener('click',event=>{
   setTimeout(()=>apply(choice.dataset.lang),0);
 });
 
-setTimeout(()=>apply(),120);
+setTimeout(()=>{apply();ensurePrivateInputSession();},120);
 setTimeout(()=>apply(),400);
 })();
