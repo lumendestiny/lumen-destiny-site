@@ -14,6 +14,7 @@ for(const l of langs)need(shell.includes(`['${l}'`),`language switcher missing $
 need(shell.includes("if(lang==='zh')")&&shell.includes("/zh-i18n.js"),'Chinese runtime patch is not loaded');
 need(shell.includes("lang.startsWith('zh')"),'service shell does not normalize zh locale');
 need(shell.includes("/guardian-i18n.js"),'Guardian common i18n runtime is not loaded');
+need(shell.includes("guardian-order-policy-i18n.js"),'Guardian checkout policy i18n helper is not loaded');
 
 const home=read('i18n-stable.js');
 for(const l of ['ko','en','ja','tl','vi'])need(home.includes(`${l}:{`),`home translation block missing ${l}`);
@@ -68,11 +69,23 @@ for(const k of ['storyHero','storyHeroCopy','storyId','storyType','storyName','s
 for(const k of ['trackHero','trackHeroCopy','storyId','trackStoryId','trackButton'])need(physicalHtml.includes(`data-i18n=\"${k}\"`),`Guardian physical status HTML missing i18n hook ${k}`);
 for(const k of ['verifyHero','verifyHeroCopy','verifyId','verifyButton','verifyResult','verifyNote','qrTitle','qrCopy'])need(verifyHtml.includes(`data-i18n=\"${k}\"`),`Guardian verify HTML missing i18n hook ${k}`);
 
+const policyI18n=read('guardian-order-policy-i18n.js');
+for(const marker of ['Refund & cancellation policy','返金・キャンセルポリシー','Patakaran sa refund at cancellation','Chính sách hoàn tiền và hủy','退款与取消政策'])need(policyI18n.includes(marker),`Guardian policy localization missing marker: ${marker}`);
+need(policyI18n.includes("window.addEventListener('load',apply"),'Guardian policy localization is not load-order safe');
+
+const checkoutUi=read('guardian-checkout.js');
+need(checkoutUi.includes("zh:{pay:'继续付款'"),'Guardian checkout Chinese block missing');
+need(checkoutUi.includes("refundPolicy:'退款与取消政策'")&&checkoutUi.includes("terms:'使用条款'"),'Guardian checkout Chinese policy labels missing');
+need((checkoutUi.match(/if\(agree&&!agree\.checked\)/g)||[]).length>=2,'Guardian checkout does not re-check consent before final checkout');
+
 for(const f of ['zh-guardian-order.js','zh-guardian-checkout.js','zh-guardian-payment-result.js'])need(fs.existsSync(f),`Chinese Guardian patch missing ${f}`);
+const zhPayment=read('zh-guardian-payment-result.js');
+need(zhPayment.includes('if(!s)continue')&&!zhPayment.includes('if(!s)return'),'Chinese payment-result translation traversal can abort early');
+need(zhPayment.includes('Guardian 正式验证'),'Chinese payment-result primary action translation missing');
 
 if(fail.length){
   console.error(`Language coverage audit FAILED with ${fail.length} issue(s):`);
   for(const x of fail)console.error(`- ${x}`);
   process.exit(1);
 }
-console.log('Language coverage audit passed: KO / EN / JA / TL / VI / ZH core V1 coverage is present.');
+console.log('Language coverage audit passed: KO / EN / JA / TL / VI / ZH core V1 coverage, Guardian checkout policy localization, and Chinese payment-result recovery coverage are present.');
