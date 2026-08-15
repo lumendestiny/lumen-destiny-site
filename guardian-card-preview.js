@@ -8,8 +8,9 @@
     const card=document.querySelector('.guardian-card-preview'),frame=document.querySelector('.guardian-card-frame');
     const approved=window.__LUMEN_GUARDIAN_APPROVED_ASSETS__,archive=window.LUMEN_GUARDIAN_ARCHIVE_HD;
     if(!tier||!card||!frame||!approved)return;
+    const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)')||null;
     const labels={basic:'Guardian Basic · 승인 HD 판매 이미지 · 100개 한정',custom:'Personal Wish · 승인 HD 판매 이미지 · 100개 한정',rare:'Rare Edition · 승인 HD 판매 이미지 · 5개 한정 · 변화하는 테두리',legendary:'Legendary Motion · 승인 HD · 1/1 · 라이브 모션'};
-    const fallback={basic:'/assets/guardian/sales/guardian-basic-5-hd.webp',custom:'/assets/guardian/sales/guardian-wish-10-hd.webp',rare:'/assets/guardian/sales/guardian-rare-50-hd.webp',legendary:'/assets/guardian/sales/guardian-legendary-100-hd.webp'};
+    const fallback={basic:'/assets/guardian/sales/guardian-basic-5-hd.webp',custom:'/assets/guardian/sales/guardian-wish-10-hd.webp',rare:'/assets/guardian/sales/guardian-rare-50-hd.webp',legendary:'/assets/guardian/sales/legendary-approved-hd.webp'};
     const archiveNames={'fortune-cat':'행운냥이','koi':'비단잉어','sun-bird':'아기 봉황','new-deer':'새벽사슴','gold-hamster':'복다람','moon-rabbit':'달토끼','dolphin':'소망돌고래','fire-fox':'불여우','leaf-turtle':'잎새거북','star-owl':'별부엉이','nine-fox':'백호','sea-dragon':'청룡','unicorn':'주작','forest-turtle':'현무','wing-owl':'황금기린','sky-dragon':'백룡','fire-phoenix':'주작','moon-tiger':'청호','qilin':'녹기린','black-turtle':'현무'};
     let guarding=false;
     function ensure(){
@@ -20,16 +21,18 @@
       return shell;
     }
     function archiveSrc(){if(!archiveGuardian||!archive?.items?.[archiveGuardian])return'';return versioned((archive.basePath||'')+archive.items[archiveGuardian],archive.version||'1')}
+    function resolvedSrc(key,asset){const archived=archiveSrc();if(archived)return archived;if(key==='legendary'&&reduceMotion?.matches&&asset.staticSrc)return asset.staticSrc;return asset.src}
     function render(){
       const shell=ensure(),key=approved[tier.value]?tier.value:'basic',asset=approved[key],img=shell.querySelector('.guardian-tier-art');
-      card.dataset.tier=key;card.dataset.assetPolicy=archiveGuardian?'archive-selected':asset.kind;guarding=true;img.dataset.fallback='0';
-      img.onerror=()=>{if(img.dataset.fallback==='1')return;img.dataset.fallback='1';img.src=fallback[key]+'?v=guardian-hd-fallback-20260814-1'};
-      const selectedSrc=archiveSrc()||asset.src;if(img.getAttribute('src')!==selectedSrc)img.setAttribute('src',selectedSrc);
-      const selectedName=archiveGuardian?(archiveNames[archiveGuardian]||'선택 Guardian'):(tier.options[tier.selectedIndex]?.textContent||'Guardian');img.alt=selectedName+' 승인 HD 판매용 카드 이미지';
-      const value=card.parentElement?.querySelector('.guardian-tier-value');if(value)value.textContent=archiveGuardian?`${selectedName} · ${labels[key]}`:labels[key];guarding=false;
+      const selectedSrc=resolvedSrc(key,asset),usingStaticMotionFallback=key==='legendary'&&!archiveGuardian&&reduceMotion?.matches&&asset.staticSrc&&selectedSrc===asset.staticSrc;
+      card.dataset.tier=key;card.dataset.assetPolicy=archiveGuardian?'archive-selected':asset.kind;card.dataset.motion=usingStaticMotionFallback?'reduced-static':asset.motion||'none';guarding=true;img.dataset.fallback='0';
+      img.onerror=()=>{if(img.dataset.fallback==='1')return;img.dataset.fallback='1';img.src=fallback[key]+'?v=guardian-hd-fallback-20260815-1'};
+      if(img.getAttribute('src')!==selectedSrc)img.setAttribute('src',selectedSrc);
+      const selectedName=archiveGuardian?(archiveNames[archiveGuardian]||'선택 Guardian'):(tier.options[tier.selectedIndex]?.textContent||'Guardian');img.alt=selectedName+(usingStaticMotionFallback?' 동작 줄이기 정지':'')+' 승인 HD 판매용 카드 이미지';
+      const value=card.parentElement?.querySelector('.guardian-tier-value');if(value)value.textContent=archiveGuardian?`${selectedName} · ${labels[key]}`:labels[key]+(usingStaticMotionFallback?' · 동작 줄이기 정지본':'');guarding=false;
     }
-    const img=ensure().querySelector('.guardian-tier-art');new MutationObserver(()=>{if(guarding)return;const key=approved[tier.value]?tier.value:'basic',asset=approved[key],expected=archiveSrc()||asset.src;if(img.dataset.fallback!=='1'&&img.getAttribute('src')!==expected)render()}).observe(img,{attributes:true,attributeFilter:['src']});
-    tier.addEventListener('change',render);wish?.addEventListener('change',render);render();
+    const img=ensure().querySelector('.guardian-tier-art');new MutationObserver(()=>{if(guarding)return;const key=approved[tier.value]?tier.value:'basic',asset=approved[key],expected=resolvedSrc(key,asset);if(img.dataset.fallback!=='1'&&img.getAttribute('src')!==expected)render()}).observe(img,{attributes:true,attributeFilter:['src']});
+    tier.addEventListener('change',render);wish?.addEventListener('change',render);reduceMotion?.addEventListener?.('change',render);render();
   }
-  document.querySelectorAll('script[data-guardian-approved-manifest]').forEach(x=>x.remove());const s=document.createElement('script');s.src='/guardian-asset-manifest.js?v=guardian-hd-masters-20260814-1';s.dataset.guardianApprovedManifest='true';s.onload=start;s.onerror=()=>console.error('Failed to load Guardian approved HD asset manifest');document.head.appendChild(s);
+  document.querySelectorAll('script[data-guardian-approved-manifest]').forEach(x=>x.remove());const s=document.createElement('script');s.src='/guardian-asset-manifest.js?v=guardian-reduced-motion-20260815-1';s.dataset.guardianApprovedManifest='true';s.onload=start;s.onerror=()=>console.error('Failed to load Guardian approved HD asset manifest');document.head.appendChild(s);
 })();
