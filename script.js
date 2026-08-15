@@ -232,7 +232,7 @@ function goToFortune(hash, updateHash = true) {
   } else {
     setFocusedCard(hash);
     const target = document.querySelector(hash);
-    if (window.matchMedia('(min-width: 781px)').matches && fortuneServices) {
+    if ((hash === '#wealth' || window.matchMedia('(min-width: 781px)').matches) && fortuneServices) {
       scrollElementBelowHeader(fortuneServices, 0);
     } else if (target) {
       scrollElementBelowHeader(target, 12);
