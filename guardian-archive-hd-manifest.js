@@ -1,5 +1,5 @@
 window.LUMEN_GUARDIAN_ARCHIVE_HD = Object.freeze({
-  version: '2026-08-15-hd25-legendary-motion-live-1',
+  version: '2026-08-15-hd26-basic-reload-1',
   basePath: '/assets/guardian/archive-hd/',
   items: {
     'fortune-cat': 'guardian-basic-fortune-cat-hd.webp',
