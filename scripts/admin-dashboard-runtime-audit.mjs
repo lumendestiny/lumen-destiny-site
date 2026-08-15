@@ -43,7 +43,11 @@ try{
 
   await page.locator('#opsSecret').fill('runtime-test-secret');
   await page.locator('#opsD1Preflight').click();
-  await page.waitForFunction(()=>document.getElementById('opsD1Gate')?.textContent?.includes('D1 PREFLIGHT HOLD'));
+  await page.waitForFunction(()=>{
+    const message=document.getElementById('opsMessage')?.textContent||'';
+    const cards=document.querySelectorAll('#opsD1Items .ops-card').length;
+    return message.includes('D1 Preflight 완료')&&cards>=6;
+  },{timeout:10000});
   const rendered=await page.evaluate(()=>({
     gate:document.getElementById('opsD1Gate')?.textContent||'',
     items:document.getElementById('opsD1Items')?.textContent||'',
@@ -69,4 +73,4 @@ if(failures.length){
   for(const f of failures)console.error(`FAIL ${f}`);
   process.exit(1);
 }
-console.log('Admin dashboard runtime audit passed: noindex protection, password/session-only secret handling, D1 Preflight injection, mocked read-only state rendering, and secret clearing work on a 390px mobile viewport.');
+console.log('Admin dashboard runtime audit passed: noindex protection, password/session-only secret handling, completed D1 Preflight rendering, mocked read-only state, and secret clearing work on a 390px mobile viewport.');
