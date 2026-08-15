@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "루멘 명운",
+    "slug": "lumen-destiny",
+    "scheme": "lumendestiny",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lumendestiny.app"
+    },
+    "android": {
+      "package": "com.lumendestiny.app"
+    },
+    "plugins": ["expo-router"]
+  }
+}
