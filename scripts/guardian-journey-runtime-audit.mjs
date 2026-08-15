@@ -9,14 +9,14 @@ const fail=(lang,flow,msg)=>failures.push(`${lang} ${flow}: ${msg}`);
 
 async function makePage(){
   const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
-  page.setDefaultTimeout(3500);
+  page.setDefaultTimeout(5000);
   page.setDefaultNavigationTimeout(15000);
   return page;
 }
 async function open(page,path){
   const res=await page.goto(`${base}${path}`,{waitUntil:'domcontentloaded',timeout:15000});
   if(!res?.ok())throw new Error(`HTTP ${res?.status()}`);
-  await page.waitForTimeout(450);
+  await page.waitForTimeout(500);
 }
 async function assertNoOverflow(page,lang,flow){
   const n=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
@@ -28,13 +28,18 @@ for(const lang of langs){
     const page=await makePage();
     try{
       await open(page,`/guardian/?lang=${lang}&journey_runtime_audit=1`);
-      const cta=page.locator('#purpose-guardians .archive-card a.button').first();
+      const cards=page.locator('#purpose-guardians .gc2-card');
+      await cards.first().waitFor({state:'visible'});
+      const count=await cards.count();
+      if(count!==20)fail(lang,'archive',`expected 20 Guardian collection cards, got ${count}`);
+      const cta=page.locator('#purpose-guardians .gc2-card a.button').first();
       await cta.waitFor({state:'visible'});
       const href=await cta.getAttribute('href');
       if(!href){fail(lang,'archive','no Guardian selection CTA');continue}
       const u=new URL(href,base);
       if(!u.pathname.startsWith('/guardian-order'))fail(lang,'archive',`selection did not lead to Guardian order (${href})`);
       if(u.searchParams.get('lang')!==lang)fail(lang,'archive',`selection lost language (${href})`);
+      if(u.searchParams.get('guardian')!=='fortune-cat')fail(lang,'archive',`selected Guardian key missing or wrong (${href})`);
       const res=await page.goto(u.toString(),{waitUntil:'domcontentloaded',timeout:15000});
       if(!res?.ok())throw new Error(`order HTTP ${res?.status()}`);
       await page.waitForTimeout(500);
@@ -93,4 +98,4 @@ if(failures.length){
   for(const x of failures)console.error(`FAIL ${x}`);
   process.exit(1);
 }
-console.log('Guardian journey runtime audit passed: archive selection, personalized preview, gift recipient flow, language preservation, policy visibility and 390px mobile layout work in KO / EN / JA / TL / VI / ZH without creating server orders or payments.');
+console.log('Guardian journey runtime audit passed: 20-card archive selection, personalized preview, gift recipient flow, language preservation, policy visibility and 390px mobile layout work in KO / EN / JA / TL / VI / ZH without creating server orders or payments.');
