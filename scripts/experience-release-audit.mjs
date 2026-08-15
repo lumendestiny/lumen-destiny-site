@@ -4,7 +4,7 @@ const read=p=>fs.readFileSync(p,'utf8');
 const must=(p,needles)=>{const t=read(p);for(const n of needles){if(!t.includes(n))throw new Error(`${p}: missing ${n}`)}return t};
 const exists=p=>{if(!fs.existsSync(p))throw new Error(`missing required V1 file: ${p}`)};
 
-for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','compatibility.js','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-gift-i18n.js','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','_redirects','lumen-api.js','functions/api/consult.js','functions/api/health.js','result-zh-v1.js','result-enhance.js','result-deep.js','wealth-detail.js','transit-reading.js','current-ten-gods.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md','V1_SCOPE.md']) exists(p);
+for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','compatibility.js','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-gift-i18n.js','guardian-order-policy-i18n.js','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html','sitemap.xml','robots.txt','_headers','_redirects','lumen-api.js','functions/api/consult.js','functions/api/health.js','result-zh-v1.js','result-enhance.js','result-deep.js','wealth-detail.js','transit-reading.js','current-ten-gods.js','ACCESSIBILITY_RELEASE_CHECKLIST.md','GUARDIAN_CUSTOMER_JOURNEY_RELEASE.md','OPERATIONS_BACKUP_RECOVERY.md','MOBILE_HEADER_UI_SPEC.md','V1_SCOPE.md']) exists(p);
 
 for(const p of ['index.html','result.html','compatibility/index.html','compatibility-result/index.html','guardian/index.html','guardian-order/index.html','guardian-gift/index.html','guardian-verify/index.html','privacy.html','terms.html','refund-policy.html','support.html','404.html']) must(p,['<main']);
 
@@ -30,6 +30,10 @@ must('result.html',['result-zh-v1.js']);
 must('guardian-gift/index.html',['data-gift-i18n="hero"','guardian-gift-i18n.js','gift=1']);
 must('guardian-gift-i18n.js',["lang==='zh'",'en:{','ja:{','tl:{','vi:{','zh:{','searchParams.set(\'lang\',lang)']);
 
+must('guardian-order/index.html',['guardianPolicyAgree','guardianConfirm','refund-policy.html','terms.html']);
+must('guardian-order-policy-i18n.js',["lang.startsWith('zh')","lang.startsWith('ja')","lang.startsWith('vi')","lang.startsWith('tl')","lang.startsWith('en')",'Refund & cancellation policy','返金・キャンセルポリシー','Patakaran sa refund at cancellation','Chính sách hoàn tiền và hủy','退款与取消政策',"preview.setAttribute('aria-label'","agree.setAttribute('aria-label'"]);
+must('service-shell.js',['Choose language','言語を選択','Pumili ng wika','Chọn ngôn ngữ','选择语言','script[src*="/guardian-i18n.js"]','guardian-order-policy-i18n.js',"stablePath(location.pathname)==='/guardian-order'"]);
+
 // V1 product scope lock: consultation source may remain for a future upgrade, but legacy
 // AI configuration alone cannot expose the route or backend.
 must('functions/api/consult.js',['LUMEN_PUBLIC_CONSULT_ENABLED','feature_not_in_v1']);
@@ -54,4 +58,4 @@ must('V1_SCOPE.md',['Face reading / physiognomy (관상)','1:1 AI consultation',
 const sitemap=read('sitemap.xml');
 if(sitemap.includes('/consult')) throw new Error('sitemap must not expose excluded V1 consultation');
 
-console.log('Experience release static audit passed. V1 AI exclusion, SEO/social metadata, compatibility contract, full Chinese fortune-result coverage, public six-language Guardian gifting, private-result indexing and recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
+console.log('Experience release static audit passed. V1 AI exclusion, SEO/social metadata, compatibility contract, full Chinese fortune-result coverage, public six-language Guardian gifting, localized Guardian checkout policy links/accessibility labels, private-result indexing and recovery safeguards are locked. Runtime/device evidence is still required before setting Experience Gate flags.');
