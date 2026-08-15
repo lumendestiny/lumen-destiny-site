@@ -20,15 +20,7 @@
     const [key,name,element,wish]=item;
     const c=tier.tone;
     const icon=motifs[key]||'✦';
-    return `<svg viewBox="0 0 720 1080" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(name)} Lumen Guardian">
-      <defs><linearGradient id="g${tier.key}${index}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${tier.bg1}"/><stop offset="1" stop-color="${tier.bg2}"/></linearGradient></defs>
-      <rect width="720" height="1080" rx="42" fill="url(#g${tier.key}${index})"/>
-      <rect x="18" y="18" width="684" height="1044" rx="34" fill="none" stroke="${c}" stroke-width="6"/>
-      <rect x="34" y="34" width="652" height="1012" rx="26" fill="none" stroke="${c}" stroke-opacity=".45" stroke-width="2"/>
-      <circle cx="360" cy="480" r="230" fill="${c}" opacity=".08"/>
-      <text x="360" y="550" text-anchor="middle" font-size="230">${icon}</text>
-      <g fill="${c}" text-anchor="middle"><text x="360" y="105" font-family="Georgia,serif" font-size="44" font-weight="700">LUMEN GUARDIAN</text><text x="360" y="146" font-family="Arial,sans-serif" font-size="18" letter-spacing="5">${esc(tier.label)}</text><text x="360" y="760" font-size="34" font-weight="800">${esc(name)}</text><text x="360" y="814" font-size="25">오행 · ${esc(element)}</text><text x="360" y="858" font-size="23">${esc(wish)}</text><text x="360" y="970" font-family="Georgia,serif" font-size="22">${tier.price===100?'1 / 1 · UNIQUE ISSUE':`SERIES ${String(index+1).padStart(2,'0')} · ${tier.limit} LIMITED`}</text></g>
-    </svg>`;
+    return `<svg viewBox="0 0 720 1080" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(name)} Lumen Guardian"><defs><linearGradient id="g${tier.key}${index}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${tier.bg1}"/><stop offset="1" stop-color="${tier.bg2}"/></linearGradient></defs><rect width="720" height="1080" rx="42" fill="url(#g${tier.key}${index})"/><rect x="18" y="18" width="684" height="1044" rx="34" fill="none" stroke="${c}" stroke-width="6"/><rect x="34" y="34" width="652" height="1012" rx="26" fill="none" stroke="${c}" stroke-opacity=".45" stroke-width="2"/><circle cx="360" cy="480" r="230" fill="${c}" opacity=".08"/><text x="360" y="550" text-anchor="middle" font-size="230">${icon}</text><g fill="${c}" text-anchor="middle"><text x="360" y="105" font-family="Georgia,serif" font-size="44" font-weight="700">LUMEN GUARDIAN</text><text x="360" y="146" font-family="Arial,sans-serif" font-size="18" letter-spacing="5">${esc(tier.label)}</text><text x="360" y="760" font-size="34" font-weight="800">${esc(name)}</text><text x="360" y="814" font-size="25">오행 · ${esc(element)}</text><text x="360" y="858" font-size="23">${esc(wish)}</text><text x="360" y="970" font-family="Georgia,serif" font-size="22">${tier.price===100?'1 / 1 · UNIQUE ISSUE':`SERIES ${String(index+1).padStart(2,'0')} · ${tier.limit} LIMITED`}</text></g></svg>`;
   }
   function art(tier,item,index){
     const [key,name]=item;
@@ -44,7 +36,8 @@
     const tierParam=tier.key==='personal'?'custom':tier.key;
     const wishType=['wealth','career','exam','health','love'][index%5];
     const hd=window.LUMEN_GUARDIAN_ARCHIVE_HD?.items?.[key];
-    return `<article class="gc2-card gc2-${tier.key}" data-guardian-key="${key}" data-hd="${hd?'ready':'fallback'}"><div class="gc2-art">${art(tier,item,index)}</div><div class="gc2-info"><div class="gc2-meta"><span class="gc2-price">$${tier.price}</span><span class="gc2-limit">${tier.price===100?'1/1':`${tier.limit}개 한정`}</span>${hd?'<span class="gc2-hd">HD</span>':''}</div><h3>${esc(name)}</h3><p><strong>${esc(element)}</strong> · ${esc(wish)}</p><a class="button secondary" href="/guardian-order/?tier=${tierParam}&wishType=${wishType}">이 Guardian 선택</a></div></article>`;
+    const orderHref=`/guardian-order/?tier=${encodeURIComponent(tierParam)}&wishType=${encodeURIComponent(wishType)}&guardian=${encodeURIComponent(key)}&fromArchive=1`;
+    return `<article class="gc2-card gc2-${tier.key}" data-guardian-key="${key}" data-hd="${hd?'ready':'fallback'}"><div class="gc2-art">${art(tier,item,index)}</div><div class="gc2-info"><div class="gc2-meta"><span class="gc2-price">$${tier.price}</span><span class="gc2-limit">${tier.price===100?'1/1':`${tier.limit}개 한정`}</span>${hd?'<span class="gc2-hd">HD</span>':''}</div><h3>${esc(name)}</h3><p><strong>${esc(element)}</strong> · ${esc(wish)}</p><a class="button secondary" href="${orderHref}">이 Guardian 선택</a></div></article>`;
   }
   function render(){
     const target=document.querySelector('#purpose-guardians .archive-grid');
