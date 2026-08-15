@@ -6,14 +6,21 @@
   .talisman>div:first-child>.section-label,
   .talisman>div:first-child>h2,
   .purpose-guardian-heading>.section-label,
-  .purpose-guardian-heading>h2{
+  .purpose-guardian-heading>h2,
+  .archive-hero>.section-label,
+  .archive-hero>h1,
+  .result-hero>.section-label,
+  .result-hero>h1{
     text-align:center!important;
   }
 
   .form-heading>p:not(.section-label),
   .section-title>p:not(.section-label),
   .talisman>div:first-child>p:not(.section-label),
-  .purpose-guardian-heading>p:not(.section-label){
+  .purpose-guardian-heading>p:not(.section-label),
+  .archive-hero>.archive-note,
+  .archive-hero>p:not(.section-label),
+  .result-hero>p:not(.section-label){
     text-align:left!important;
   }
 
