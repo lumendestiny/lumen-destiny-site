@@ -2,6 +2,12 @@ import fs from 'node:fs';
 
 const required=[
 ['guardian-order/index.html','guardianPolicyAgree'],
+['guardian-order/index.html','guardianConfirm'],
+['guardian-order/index.html','guardianConfirmNote'],
+['guardian-order/index.html','giftFields'],
+['guardian-order/index.html','guardianRecipient'],
+['guardian-order/index.html','refund-policy.html'],
+['guardian-order/index.html','terms.html'],
 ['guardian-order/index.html','guardian-checkout.js'],
 ['guardian-order-v2.js','createGuardianOrder'],
 ['guardian-order-v2.js','recipientName'],
@@ -11,6 +17,7 @@ const required=[
 ['guardian-order-v2.js','zh:{giftTitle'],
 ['guardian-checkout.js','createGuardianCheckout'],
 ['guardian-checkout.js','policyAccepted:true'],
+['guardian-checkout.js','guardianPolicyAgree'],
 ['functions/api/guardian/orders.js',"'pending','pending'"],
 ['functions/api/payments/test-complete.js',"event=map[mode]"],
 ['functions/api/payments/test-complete.js','/api/payments/webhook'],
@@ -41,8 +48,10 @@ const required=[
 ['guardian-payment-ux.js',"verify.href='/guardian-verify/?id='"],
 ['zh-guardian-payment-result.js','/guardian-verify/?id='],
 ['zh-guardian-payment-result.js','Guardian 付款状态'],
-['guardian-gift/index.html','noindex,nofollow'],
-['guardian-gift/index.html','url=/guardian/'],
+['guardian-gift/index.html','index,follow'],
+['guardian-gift/index.html','gift=1'],
+['guardian-gift/index.html','guardian-gift-i18n.js'],
+['guardian-gift-i18n.js',"searchParams.set('lang',lang)"],
 ['guardian-gallery.js','/api/guardian/stories-public'],
 ['functions/api/payments/e2e-sandbox-8a41d7.js','x-lumen-internal-secret'],
 ['functions/api/payments/e2e-sandbox-8a41d7.js','onRequestPost']
@@ -55,4 +64,4 @@ for(const[file,needle]of required){
  else console.log(`OK: ${file} -> ${needle}`)
 }
 if(failed)process.exit(1);
-console.log('Guardian flow audit passed: order, payment, paid+issued issuance, refund, verification, verified-only QR, six-language UX and canonical verification routes are locked.');
+console.log('Guardian flow audit passed: order, gifting, explicit policy consent, payment, paid+issued issuance, refund, verification, verified-only QR, six-language UX and canonical verification routes are locked.');
