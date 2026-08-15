@@ -11,6 +11,7 @@ export default function RootLayout() {
       <Stack.Screen name="guardian" options={{ title: 'LUMEN GUARDIAN' }} />
       <Stack.Screen name="guardian-order" options={{ title: 'Guardian 발급 준비' }} />
       <Stack.Screen name="guardian-verify" options={{ title: 'Guardian 인증' }} />
+      <Stack.Screen name="my-guardian" options={{ title: '내 Guardian' }} />
     </Stack>
   );
 }
