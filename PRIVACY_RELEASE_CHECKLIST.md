@@ -47,6 +47,7 @@ Use `V1_DATA_INVENTORY.md` as the working inventory.
 Current evidence:
 - Saju/compatibility private input: browser-session handoff with successful-result cleanup and 30-minute reuse limit — automated PASS.
 - Guardian/payment/checkout/policy records: D1 schemas and operational purpose documented — implementation known.
+- Internal read-only privacy record map can identify which Guardian/story/payment/fulfillment record classes exist for an exact Guardian ID or payment reference without returning raw gift/shipping/token values.
 
 Still required before setting the flag:
 - Final retention period for Guardian order/issuance records.
@@ -61,15 +62,27 @@ Still required before setting the flag:
 ## 4. Deletion request flow — `LUMEN_DELETE_REQUEST_FLOW_VERIFIED`
 Support channel: `llumendestiny@gmail.com`.
 
+Operational runbook: `PRIVACY_REQUEST_OPERATIONS.md`.
+
+Current engineering support:
+- `/api/admin/privacy-record-map` is protected by `LUMEN_INTERNAL_SECRET`.
+- It is intentionally read-only (`mutationAvailable:false`).
+- It returns record presence/counts/categories rather than raw private gift/shipping/token values.
+- Production Smoke requires unauthenticated access to return `401 unauthorized`.
+- Security Release Audit requires the endpoint to remain internal and rejects SQL mutation patterns in this file.
+
 Minimum procedure:
 1. Receive a deletion/privacy request.
 2. Verify enough information to identify the relevant record without requesting unnecessary sensitive data.
-3. Locate records by Guardian/order/payment reference or other minimum identifier.
-4. Delete or anonymize data that is no longer required; retain only data that must legally/operationally remain, with documented reason.
-5. Confirm completion to the requester without exposing internal secrets or other users' data.
-6. Record only a minimal audit fact that the request was handled; do not copy the deleted sensitive content into the audit record.
+3. Locate record classes using the protected read-only record map and the minimum Guardian/payment reference.
+4. Apply the **approved** deletion/anonymization matrix only after retention/legal/provider obligations are finalized.
+5. Retain only data that must legally/operationally remain, with documented reason.
+6. Confirm completion to the requester without exposing internal secrets or other users' data.
+7. Record only a minimal audit fact that the request was handled; do not copy the deleted sensitive content into the audit record.
 
-Before setting the flag, run one end-to-end test request against the deployed support/operations process.
+There is intentionally no automatic production delete endpoint yet. Do not add one merely to clear this gate.
+
+Before setting the flag, run one end-to-end test request against the deployed support/operations process using non-sensitive test data and the approved retention/anonymization matrix.
 
 **Current status: HOLD** until a real test request is completed and the allowed deletion/anonymization scope is documented.
 
@@ -90,11 +103,12 @@ Errors returned to users should use stable error codes rather than echoing reque
 1. Keep the four V1 blocker flags false by default: privacy policy, retention, deletion flow, sensitive logging.
 2. Face-photo verification remains optional/N/A until face reading is actually released.
 3. Dedicated free-reading Privacy Runtime Audit — **PASS**.
-4. Complete deployed log review and real deletion-request rehearsal.
-5. Finalize Guardian/payment retention after merchant/provider/legal obligations are known.
-6. Reconcile the public privacy policy with the final approved data inventory/retention process.
-7. Set each V1 blocker flag true individually only after evidence exists.
-8. Call authenticated `/api/admin/privacy-gate` and require `PRIVACY RELEASE READY` with zero blockers before enabling public paid processing that depends on those records.
+4. Protected read-only privacy record map + public-access guard — **PASS engineering support**.
+5. Complete deployed log review and real deletion-request rehearsal.
+6. Finalize Guardian/payment retention after merchant/provider/legal obligations are known.
+7. Reconcile the public privacy policy with the final approved data inventory/retention process.
+8. Set each V1 blocker flag true individually only after evidence exists.
+9. Call authenticated `/api/admin/privacy-gate` and require `PRIVACY RELEASE READY` with zero blockers before enabling public paid processing that depends on those records.
 
 ## Principle
-Privacy readiness is an evidence gate, not a documentation checkbox. The new automated free-reading privacy PASS is meaningful implementation evidence, but it must not be misrepresented as proof of transaction retention, deletion operations or deployed log hygiene.
+Privacy readiness is an evidence gate, not a documentation checkbox. The automated free-reading privacy PASS and protected record-map tooling are meaningful implementation evidence, but they must not be misrepresented as proof of transaction retention, deletion operations or deployed log hygiene.
