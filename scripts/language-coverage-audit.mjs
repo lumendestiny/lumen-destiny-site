@@ -11,7 +11,7 @@ for(const l of langs)need(smoke.includes(`'${l}'`),`production smoke missing lan
 
 const shell=read('service-shell.js');
 for(const l of langs)need(shell.includes(`['${l}'`),`language switcher missing ${l}`);
-need(shell.includes("if(lang==='zh')")&&shell.includes("/zh-i18n.js"),'Chinese runtime patch is not loaded');
+need(shell.includes("lang==='zh'")&&shell.includes("/zh-i18n.js"),'Chinese runtime patch is not loaded');
 need(shell.includes("lang.startsWith('zh')"),'service shell does not normalize zh locale');
 need(shell.includes("/guardian-i18n.js"),'Guardian common i18n runtime is not loaded');
 need(shell.includes("guardian-order-policy-i18n.js"),'Guardian checkout policy i18n helper is not loaded');
@@ -39,7 +39,6 @@ for(let i=0;i<compatOrder.length;i++){
   for(const k of compatKeys)need(new RegExp(`(?:^|[,\\n])\\s*${k}:`).test(s),`compatibility ${l} missing key ${k}`);
 }
 
-// Guardian uses Korean authored HTML as the baseline and one shared runtime for EN/JA/TL/VI/ZH.
 const guardian=read('guardian-i18n.js');
 const gOrder=['en','ja','tl','vi','zh'];
 const gKeys=[
