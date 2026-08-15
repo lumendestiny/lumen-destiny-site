@@ -1,0 +1,92 @@
+@media (min-width:1181px){
+  html{scroll-padding-top:82px!important}
+  body:has(#purpose-guardians:target) #purpose-guardians,
+  #purpose-guardians.section{
+    height:auto!important;
+    min-height:calc(100dvh - 82px)!important;
+    padding:14px 0 26px!important;
+    overflow:visible!important;
+  }
+  #purpose-guardians .gc2-collection{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    display:grid!important;
+    gap:22px!important;
+    overflow:visible!important;
+    scroll-snap-type:y mandatory!important;
+  }
+  #purpose-guardians .gc2-tier{
+    width:min(1188px,calc(100vw - 128px))!important;
+    height:calc(100dvh - 104px)!important;
+    min-height:calc(100dvh - 104px)!important;
+    max-height:calc(100dvh - 104px)!important;
+    margin:0 auto!important;
+    padding:16px!important;
+    border-radius:18px!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:flex-start!important;
+    overflow:hidden!important;
+    scroll-margin-top:82px!important;
+    scroll-snap-align:start!important;
+    scroll-snap-stop:always!important;
+  }
+  #purpose-guardians .gc2-tier-head{
+    flex:0 0 52px!important;
+    margin:0 0 10px!important;
+    gap:14px!important;
+    align-items:center!important;
+  }
+  #purpose-guardians .gc2-tier-price{font-size:2rem!important;line-height:1!important}
+  #purpose-guardians .gc2-tier-head strong{font-size:1.05rem!important;line-height:1.15!important}
+  #purpose-guardians .gc2-tier-head small{font-size:.72rem!important;line-height:1.2!important;margin-top:4px!important}
+  #purpose-guardians .gc2-row{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:12px!important;
+    align-items:stretch!important;
+  }
+  #purpose-guardians .gc2-card{
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    border-radius:14px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+  }
+  #purpose-guardians .gc2-art,
+  #purpose-guardians .gc2-card[data-hd="ready"] .gc2-art,
+  #purpose-guardians .gc2-legendary .gc2-art{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    height:auto!important;
+    aspect-ratio:auto!important;
+  }
+  #purpose-guardians .gc2-hd-img,
+  #purpose-guardians .gc2-card[data-hd="ready"] .gc2-hd-img,
+  #purpose-guardians .gc2-legendary .gc2-hd-img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center!important;
+  }
+  #purpose-guardians .gc2-info{
+    flex:0 0 142px!important;
+    min-height:142px!important;
+    padding:10px 12px 12px!important;
+    gap:5px!important;
+    box-sizing:border-box!important;
+  }
+  #purpose-guardians .gc2-meta{gap:7px!important}
+  #purpose-guardians .gc2-info h3{font-size:.96rem!important;line-height:1.2!important;margin:2px 0!important}
+  #purpose-guardians .gc2-info p{font-size:.78rem!important;line-height:1.4!important;min-height:2.1em!important}
+  #purpose-guardians .gc2-limit{font-size:.70rem!important}
+  #purpose-guardians .gc2-hd{font-size:.64rem!important}
+  #purpose-guardians .gc2-info .button{min-height:34px!important;font-size:.76rem!important;margin-top:auto!important;padding:0 9px!important}
+}
