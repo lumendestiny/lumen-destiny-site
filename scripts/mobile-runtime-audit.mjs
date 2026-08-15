@@ -37,7 +37,7 @@ for(const width of widths){
           fail(ctx,`HTTP ${res?.status()??'no-response'}`);
           continue;
         }
-        await page.waitForTimeout(450);
+        await page.waitForTimeout(500);
 
         const state=await page.evaluate(({lang,route})=>{
           const rect=e=>e?e.getBoundingClientRect():null;
@@ -53,6 +53,10 @@ for(const width of widths){
           const flags=[...document.querySelectorAll('.fortune-header .lang-choice')].filter(visible);
           const nav=document.querySelector('.main-fortune-nav');
           const focusables=[...document.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea')].filter(visible);
+          const fieldInfo=focusables.map(e=>{
+            const s=getComputedStyle(e);
+            return {tag:e.tagName.toLowerCase(),id:e.id||'',name:e.getAttribute('name')||'',cls:e.className||'',font:parseFloat(s.fontSize)||0,lineHeight:s.lineHeight,parentClass:e.parentElement?.className||''};
+          }).sort((a,b)=>a.font-b.font);
           const actionTargets=[...document.querySelectorAll('.fortune-submit,.result-actions button,.result-actions a.button')].filter(visible);
           const policyLinks=[...document.querySelectorAll('.guardian-policy-consent a')].map(a=>a.textContent.trim());
           const policySpan=document.querySelector('.guardian-policy-consent>span');
@@ -77,7 +81,9 @@ for(const width of widths){
             navExists:!!nav,
             navOverflowX:navStyle?.overflowX||'',
             navInternalOverflow:nav?nav.scrollWidth>nav.clientWidth:false,
-            minFieldFont:focusables.length?Math.min(...focusables.map(e=>parseFloat(getComputedStyle(e).fontSize)||0)):null,
+            minFieldFont:fieldInfo[0]?.font??null,
+            minFieldTarget:fieldInfo[0]||null,
+            fieldInfo,
             minActionHeight:actionTargets.length?Math.min(...actionTargets.map(e=>rect(e)?.height||0)):null,
             policyLinks,
             policyText:policySpan?.textContent||'',
@@ -97,7 +103,7 @@ for(const width of widths){
         if(!state.flagsVerticallyInside) fail(ctx,'language flag clipped vertically outside sticky header');
         if(!state.navExists) fail(ctx,'main navigation missing');
         if(state.navInternalOverflow&&!['auto','scroll'].includes(state.navOverflowX)) fail(ctx,`overflowing nav is not horizontally scrollable (${state.navOverflowX})`);
-        if(state.minFieldFont!==null&&state.minFieldFont<15.9) fail(ctx,`visible form control font below 16px (${state.minFieldFont}px)`);
+        if(state.minFieldFont!==null&&state.minFieldFont<15.9) fail(ctx,`visible form control font below 16px (${state.minFieldFont}px) target=${JSON.stringify(state.minFieldTarget)} all=${JSON.stringify(state.fieldInfo)}`);
         if(state.minActionHeight!==null&&state.minActionHeight<39.5) fail(ctx,`visible primary action touch height below 40px (${state.minActionHeight}px)`);
 
         if(route==='/guardian-order/'){
