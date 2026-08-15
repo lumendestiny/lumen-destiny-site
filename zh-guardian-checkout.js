@@ -43,21 +43,36 @@
     ['Edit order','修改订单']
   ]);
   function translate(root=document){
+    if(!root)return;
     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
     const nodes=[];
     while(walker.nextNode())nodes.push(walker.currentNode);
     for(const node of nodes){
-      let s=node.nodeValue;
-      if(!s)continue;
-      for(const [from,to] of map){if(s.includes(from))s=s.replaceAll(from,to)}
-      node.nodeValue=s;
+      const before=node.nodeValue;
+      if(!before)continue;
+      let next=before;
+      for(const [from,to] of map){if(next.includes(from))next=next.replaceAll(from,to)}
+      if(next!==before)node.nodeValue=next;
     }
   }
   translate();
-  new MutationObserver(mutations=>{
+  let queued=false;
+  const observer=new MutationObserver(mutations=>{
+    if(queued)return;
+    const roots=new Set();
     for(const m of mutations){
-      if(m.type==='characterData'&&m.target.parentNode)translate(m.target.parentNode);
-      for(const node of m.addedNodes){if(node.nodeType===1||node.nodeType===3)translate(node.nodeType===1?node:node.parentNode)}
+      if(m.type==='characterData'&&m.target.parentNode)roots.add(m.target.parentNode);
+      for(const node of m.addedNodes){
+        if(node.nodeType===1)roots.add(node);
+        else if(node.nodeType===3&&node.parentNode)roots.add(node.parentNode);
+      }
     }
-  }).observe(document.body,{subtree:true,childList:true,characterData:true});
+    if(!roots.size)return;
+    queued=true;
+    queueMicrotask(()=>{
+      queued=false;
+      for(const root of roots)translate(root);
+    });
+  });
+  observer.observe(document.body,{subtree:true,childList:true,characterData:true});
 })();
