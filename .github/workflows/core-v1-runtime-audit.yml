@@ -1,0 +1,45 @@
+name: Core V1 Runtime Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'result.html'
+      - 'script.js'
+      - 'manse-result.js'
+      - 'result-*.js'
+      - 'compatibility/**'
+      - 'compatibility.js'
+      - 'compatibility-*.js'
+      - 'i18n-stable.js'
+      - 'form-option-locale-fix.js'
+      - 'service-shell.js'
+      - 'header-language-v2.css'
+      - 'scripts/core-v1-runtime-audit.mjs'
+      - '.github/workflows/core-v1-runtime-audit.yml'
+
+concurrency:
+  group: core-v1-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-v1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Wait for production deployment
+        run: sleep 60
+      - name: Check free Saju and compatibility journeys
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/core-v1-runtime-audit.mjs
