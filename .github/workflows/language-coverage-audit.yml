@@ -14,6 +14,7 @@ on:
       - 'guardian-order/index.html'
       - 'guardian-verify/index.html'
       - 'service-shell.js'
+      - 'recovery-ui.js'
       - 'legal-i18n.js'
       - 'terms.html'
       - 'refund-policy.html'
