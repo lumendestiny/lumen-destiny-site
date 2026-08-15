@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Physical Guardian Status | Lumen Destiny</title><link rel="stylesheet" href="/styles.css?v=20260812-5"><link rel="stylesheet" href="/fortune-ui.css?v=20260812-14"><link rel="stylesheet" href="/result-enhance.css?v=20260812-3"><link rel="stylesheet" href="/service-shell.css?v=20260812-4"><style>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Physical Guardian Status | Lumen Destiny</title><link rel="stylesheet" href="/styles.css?v=20260812-5"><link rel="stylesheet" href="/fortune-ui.css?v=20260812-14"><link rel="stylesheet" href="/result-enhance.css?v=20260812-3"><link rel="stylesheet" href="/service-shell.css?v=20260812-4"><link rel="stylesheet" href="/mobile-section-alignment.css?v=20260815-4"><style>
 body:has(.physical-track-page) .fortune-header{position:relative!important;top:auto!important}
 .physical-track-page{width:min(1500px,calc(100% - 56px))!important;max-width:1500px!important;margin-inline:auto!important;padding:clamp(14px,2.2vh,28px) 0 clamp(18px,3vh,34px)!important;box-sizing:border-box;display:flex;flex-direction:column;align-items:center}
 .physical-track-page:not(:has(#physicalTrackResult:not([hidden]))){min-height:calc(100svh - 82px);justify-content:center}
@@ -39,8 +39,9 @@ body:has(.physical-track-page) .fortune-header{position:relative!important;top:a
 @media (max-width:700px){
   .physical-track-page{width:calc(100% - 24px)!important;min-height:auto!important;padding:16px 0 28px!important;justify-content:flex-start!important}
   .physical-track-page .result-hero{padding:18px 10px 16px}
-  .physical-track-page .result-hero h1{font-size:2.05rem;line-height:1.08}
-  .physical-track-page .result-hero p:last-child{font-size:.86rem;line-height:1.5}
+  .physical-track-page .result-hero .section-label{text-align:center}
+  .physical-track-page .result-hero h1{font-size:2.05rem;line-height:1.08;text-align:center}
+  .physical-track-page .result-hero p:last-child{font-size:.86rem;line-height:1.5;text-align:left!important;width:100%;max-width:none;margin-left:0!important;margin-right:0!important}
   .physical-track-page>.result-panel{width:100%!important;padding:18px 16px!important;margin-bottom:12px!important}
   .physical-track-page .consult-form{gap:12px}
   .physical-track-page .consult-form input{height:48px;min-height:48px;font-size:.88rem}
