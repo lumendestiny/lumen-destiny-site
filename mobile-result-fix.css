@@ -1,0 +1,37 @@
+@media (max-width:780px){
+  .result-page{overflow-x:hidden}
+  .fortune-header{height:auto;min-height:112px;padding:0 18px;display:block;position:sticky;top:0;z-index:100}
+  .brand-language-stack{display:flex;flex-direction:row;min-width:0;padding:9px 0 5px;gap:10px;flex-wrap:nowrap;align-items:center;overflow:visible}
+  .fortune-header .brand{flex:0 0 auto;font-size:1.42rem!important;display:block;padding:0;white-space:nowrap}
+  .language-switcher{height:23px!important;overflow:visible!important;justify-content:flex-start!important;max-width:190px!important;flex:0 1 auto;gap:4px!important}
+  .lang-choice{min-width:29px!important;width:29px!important;height:22px!important}
+  .main-fortune-nav{display:flex!important;overflow-x:auto!important;overflow-y:hidden!important;height:50px;justify-content:flex-start!important;align-items:stretch!important;margin:0 -18px;padding:0 8px;gap:0!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .main-fortune-nav::-webkit-scrollbar{display:none}
+  .main-fortune-nav a{flex:0 0 auto;min-width:auto;min-height:50px;padding:0 12px;justify-content:center;text-align:center;font-size:.88rem!important;line-height:1;white-space:nowrap;border:0}
+  .result-hero{padding:28px 18px 18px;text-align:center}
+  .result-hero .section-label{text-align:center!important}
+  .result-hero h1{font-size:clamp(1.9rem,8.6vw,2.65rem);line-height:1.18;letter-spacing:-.045em;text-align:center;margin:.2rem 0 .65rem;word-break:keep-all}
+  .result-hero>p:last-child{max-width:640px;margin:0 auto;text-align:left!important;line-height:1.65;word-break:keep-all}
+  .result-panel{box-sizing:border-box;width:auto;max-width:none;margin-left:12px;margin-right:12px;padding:20px 16px;border-radius:14px;overflow:hidden}
+  .panel-heading{gap:10px;align-items:flex-start}
+  .panel-heading .engine-badge{flex:0 0 auto;max-width:46%;white-space:normal;text-align:center;line-height:1.25}
+  .pillar-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  .pillar-card{min-width:0!important;min-height:132px!important;padding:16px 8px!important}
+  .pillar-card strong{font-size:1.88rem!important;white-space:nowrap}
+  .detail-grid,.insight-grid,.relation-list,.fortune-reading-grid{min-width:0}
+  .detail-grid>*,.insight-grid>*,.relation-item,.fortune-reading-card{min-width:0;overflow-wrap:anywhere}
+  .fortune-reading-card{padding:17px}
+  .fortune-reading-card p,.panel-copy,.result-disclaimer{word-break:keep-all;overflow-wrap:anywhere}
+  .result-actions{flex-direction:column;padding:0 14px;margin-top:20px}
+  .result-actions .button{width:100%;box-sizing:border-box;text-align:center}
+  html,.result-page{scroll-padding-top:124px}
+  #manseTop,#wealthReading,#yearReading,#monthReading,#todayReading,#compatibilityReading{scroll-margin-top:124px}
+}
+
+@media (max-width:390px){
+  .fortune-header .brand{font-size:1.32rem!important}
+  .lang-choice{min-width:28px!important;width:28px!important}
+  .main-fortune-nav a{padding:0 11px;font-size:.84rem!important}
+  .result-hero h1{font-size:clamp(1.78rem,8.2vw,2.35rem)}
+  .pillar-card strong{font-size:1.72rem!important}
+}
