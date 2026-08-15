@@ -15,6 +15,11 @@ need(shell.includes("lang==='zh'")&&shell.includes("/zh-i18n.js"),'Chinese runti
 need(shell.includes("lang.startsWith('zh')"),'service shell does not normalize zh locale');
 need(shell.includes("/guardian-i18n.js"),'Guardian common i18n runtime is not loaded');
 need(shell.includes("guardian-order-policy-i18n.js"),'Guardian checkout policy i18n helper is not loaded');
+need(shell.includes("/recovery-ui.js"),'shared recovery UI is not loaded');
+
+const recovery=read('recovery-ui.js');
+for(const marker of ['인터넷 연결이 끊겼습니다','You are offline','インターネット接続が切れています','Walang internet connection','Mất kết nối Internet','互联网连接已断开'])need(recovery.includes(marker),`recovery UI missing translated marker: ${marker}`);
+need(recovery.includes("zh:{offlineT:'互联网连接已断开'"),'recovery UI Chinese translation block missing');
 
 const home=read('i18n-stable.js');
 for(const l of ['ko','en','ja','tl','vi'])need(home.includes(`${l}:{`),`home translation block missing ${l}`);
@@ -87,4 +92,4 @@ if(fail.length){
   for(const x of fail)console.error(`- ${x}`);
   process.exit(1);
 }
-console.log('Language coverage audit passed: KO / EN / JA / TL / VI / ZH core V1 coverage, Guardian checkout policy localization, and Chinese payment-result recovery coverage are present.');
+console.log('Language coverage audit passed: KO / EN / JA / TL / VI / ZH core V1, shared recovery UI, Guardian checkout policy localization, and Chinese payment-result recovery coverage are present.');
