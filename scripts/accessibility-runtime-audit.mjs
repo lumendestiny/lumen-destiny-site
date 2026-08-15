@@ -10,11 +10,12 @@ let scans=0;
 
 for(const lang of langs){
   for(const route of routes){
-    const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    const page=await context.newPage();
     try{
       const res=await page.goto(`${base}${route}?lang=${lang}&a11y_runtime_audit=1`,{waitUntil:'domcontentloaded',timeout:25000});
       if(!res?.ok()){failures.push(`${lang} ${route}: HTTP ${res?.status()}`);continue}
-      await page.waitForTimeout(450);
+      await page.waitForTimeout(500);
       const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
       scans++;
       for(const v of results.violations){
@@ -22,14 +23,13 @@ for(const lang of langs){
         const nodes=v.nodes.slice(0,6).map(n=>n.target.join(' ')).join(' | ');
         failures.push(`${lang} ${route}: ${v.id} [${v.impact}] ${v.help} — ${nodes}`);
       }
-      // Product-specific keyboard/focus basics that generic rules cannot prove from static markup.
       await page.keyboard.press('Tab');
       const first=await page.evaluate(()=>({cls:document.activeElement?.className||'',href:document.activeElement?.getAttribute?.('href')||'',text:document.activeElement?.textContent?.trim()||''}));
       if(!String(first.cls).includes('skip-link'))failures.push(`${lang} ${route}: first keyboard focus is not skip link (${JSON.stringify(first)})`);
       await page.keyboard.press('Enter');
       const hash=await page.evaluate(()=>location.hash);
       if(hash!=='#main-content')failures.push(`${lang} ${route}: skip link did not target #main-content (${hash})`);
-    }catch(e){failures.push(`${lang} ${route}: ${e?.message||String(e)}`)}finally{await page.close()}
+    }catch(e){failures.push(`${lang} ${route}: ${e?.message||String(e)}`)}finally{await context.close()}
   }
 }
 await browser.close();
