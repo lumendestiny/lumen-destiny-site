@@ -1,0 +1,40 @@
+name: Legal Runtime Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'legal-i18n.js'
+      - 'legal-footer-i18n.js'
+      - 'terms.html'
+      - 'refund-policy.html'
+      - 'privacy.html'
+      - 'support.html'
+      - 'header-language-v2.css'
+      - 'scripts/legal-runtime-audit.mjs'
+      - '.github/workflows/legal-runtime-audit.yml'
+
+concurrency:
+  group: legal-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rendered-legal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Wait for production deployment
+        run: sleep 25
+      - name: Check rendered legal pages
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/legal-runtime-audit.mjs
