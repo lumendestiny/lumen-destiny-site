@@ -53,7 +53,7 @@ No Saju birth/name record is intentionally written to the Guardian D1 order/paym
 
 ### Evidence status
 - Core functional journey: automated PASS.
-- Dedicated no-network-URL / cleanup privacy runtime audit: RETESTING after canonical-route audit correction.
+- Dedicated no-network-URL / cleanup privacy runtime audit: PASS across KO / EN / JA / TL / VI / ZH.
 
 ## 2. Compatibility input
 
@@ -84,7 +84,7 @@ No compatibility names/birth data are intentionally written to Guardian order/pa
 Same temporary-session rule as free Saju: successful result cleanup immediately; unfinished handoff not reused after the 30-minute application window.
 
 ### Evidence status
-Dedicated privacy runtime audit already completed all six compatibility language journeys successfully in its first diagnostic run; the combined 12-journey audit is being re-run after correcting the Saju canonical-route matcher.
+Dedicated privacy runtime audit: PASS across KO / EN / JA / TL / VI / ZH. The combined audit completed all 12 Saju/compatibility language journeys successfully.
 
 ## 3. Language preference
 
@@ -226,7 +226,7 @@ The current verification handler is designed to return an issuance-verification 
 - payment secrets
 - provider credentials
 
-Public verification behavior is part of the dedicated privacy runtime/static audit.
+Public verification behavior is part of the dedicated privacy runtime/static audit and is currently PASS for the audited source/output contract.
 
 ## 8. Policy acceptance evidence
 
@@ -280,8 +280,8 @@ Before setting `LUMEN_DATA_RETENTION_VERIFIED=true`, record approved answers for
 
 | Data class | Current location | Current technical cleanup | Final retention decision |
 |---|---|---|---|
-| Saju private input | Browser session only | Successful-result cleanup; 30-minute handoff reuse limit | Technical rule documented; runtime audit required |
-| Compatibility private input | Browser session only | Successful-result cleanup; 30-minute handoff reuse limit | Technical rule documented; runtime audit required |
+| Saju private input | Browser session only | Successful-result cleanup; 30-minute handoff reuse limit | Automated runtime PASS |
+| Compatibility private input | Browser session only | Successful-result cleanup; 30-minute handoff reuse limit | Automated runtime PASS |
 | Language preference | Browser local storage | User/browser clear or preference change | Accept as UX preference or revise |
 | Guardian order/issuance | D1 | No final automatic retention policy yet | HOLD |
 | Gift personal fields/message | D1 | No final automatic retention/anonymization policy yet | HOLD; assess earlier anonymization |
@@ -291,7 +291,7 @@ Before setting `LUMEN_DATA_RETENTION_VERIFIED=true`, record approved answers for
 
 ## 13. Next evidence steps
 
-1. Complete the dedicated V1 Privacy Runtime Audit and require PASS.
+1. **PASS:** Dedicated V1 Privacy Runtime Audit for Saju/compatibility network-URL minimization and successful-result cleanup.
 2. Review deployed Cloudflare/Functions logs during successful and forced-error paths before setting `LUMEN_SENSITIVE_LOGGING_VERIFIED=true`.
 3. Select/approve the legal merchant + payment-provider relationship.
 4. Finalize Guardian/payment retention periods and anonymization triggers.
