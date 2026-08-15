@@ -7,6 +7,7 @@ const items = [
   ['궁합', '두 사람의 흐름을 비교', '/compatibility'],
   ['LUMEN GUARDIAN', '사주 결과와 연결된 맞춤 Guardian', '/guardian'],
   ['내 Guardian', '발급받거나 선물 받은 Guardian 보관함', '/my-guardian'],
+  ['계정 · 동기화', '기기 변경 후 Guardian 복원을 위한 계정 준비', '/account'],
 ] as const;
 
 export default function HomeScreen() {
