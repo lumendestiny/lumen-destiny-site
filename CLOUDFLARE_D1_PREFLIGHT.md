@@ -51,8 +51,41 @@ For existing/evolved databases, `migrations/0017_payment_control_fail_closed.sql
 
 Before paid launch or provider testing that could create a real public checkout, verify the evolved Production database has the equivalent fail-closed state.
 
-## C. Production D1 manual verification
-In Cloudflare D1, verify the bound database contains the required tables. Record only table names/schema/version evidence; do not expose customer rows.
+The checkout Function itself also fails closed: a missing control row, unknown state or DB-control read failure is treated as payment HOLD. Checkout proceeds only when the control row explicitly says `open` and every other applicable environment/provider gate permits it.
+
+## C. Production D1 read-only verification
+
+### Internal preflight endpoint
+The deployed Functions code includes:
+
+`GET /api/admin/d1-preflight`
+
+Requirements:
+- `x-lumen-internal-secret` header matching `LUMEN_INTERNAL_SECRET`
+- Production `GUARDIAN_DB` binding
+
+The endpoint is intentionally read-only. It returns only:
+- required table/column checks as booleans,
+- required index checks,
+- checkout-control presence/state/timestamp,
+- environment release-context booleans,
+- blocker names.
+
+It explicitly reports `customerRowsReturned:false` and does not return customer order/story/gift/shipping values.
+
+Production Smoke requires unauthenticated access to this endpoint to return `401 unauthorized`. Security Release Audit rejects SQL mutation patterns in the endpoint.
+
+Example operator shape — substitute the secret only in a secure local shell/session and do not save it in shell history if the environment is shared:
+
+```bash
+curl -sS https://lumendestiny.com/api/admin/d1-preflight \
+  -H "x-lumen-internal-secret: <SECURE_VALUE>"
+```
+
+Do not send the response to a public issue/chat if it includes operational state you do not intend to disclose.
+
+### Manual Cloudflare cross-check
+In Cloudflare D1, also verify the bound database contains the required tables. Record only table names/schema/version evidence; do not expose customer rows.
 
 Suggested read-only verification targets:
 - list tables
