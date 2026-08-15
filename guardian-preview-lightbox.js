@@ -32,15 +32,11 @@ function ensureStyle(){
     .guardian-preview-backdrop{position:absolute;inset:0;background:rgba(5,8,14,.88);backdrop-filter:blur(8px)}
     .guardian-preview-panel{position:relative;z-index:1;width:min(94vw,980px);max-height:94vh;display:flex;flex-direction:column;align-items:center;gap:10px}
     .guardian-preview-stage{width:100%;max-height:84vh;display:grid;place-items:center;overflow:hidden;border-radius:18px;background:#080b12;box-shadow:0 24px 80px rgba(0,0,0,.58);border:1px solid rgba(255,255,255,.16)}
-    .guardian-preview-canvas{position:relative;display:inline-grid;place-items:center;max-width:100%;max-height:84vh}
     .guardian-preview-large{display:block;max-width:100%;max-height:84vh;width:auto;height:auto;object-fit:contain}
-    .guardian-preview-art-label{position:absolute;left:3.3%;top:7.2%;width:9.2%;height:31%;box-sizing:border-box;border:2px solid #b88724;border-radius:10px;background:linear-gradient(180deg,rgba(16,12,7,.98),rgba(31,20,8,.98));box-shadow:0 0 0 2px rgba(0,0,0,.7),inset 0 0 18px rgba(218,164,54,.12);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:7px 3px;color:#e5b84d;pointer-events:none;overflow:hidden}
-    .guardian-preview-element{display:grid;place-items:center;width:72%;aspect-ratio:1;border:1.5px solid #b88724;border-radius:50%;font-family:Georgia,'Times New Roman',serif;font-size:clamp(.72rem,1.6vw,1.4rem);font-weight:700;line-height:1;margin-bottom:5px;background:#171007}
-    .guardian-preview-name{writing-mode:vertical-rl;text-orientation:mixed;line-height:1.12;font-size:clamp(.62rem,1.25vw,1.08rem);font-weight:800;letter-spacing:.06em;max-height:72%;overflow:hidden;text-align:center}
     .guardian-preview-title{margin:0;color:#fff;font-weight:800;text-align:center;font-size:1rem;text-shadow:0 1px 4px rgba(0,0,0,.7)}
     .guardian-preview-close{position:absolute;right:-12px;top:-12px;z-index:2;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:#111827;color:#fff;font-size:30px;line-height:1;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.35)}
     body.guardian-preview-open{overflow:hidden}
-    @media(max-width:640px){.guardian-preview-modal{padding:14px}.guardian-preview-close{right:-4px;top:-8px}.guardian-preview-stage,.guardian-preview-canvas,.guardian-preview-large{max-height:78vh}.guardian-preview-art-label{left:3.2%;top:7%;width:10%;height:31%;padding:5px 2px;border-radius:7px}.guardian-preview-element{font-size:.72rem}.guardian-preview-name{font-size:.62rem}}
+    @media(max-width:640px){.guardian-preview-modal{padding:14px}.guardian-preview-close{right:-4px;top:-8px}.guardian-preview-stage,.guardian-preview-large{max-height:78vh}}
   `;
   document.head.appendChild(style);
 }
@@ -56,17 +52,15 @@ function ensureModal(){
   modal.setAttribute('role','dialog');
   modal.setAttribute('aria-modal','true');
   modal.setAttribute('aria-label',t.title);
-  modal.innerHTML=`<div class="guardian-preview-backdrop" data-preview-close></div><div class="guardian-preview-panel"><button type="button" class="guardian-preview-close" data-preview-close aria-label="${t.close}">×</button><div class="guardian-preview-stage"><div class="guardian-preview-canvas"><img class="guardian-preview-large" alt=""><div class="guardian-preview-art-label" aria-hidden="true"><span class="guardian-preview-element"></span><span class="guardian-preview-name"></span></div></div></div><p class="guardian-preview-title"></p></div>`;
+  modal.innerHTML=`<div class="guardian-preview-backdrop" data-preview-close></div><div class="guardian-preview-panel"><button type="button" class="guardian-preview-close" data-preview-close aria-label="${t.close}">×</button><div class="guardian-preview-stage"><img class="guardian-preview-large" alt=""></div><p class="guardian-preview-title"></p></div>`;
   document.body.appendChild(modal);
   modal.addEventListener('click',e=>{if(e.target.closest('[data-preview-close]'))closePreview();});
   return modal;
 }
 
-function currentLocalizedData(img){
+function currentLocalizedName(img){
   const card=img.closest('.gc2-card');
-  const name=card?.querySelector('.gc2-info h3')?.textContent?.trim()||img.alt?.replace(/\s+Lumen Guardian.*$/i,'').trim()||'';
-  const element=card?.querySelector('.gc2-info p strong')?.textContent?.trim()||'';
-  return{name,element};
+  return card?.querySelector('.gc2-info h3')?.textContent?.trim()||img.alt?.replace(/\s+Lumen Guardian.*$/i,'').trim()||'';
 }
 
 function openPreview(img){
@@ -74,16 +68,12 @@ function openPreview(img){
   const modal=ensureModal();
   const large=modal.querySelector('.guardian-preview-large');
   const title=modal.querySelector('.guardian-preview-title');
-  const labelName=modal.querySelector('.guardian-preview-name');
-  const labelElement=modal.querySelector('.guardian-preview-element');
   const t=TEXT[getLang()];
-  const localized=currentLocalizedData(img);
+  const name=currentLocalizedName(img);
   lastFocus=document.activeElement;
   large.src=img.currentSrc||img.src;
-  large.alt=localized.name?`${localized.name} Lumen Guardian HD`:(img.alt||'');
+  large.alt=name?`${name} Lumen Guardian HD`:(img.alt||'');
   title.textContent=large.alt;
-  labelName.textContent=localized.name;
-  labelElement.textContent=localized.element;
   modal.setAttribute('aria-label',t.title);
   const close=modal.querySelector('.guardian-preview-close');
   close?.setAttribute('aria-label',t.close);
