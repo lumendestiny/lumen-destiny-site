@@ -18,6 +18,7 @@ const requiredFiles=[
   'migrations/0014_payment_incidents.sql',
   'migrations/0015_payment_control.sql',
   'migrations/0016_guardian_personalization.sql',
+  'migrations/0017_payment_control_fail_closed.sql',
   'migrations/BOOTSTRAP_V1_NEW_D1.sql',
   'CLOUDFLARE_D1_PREFLIGHT.md'
 ];
@@ -36,6 +37,8 @@ must('migrations/0013_payment_reference_integrity.sql',['uq_guardian_payment_suc
 must('migrations/0014_payment_incidents.sql',['guardian_payment_incidents']);
 must('migrations/0015_payment_control.sql',['guardian_payment_control','guardian_payment_control_audit',"VALUES('checkout','open'"]);
 must('migrations/0016_guardian_personalization.sql',['guardian_element','guardian_design_key','personalization_source']);
+const normalization=must('migrations/0017_payment_control_fail_closed.sql',['guardian_payment_control','guardian_payment_control_audit',"'hold'",'V1 fail-closed normalization']);
+if(/SET\s+state\s*=\s*'open'/i.test(normalization)||/VALUES\s*\([^;]*'open'/is.test(normalization))throw new Error('0017_payment_control_fail_closed.sql must never open checkout');
 
 const bootstrap=must('migrations/BOOTSTRAP_V1_NEW_D1.sql',[
   'guardian_orders','payment_reference','verification_token','giver_name','recipient_name','gift_message','guardian_element','guardian_design_key','personalization_source',
@@ -48,4 +51,4 @@ if(/VALUES\('checkout','open'/i.test(bootstrap))throw new Error('BOOTSTRAP_V1_NE
 
 must('CLOUDFLARE_D1_PREFLIGHT.md',['GUARDIAN_DB','Production D1','Fail closed','BOOTSTRAP_V1_NEW_D1.sql','Do not treat lexical replay']);
 
-console.log('Guardian D1 schema audit passed: historical migration evidence is present, canonical V1 bootstrap is fail-closed and complete, and Production D1 still requires read-only manual verification.');
+console.log('Guardian D1 schema audit passed: historical migration evidence is present, canonical V1 bootstrap is fail-closed, evolved databases have a hold-normalization migration, and Production D1 still requires read-only manual verification.');
