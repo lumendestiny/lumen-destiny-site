@@ -44,6 +44,13 @@ For V1 the deployed schema must support at least:
 
 Static repository evidence is checked by `scripts/d1-schema-audit.mjs`; the canonical Bootstrap is also executed by the Operations Recovery Audit. Neither proves by itself that the bound Production D1 has the expected live schema.
 
+### Historical payment-control normalization
+The historical `0015_payment_control.sql` created the checkout control with an initial `open` state during development. The canonical new-V1 Bootstrap now starts it at `hold`.
+
+For existing/evolved databases, `migrations/0017_payment_control_fail_closed.sql` is the forward-safe normalization migration. It only changes checkout from `open` to `hold`; it never opens checkout.
+
+Before paid launch or provider testing that could create a real public checkout, verify the evolved Production database has the equivalent fail-closed state.
+
 ## C. Production D1 manual verification
 In Cloudflare D1, verify the bound database contains the required tables. Record only table names/schema/version evidence; do not expose customer rows.
 
@@ -51,11 +58,12 @@ Suggested read-only verification targets:
 - list tables
 - inspect schema for required tables/indexes
 - verify the checkout control row exists for `control_key='checkout'`
+- while payment approval remains HOLD, verify that row is `state='hold'`
 - verify application Functions can read the database without returning `storage_not_configured` or schema errors
 
 Do not run destructive statements as part of launch verification.
 
-If Production was created/evolved through historical migrations, **do not try to make its migration history look like a fresh Bootstrap database by replaying old files**. Verify final schema compatibility instead.
+If Production was created/evolved through historical migrations, **do not try to make its migration history look like a fresh Bootstrap database by replaying old files**. Verify final schema compatibility instead and apply only the explicitly required forward-safe migration(s), such as the checkout HOLD normalization, through the approved deployment procedure.
 
 ## D. Backup / recovery evidence
 Before risky schema/provider changes:
@@ -79,7 +87,7 @@ During controlled success and forced-error tests, inspect Cloudflare Functions l
 Only after evidence exists should the corresponding Privacy Gate flags be set true.
 
 ## F. Production feature activation order
-1. D1 binding/final schema verified.
+1. D1 binding/final schema verified and checkout control confirmed HOLD while external payment approval is incomplete.
 2. Security and Privacy evidence verified.
 3. Guardian server E2E verified with payments still OFF if possible.
 4. PG/KYC/Sandbox/provider mapping/webhook/refund verified.
