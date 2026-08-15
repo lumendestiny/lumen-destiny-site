@@ -1,9 +1,10 @@
 const base=(process.env.LUMEN_PROD_BASE_URL||'https://lumendestiny.com').replace(/\/$/,'');
 const langs=['ko','en','ja','tl','vi','zh'];
 const corePaths=['/','/compatibility','/guardian','/guardian-order','/guardian-verify'];
+const legalPaths=['/privacy.html','/terms.html','/refund-policy.html','/support.html'];
 const pages=[];
-for(const lang of langs){for(const p of corePaths)pages.push(`${p}?lang=${lang}`)}
-pages.push('/privacy.html','/terms.html','/refund-policy.html','/support.html','/guardian-gift?lang=ko','/guardian-campaigns?lang=ko','/guardian-gallery?lang=ko','/guardian-physical-status?lang=ko');
+for(const lang of langs){for(const p of corePaths)pages.push(`${p}?lang=${lang}`);for(const p of legalPaths)pages.push(`${p}?lang=${lang}`)}
+pages.push('/guardian-gift?lang=ko','/guardian-campaigns?lang=ko','/guardian-gallery?lang=ko','/guardian-physical-status?lang=ko');
 const timeoutMs=12000;
 async function fetchOnce(url,options={}){const c=new AbortController();const t=setTimeout(()=>c.abort(),timeoutMs);try{return await fetch(url,{redirect:'manual',...options,signal:c.signal})}finally{clearTimeout(t)}}
 async function fetchChecked(path){let url=base+path;const seen=new Set(),chain=[];for(let i=0;i<12;i++){if(seen.has(url))throw new Error(`${path}: redirect loop ${chain.join(' -> ')} -> ${url}`);seen.add(url);const r=await fetchOnce(url);chain.push(`${r.status} ${url}`);if(r.status>=300&&r.status<400){const loc=r.headers.get('location');if(!loc)throw new Error(`${path}: ${r.status} without Location; ${chain.join(' -> ')}`);url=new URL(loc,url).toString();continue}const text=await r.text();if(!r.ok)throw new Error(`${path}: HTTP ${r.status}; ${chain.join(' -> ')}`);if(/ERR_TOO_MANY_REDIRECTS|too many redirects/i.test(text))throw new Error(`${path}: redirect-loop error page; ${chain.join(' -> ')}`);console.log(`CHAIN ${path}: ${chain.join(' -> ')}`);return{r,text,url}}throw new Error(`${path}: too many redirect hops; ${chain.join(' -> ')}`)}
