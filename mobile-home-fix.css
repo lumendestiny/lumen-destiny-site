@@ -1,0 +1,105 @@
+@media (max-width:780px){
+  .fortune-header{
+    min-height:0;
+    height:auto;
+    padding:0 12px;
+    display:block;
+  }
+
+  .brand-language-stack{
+    display:flex;
+    flex-wrap:nowrap;
+    align-items:center;
+    gap:8px;
+    padding:10px 0 8px;
+    min-width:0;
+    overflow:hidden;
+  }
+
+  .fortune-header .brand{
+    flex:0 0 auto;
+    font-size:1.25rem!important;
+  }
+
+  .language-switcher{
+    flex:1 1 auto;
+    min-width:0;
+    max-width:none!important;
+    gap:3px!important;
+    justify-content:flex-start!important;
+  }
+
+  .lang-choice{
+    min-width:28px!important;
+    width:28px!important;
+    height:24px!important;
+  }
+
+  .main-fortune-nav{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:0!important;
+    height:auto;
+    margin:0 -12px;
+    padding:0;
+    overflow:visible!important;
+    border-top:1px solid #f0f0f3;
+  }
+
+  .main-fortune-nav a{
+    min-width:0;
+    min-height:46px;
+    padding:0 4px;
+    justify-content:center;
+    text-align:center;
+    font-size:.8rem!important;
+    line-height:1.2;
+    white-space:normal;
+    border-right:1px solid #f3f3f5;
+    border-bottom:1px solid #f3f3f5;
+  }
+
+  .main-fortune-nav a:nth-child(4n){border-right:0}
+
+  .main-fortune-nav a.active:after{
+    left:8px;
+    right:8px;
+    bottom:0;
+  }
+
+  .compact-hero{
+    min-height:auto;
+    padding:64px 20px 58px;
+  }
+
+  .compact-hero .eyebrow{
+    margin-bottom:24px;
+  }
+
+  .compact-hero h1{
+    font-size:clamp(2rem,9vw,2.75rem);
+    line-height:1.18;
+    margin-top:0;
+  }
+
+  .compact-hero .hero-copy{
+    margin-top:28px;
+    max-width:560px;
+  }
+
+  html,
+  .result-page{
+    scroll-padding-top:154px;
+  }
+
+  #analysis,#wealth,#yearly,#monthly,#today,#compatibility,#consult{
+    scroll-margin-top:154px;
+  }
+}
+
+@media (max-width:390px){
+  .fortune-header .brand{font-size:1.16rem!important}
+  .lang-choice{min-width:27px!important;width:27px!important}
+  .main-fortune-nav a{font-size:.76rem!important}
+  .compact-hero{padding-top:52px;padding-bottom:52px}
+}
