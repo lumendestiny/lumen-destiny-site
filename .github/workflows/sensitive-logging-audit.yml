@@ -1,0 +1,24 @@
+name: Sensitive Logging Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/**'
+      - 'scripts/sensitive-logging-audit.mjs'
+      - '.github/workflows/sensitive-logging-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  sensitive-logging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Scan server Functions for sensitive logging and response patterns
+        run: node scripts/sensitive-logging-audit.mjs
