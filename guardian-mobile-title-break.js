@@ -10,6 +10,7 @@ function norm(v){v=String(v||'').toLowerCase();if(v.startsWith('zh'))return'zh';
 function lang(){return norm(window.__LUMEN_LANG__||new URLSearchParams(location.search).get('lang')||localStorage.getItem('lumen-lang')||document.documentElement.lang||'ko');}
 function isMobile(){return window.matchMedia(MOBILE_QUERY).matches;}
 let applying=false;
+let queued=false;
 function applyHeading(){
   const h=document.querySelector('.purpose-guardian-heading h2');
   if(!h)return;
@@ -22,10 +23,8 @@ function applyTierCopy(){
   Object.entries(TIER_COPY).forEach(([key,[line1,line2]])=>{
     const small=document.querySelector(`.gc2-tier[data-tier="${key}"] .gc2-tier-head small`);
     if(!small)return;
-    const first=small.querySelector('[data-mobile-tier-line="1"]')?.textContent.trim();
-    const second=small.querySelector('[data-mobile-tier-line="2"]')?.textContent.trim();
-    if(first===line1&&second===line2)return;
-    small.innerHTML=`<span class="guardian-mobile-tier-line" data-mobile-tier-line="1">${line1}</span><span class="guardian-mobile-tier-line gc2-tier-feature" data-mobile-tier-line="2">${line2}</span>`;
+    const desired=`<span class="guardian-mobile-tier-line" data-mobile-tier-line="1">${line1}</span><span class="guardian-mobile-tier-line gc2-tier-feature" data-mobile-tier-line="2">${line2}</span>`;
+    if(small.innerHTML!==desired)small.innerHTML=desired;
   });
 }
 function ensureStyle(){
@@ -36,20 +35,27 @@ function ensureStyle(){
   document.head.appendChild(style);
 }
 function apply(){
+  queued=false;
   if(applying||lang()!=='ko')return;
   applying=true;
   try{ensureStyle();applyHeading();applyTierCopy();}finally{applying=false;}
 }
-function queue(delay=0){setTimeout(apply,delay);}
-document.addEventListener('DOMContentLoaded',()=>queue(0),{once:true});
-window.addEventListener('load',()=>queue(0),{once:true});
-window.addEventListener('resize',()=>queue(0));
-window.addEventListener('lumen-language-change',()=>queue(0));
-document.addEventListener('click',e=>{if(e.target.closest('.lang-choice'))queue(30);});
-const observer=new MutationObserver(()=>queue(0));
+function queue(delay=0){
+  if(delay){setTimeout(apply,delay);return;}
+  if(queued)return;
+  queued=true;
+  requestAnimationFrame(apply);
+}
+function settle(){[0,60,160,360,720,1200].forEach(queue);}
+document.addEventListener('DOMContentLoaded',settle,{once:true});
+window.addEventListener('load',settle,{once:true});
+window.addEventListener('resize',()=>queue(30));
+window.addEventListener('lumen-language-change',settle);
+document.addEventListener('click',e=>{if(e.target.closest('.lang-choice'))setTimeout(settle,30);});
+const observer=new MutationObserver(()=>queue());
 const start=()=>{
   observer.observe(document.body,{childList:true,subtree:true,characterData:true});
-  apply();
+  settle();
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
