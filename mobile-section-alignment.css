@@ -1,0 +1,29 @@
+@media (max-width:780px){
+  .form-heading>.section-label,
+  .form-heading>h2,
+  .section-title>.section-label,
+  .section-title>h2,
+  .talisman>div:first-child>.section-label,
+  .talisman>div:first-child>h2,
+  .purpose-guardian-heading>.section-label,
+  .purpose-guardian-heading>h2{
+    text-align:center!important;
+  }
+
+  .form-heading>p:not(.section-label),
+  .section-title>p:not(.section-label),
+  .talisman>div:first-child>p:not(.section-label),
+  .purpose-guardian-heading>p:not(.section-label){
+    text-align:left!important;
+  }
+
+  .purpose-guardian-heading .mobile-title-break{
+    display:block;
+  }
+}
+
+@media (min-width:781px){
+  .purpose-guardian-heading .mobile-title-break{
+    display:inline;
+  }
+}
