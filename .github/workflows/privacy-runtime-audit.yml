@@ -1,0 +1,42 @@
+name: Privacy Runtime Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'result.html'
+      - 'compatibility/**'
+      - 'compatibility-result/**'
+      - 'form-option-locale-fix.js'
+      - 'private-input-session.js'
+      - 'private-result-bridge.js'
+      - 'privacy.html'
+      - 'functions/api/guardian/verify.js'
+      - 'scripts/privacy-runtime-audit.mjs'
+      - '.github/workflows/privacy-runtime-audit.yml'
+
+concurrency:
+  group: privacy-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  privacy-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Wait for production deployment
+        run: sleep 60
+      - name: Verify private free-reading handoff and public verification minimization
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/privacy-runtime-audit.mjs
