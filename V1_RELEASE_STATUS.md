@@ -32,7 +32,7 @@ The excluded features remain future-upgrade candidates only.
 | Payment flow safety | PASS | Static payment-flow audit locks policy consent, server-confirmed issuance, duplicate/refund handling and fail-closed public-payment gates. |
 | Public real payment | HOLD | Must remain disabled until PG approval, KYC, provider sandbox verification, production credentials, TEST MODE off and explicit public checkout arm are all evidenced. |
 | Mobile static audit | PASS | Existing CSS/static mobile audit. |
-| Mobile rendered audit | RETESTING | Chromium 320/360/390/430px audit now has only the Guardian-order visible-control 15px finding left; exact offending element diagnostics are running. |
+| Mobile rendered audit | PASS | Chromium completed 144 route/language/width combinations across 320/360/390/430px with no page-level horizontal overflow, stable six-language header state, sticky navigation, safe visible mobile form sizing and localized Guardian checkout policy links. |
 | Guardian preview journey | PASS | Chromium completed 12 preview flows: 20-card archive → personalized preview and gift → recipient preview across all six languages, without creating server orders or payments. |
 | Accessibility rendered audit | PASS | Chromium + axe found no remaining serious/critical WCAG 2.0/2.1 A/AA violations on tested KO/EN V1 pages after contrast/select-name fixes; localized skip link can be focused and activated. |
 | Security release audit | PASS | Existing security release workflow. |
@@ -40,7 +40,7 @@ The excluded features remain future-upgrade candidates only.
 | Flag integrity audit | PASS | Existing flag-integrity workflow. |
 | SEO release audit | PASS | Existing SEO workflow, with consultation excluded from V1 indexing. |
 
-## Mobile issues discovered by real browser rendering
+## Mobile issues discovered by real browser rendering and fixed
 
 The Chromium mobile audit caught issues that static CSS inspection did not reliably expose:
 - Brand and six language flags could fall out of the intended same-row mobile header layout.
@@ -49,7 +49,7 @@ The Chromium mobile audit caught issues that static CSS inspection did not relia
 - Chinese Guardian order/checkout mutation observers could repeatedly mutate text and stall the page.
 - The audit itself counted hidden zero-height actions as touch-target failures; the audit now evaluates visible controls only.
 
-Header/flag alignment, Guardian verify sticky behavior, Chinese observer loops and hidden-control audit noise are fixed. The latest completed 144-combination rendered audit reduced the remaining issue to one repeated class: a visible Guardian-order form control computes to 15px at each tested width/language. The audit now reports the exact element and computed-style context before that final rule is corrected. PASS remains intentionally withheld until the next full rendered run succeeds.
+The corresponding header/flag alignment, Guardian verify sticky behavior, Chinese observer loop, audit-visibility and mobile form sizing fixes are committed. The final 144-combination rendered audit passed at 320/360/390/430px across all six supported languages and all six tested core/Guardian routes.
 
 ## Guardian checkout hardening completed
 
@@ -75,7 +75,7 @@ These translations do not change the underlying business/legal policy. Final cou
 These items must not be auto-marked PASS:
 
 1. **Physical-device UX verification**
-   - 320 / 360 / 390 / 430px references are automated, but at least one real iOS and one real Android device should still be manually checked for touch, keyboard, browser chrome and visual quality.
+   - 320 / 360 / 390 / 430px browser references are automated and now PASS, but at least one real iOS and one real Android device should still be manually checked for touch, keyboard, browser chrome and visual quality.
 
 2. **PG business approval / KYC**
    - Written business/category approval
@@ -91,4 +91,4 @@ These items must not be auto-marked PASS:
 
 ## Current release posture
 
-Core Saju/compatibility, six-language Guardian preview journeys, legal/support localization and rendered accessibility now have PASS evidence. The remaining engineering-side launch risk is concentrated in the final rendered-mobile typography retest. External payment-provider approval/KYC/sandbox/production credentials and real physical-device checks remain separate HOLD items. Do not open real customer payment until the external evidence chain is complete.
+Core Saju/compatibility, six-language Guardian preview journeys, rendered mobile layouts, legal/support localization and rendered accessibility now have PASS evidence. The remaining launch HOLD items are external/manual rather than unresolved core V1 implementation: real iOS/Android physical-device verification and the payment-provider approval/KYC/sandbox/production credential chain. Do not open real customer payment until the external evidence chain is complete.
