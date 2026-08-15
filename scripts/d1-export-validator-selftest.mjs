@@ -5,18 +5,16 @@ import {spawnSync} from 'node:child_process';
 import {DatabaseSync} from 'node:sqlite';
 
 const repo=process.cwd();
-const migrationDir=path.join(repo,'migrations');
-const migrations=fs.readdirSync(migrationDir).filter(x=>x.endsWith('.sql')).sort();
-const db=new DatabaseSync(':memory:');
+const bootstrap=path.join(repo,'migrations','BOOTSTRAP_V1_NEW_D1.sql');
+if(!fs.existsSync(bootstrap))throw new Error('Missing migrations/BOOTSTRAP_V1_NEW_D1.sql');
 
+const db=new DatabaseSync(':memory:');
 try{
-  for(const name of migrations){
-    const sql=fs.readFileSync(path.join(migrationDir,name),'utf8');
-    try{db.exec(sql)}catch(error){throw new Error(`${name}: ${error.message}`)}
-  }
+  const bootstrapSql=fs.readFileSync(bootstrap,'utf8');
+  try{db.exec(bootstrapSql)}catch(error){throw new Error(`BOOTSTRAP_V1_NEW_D1.sql: ${error.message}`)}
 
   const rows=db.prepare("SELECT type,name,sql FROM sqlite_schema WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' AND type IN ('table','index') ORDER BY type,name").all();
-  if(!rows.length)throw new Error('Current migrations produced no schema rows');
+  if(!rows.length)throw new Error('Canonical V1 bootstrap produced no schema rows');
   const dump=rows.map(row=>String(row.sql).trim().replace(/;?$/,';')).join('\n')+'\n';
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'lumen-d1-validator-'));
   const file=path.join(dir,'synthetic-current-schema.sql');
@@ -35,5 +33,5 @@ try{
     if(!String(unsafe.stderr||'').includes('inside the Git repository'))throw new Error('in-repo safety rejection did not use the expected guard');
   }finally{try{fs.unlinkSync(inRepo)}catch{}}
 
-  console.log(`D1 export validator self-test passed against ${migrations.length} current migration files, including the in-repository backup safety guard.`);
+  console.log(`D1 export validator self-test passed against the canonical V1 bootstrap (${rows.length} schema objects), including the in-repository backup safety guard.`);
 }finally{db.close()}
