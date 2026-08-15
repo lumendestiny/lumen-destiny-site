@@ -8,12 +8,20 @@ on:
       - 'zh-i18n.js'
       - 'compatibility-i18n.js'
       - 'guardian-i18n.js'
+      - 'guardian-order-policy-i18n.js'
+      - 'guardian-checkout.js'
       - 'zh-guardian-*.js'
       - 'guardian-order/index.html'
       - 'guardian-verify/index.html'
       - 'service-shell.js'
+      - 'legal-i18n.js'
+      - 'terms.html'
+      - 'refund-policy.html'
+      - 'privacy.html'
+      - 'support.html'
       - 'scripts/production-smoke.mjs'
       - 'scripts/language-coverage-audit.mjs'
+      - 'scripts/legal-language-audit.mjs'
       - '.github/workflows/language-coverage-audit.yml'
   pull_request:
     branches: [main]
@@ -28,3 +36,5 @@ jobs:
           node-version: '24'
       - name: Verify KO EN JA TL VI ZH V1 language coverage
         run: node scripts/language-coverage-audit.mjs
+      - name: Verify legal and support language coverage
+        run: node scripts/legal-language-audit.mjs
