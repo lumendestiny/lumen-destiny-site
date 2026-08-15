@@ -1,105 +1,126 @@
 @media (max-width:780px){
   .fortune-header{
-    min-height:0;
     height:auto;
-    padding:0 12px;
+    min-height:112px;
+    padding:0 18px;
     display:block;
+    position:sticky;
+    top:0;
+    z-index:100;
   }
 
   .brand-language-stack{
     display:flex;
+    flex-direction:row;
+    min-width:0;
+    padding:9px 0 5px;
+    gap:10px;
     flex-wrap:nowrap;
     align-items:center;
-    gap:8px;
-    padding:10px 0 8px;
-    min-width:0;
-    overflow:hidden;
+    overflow:visible;
   }
 
   .fortune-header .brand{
     flex:0 0 auto;
-    font-size:1.25rem!important;
+    font-size:1.42rem!important;
+    display:block;
+    padding:0;
+    white-space:nowrap;
   }
 
   .language-switcher{
-    flex:1 1 auto;
-    min-width:0;
-    max-width:none!important;
-    gap:3px!important;
+    height:23px!important;
+    overflow:visible!important;
     justify-content:flex-start!important;
+    max-width:190px!important;
+    flex:0 1 auto;
+    gap:4px!important;
   }
 
   .lang-choice{
-    min-width:28px!important;
-    width:28px!important;
-    height:24px!important;
+    min-width:29px!important;
+    width:29px!important;
+    height:22px!important;
   }
 
   .main-fortune-nav{
-    display:grid!important;
-    grid-template-columns:repeat(4,minmax(0,1fr));
+    display:flex!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    height:50px;
+    justify-content:flex-start!important;
+    align-items:stretch!important;
+    margin:0 -18px;
+    padding:0 8px;
     gap:0!important;
-    height:auto;
-    margin:0 -12px;
-    padding:0;
-    overflow:visible!important;
-    border-top:1px solid #f0f0f3;
+    border-top:0;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
   }
+
+  .main-fortune-nav::-webkit-scrollbar{display:none}
 
   .main-fortune-nav a{
-    min-width:0;
-    min-height:46px;
-    padding:0 4px;
+    flex:0 0 auto;
+    min-width:auto;
+    min-height:50px;
+    padding:0 12px;
     justify-content:center;
     text-align:center;
-    font-size:.8rem!important;
-    line-height:1.2;
-    white-space:normal;
-    border-right:1px solid #f3f3f5;
-    border-bottom:1px solid #f3f3f5;
+    font-size:.88rem!important;
+    line-height:1;
+    white-space:nowrap;
+    border:0;
   }
 
-  .main-fortune-nav a:nth-child(4n){border-right:0}
-
   .main-fortune-nav a.active:after{
-    left:8px;
-    right:8px;
+    left:10px;
+    right:10px;
     bottom:0;
   }
 
   .compact-hero{
-    min-height:auto;
-    padding:64px 20px 58px;
+    min-height:calc(100vh - 112px);
+    padding:44px 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
   }
 
   .compact-hero .eyebrow{
-    margin-bottom:24px;
+    margin:0 0 24px;
+    text-align:center!important;
   }
 
   .compact-hero h1{
-    font-size:clamp(2rem,9vw,2.75rem);
-    line-height:1.18;
-    margin-top:0;
+    font-size:clamp(2.25rem,10vw,3.15rem);
+    line-height:1.14;
+    margin:0;
+    text-align:center!important;
   }
 
   .compact-hero .hero-copy{
-    margin-top:28px;
-    max-width:560px;
+    margin:30px auto 0;
+    max-width:650px;
+    text-align:center!important;
+    line-height:1.65;
   }
 
   html,
   .result-page{
-    scroll-padding-top:154px;
+    scroll-padding-top:124px;
   }
 
   #analysis,#wealth,#yearly,#monthly,#today,#compatibility,#consult{
-    scroll-margin-top:154px;
+    scroll-margin-top:124px;
   }
 }
 
 @media (max-width:390px){
-  .fortune-header .brand{font-size:1.16rem!important}
-  .lang-choice{min-width:27px!important;width:27px!important}
-  .main-fortune-nav a{font-size:.76rem!important}
-  .compact-hero{padding-top:52px;padding-bottom:52px}
+  .fortune-header .brand{font-size:1.32rem!important}
+  .lang-choice{min-width:28px!important;width:28px!important}
+  .main-fortune-nav a{padding:0 11px;font-size:.84rem!important}
+  .compact-hero h1{font-size:clamp(2.05rem,10.2vw,2.75rem)}
 }
