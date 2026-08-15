@@ -1,0 +1,43 @@
+name: Guardian Journey Runtime Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'guardian/**'
+      - 'guardian-order/**'
+      - 'guardian-gift/**'
+      - 'guardian-i18n.js'
+      - 'guardian-gift-i18n.js'
+      - 'guardian-order-policy-i18n.js'
+      - 'guardian-order-v2.js'
+      - 'guardian-checkout.js'
+      - 'service-shell.js'
+      - 'header-language-v2.css'
+      - 'scripts/guardian-journey-runtime-audit.mjs'
+      - '.github/workflows/guardian-journey-runtime-audit.yml'
+
+concurrency:
+  group: guardian-journey-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  journey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Wait for production deployment
+        run: sleep 25
+      - name: Check Guardian preview journeys
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/guardian-journey-runtime-audit.mjs
