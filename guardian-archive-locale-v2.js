@@ -1,0 +1,49 @@
+(()=>{
+'use strict';
+const norm=v=>{v=String(v||'').toLowerCase();if(v.startsWith('zh'))return'zh';if(v.startsWith('ja'))return'ja';if(v.startsWith('vi'))return'vi';if(v.startsWith('tl')||v.startsWith('fil'))return'tl';if(v.startsWith('en'))return'en';return'ko'};
+const lang=x=>norm(x||window.__LUMEN_LANG__||new URLSearchParams(location.search).get('lang')||localStorage.getItem('lumen-lang')||document.documentElement.lang||'ko');
+const C={
+ko:{h:'가격대별 5종, 총 20종의 고해상도 판매용 Guardian',p:'$5 · $10 · $50 · $100 각 등급마다 수호동물·오행·소망 테마·문양을 다르게 설계했습니다. 모든 아트는 Lumen 전용 원본으로 관리하며, 검수 완료된 HD 마스터만 개별 카드에 연결합니다. $50은 변화하는 Rare 테두리, $100은 빛과 메인 아트에 모션 효과가 적용됩니다. 이미지와 상품 설명은 완전히 분리되어 서로 겹치지 않습니다.',pd:n=>`각 디자인 ${n}개 한정 발행`,one:'각 디자인 1개만 발행',lim:n=>`${n}개 한정`,sel:'이 Guardian 선택'},
+en:{h:'5 designs per tier, 20 high-resolution Guardians in total',p:'Each $5 · $10 · $50 · $100 tier has its own guardian animal, Five Element, wish theme, and pattern. All artwork is original and exclusive to Lumen, and only reviewed HD masters are connected to each card. $50 Rare cards use an animated border, while $100 Legendary cards include light and main-art motion effects. Artwork and product descriptions are kept separate so they never overlap.',pd:n=>`${n} issued per design`,one:'Only 1 issued per design',lim:n=>`${n} limited`,sel:'Select this Guardian'},
+ja:{h:'価格帯ごとに5種、全20種の高解像度Guardian',p:'$5・$10・$50・$100の各ランクごとに、守護動物・五行・願いのテーマ・文様をそれぞれ異なる構成で設計しています。すべてのアートはLumen専用のオリジナルとして管理し、検品済みのHDマスターのみ各カードに接続します。$50 Rareには変化するボーダー、$100 Legendaryには光とメインアートのモーション効果が入ります。',pd:n=>`各デザイン${n}点限定発行`,one:'各デザイン1点のみ発行',lim:n=>`${n}点限定`,sel:'このGuardianを選択'},
+tl:{h:'5 disenyo bawat tier, 20 high-resolution Guardian sa kabuuan',p:'Magkakaiba ang guardian animal, Five Element, wish theme, at pattern sa bawat $5 · $10 · $50 · $100 tier. Orihinal at eksklusibo sa Lumen ang lahat ng artwork, at reviewed HD masters lamang ang ikinakabit sa bawat card. Ang $50 Rare ay may animated border, habang ang $100 Legendary ay may motion effects.',pd:n=>`${n} lamang bawat disenyo`,one:'1 lamang bawat disenyo',lim:n=>`${n} limited`,sel:'Piliin ang Guardian na ito'},
+vi:{h:'5 thiết kế mỗi hạng, tổng cộng 20 Guardian độ phân giải cao',p:'Mỗi hạng $5 · $10 · $50 · $100 có linh thú hộ mệnh, Ngũ Hành, chủ đề điều ước và hoa văn riêng. Toàn bộ artwork là bản gốc độc quyền của Lumen và chỉ bản HD đã kiểm duyệt mới được gắn vào từng thẻ. Rare $50 có viền chuyển động, còn Legendary $100 có hiệu ứng chuyển động ánh sáng và hình chính.',pd:n=>`Giới hạn ${n} bản mỗi thiết kế`,one:'Chỉ 1 bản mỗi thiết kế',lim:n=>`Giới hạn ${n} bản`,sel:'Chọn Guardian này'},
+zh:{h:'每个价位5款，共20款高清Guardian',p:'$5、$10、$50、$100各等级均采用不同的守护动物、五行、愿望主题与纹样设计。所有作品均为Lumen专属原创，仅将审核完成的HD母版连接到各卡片。$50 Rare采用动态边框，$100 Legendary加入光效与主画面动态效果。',pd:n=>`每款限量发行${n}份`,one:'每款仅发行1份',lim:n=>`限量${n}份`,sel:'选择此Guardian'}
+};
+const E={ko:['금(金)','수(水)','화(火)','목(木)','토(土)'],en:['Metal','Water','Fire','Wood','Earth'],ja:['金','水','火','木','土'],tl:['Metal','Tubig','Apoy','Kahoy','Lupa'],vi:['Kim','Thủy','Hỏa','Mộc','Thổ'],zh:['金','水','火','木','土']};
+const I={
+'fortune-cat':[0,['행운냥이','행운 · 재물 · 번성'],['Fortune Cat','Luck · Wealth · Prosperity'],['幸運ねこ','幸運 · 金運 · 繁栄'],['Fortune Cat','Suwerte · Yaman · Pag-unlad'],['Mèo May Mắn','May mắn · Tài lộc · Thịnh vượng'],['招财猫','好运 · 财富 · 兴旺']],
+'koi':[1,['비단잉어','출세 · 합격 · 도약'],['Silk Koi','Advancement · Success · Leap'],['錦鯉','出世 · 合格 · 飛躍'],['Koi','Pag-angat · Tagumpay · Pagsulong'],['Cá Chép Gấm','Thăng tiến · Đỗ đạt · Bứt phá'],['锦鲤','晋升 · 金榜题名 · 飞跃']],
+'sun-bird':[2,['아기 봉황','기쁨 · 좋은 소식 · 활력'],['Baby Phoenix','Joy · Good News · Vitality'],['幼い鳳凰','喜び · 良い知らせ · 活力'],['Batang Phoenix','Saya · Magandang Balita · Sigla'],['Phượng Hoàng Non','Niềm vui · Tin tốt · Sức sống'],['幼凤','喜悦 · 好消息 · 活力']],
+'new-deer':[3,['새벽사슴','새로운 시작 · 성장'],['Dawn Deer','New Beginnings · Growth'],['暁の鹿','新しい始まり · 成長'],['Dawn Deer','Bagong Simula · Paglago'],['Hươu Bình Minh','Khởi đầu mới · Phát triển'],['晨鹿','新的开始 · 成长']],
+'gold-hamster':[4,['복다람','모으기 · 지킴 · 풍요'],['Fortune Squirrel','Saving · Protection · Abundance'],['福リス','蓄え · 守り · 豊かさ'],['Fortune Squirrel','Pag-iipon · Pagprotekta · Kasaganaan'],['Sóc Phúc Lộc','Tích lũy · Gìn giữ · Sung túc'],['福松鼠','积累 · 守护 · 富足']],
+'moon-rabbit':[0,['달토끼','인연성취 · 행복'],['Moon Rabbit','Connection · Fulfillment · Happiness'],['月うさぎ','良縁成就 · 幸福'],['Moon Rabbit','Ugnayan · Katuparan · Kaligayahan'],['Thỏ Trăng','Nhân duyên · Viên mãn · Hạnh phúc'],['月兔','良缘 · 圆满 · 幸福']],
+'dolphin':[1,['소망돌고래','기회 · 여행 · 자유'],['Wish Dolphin','Opportunity · Travel · Freedom'],['願いのイルカ','機会 · 旅 · 自由'],['Wish Dolphin','Oportunidad · Paglalakbay · Kalayaan'],['Cá Heo Điều Ước','Cơ hội · Du hành · Tự do'],['愿望海豚','机会 · 旅行 · 自由']],
+'fire-fox':[2,['불여우','열정 · 자신감 · 행운'],['Fire Fox','Passion · Confidence · Luck'],['炎の狐','情熱 · 自信 · 幸運'],['Fire Fox','Pasyon · Kumpiyansa · Suwerte'],['Cáo Lửa','Đam mê · Tự tin · May mắn'],['火狐','热情 · 自信 · 好运']],
+'leaf-turtle':[3,['잎새거북','건강 · 안정 · 보호'],['Leaf Turtle','Health · Stability · Protection'],['葉の亀','健康 · 安定 · 守護'],['Leaf Turtle','Kalusugan · Katatagan · Proteksyon'],['Rùa Lá','Sức khỏe · Ổn định · Bảo hộ'],['叶龟','健康 · 安稳 · 守护']],
+'star-owl':[4,['별부엉이','학업 · 합격 · 목표달성'],['Star Owl','Study · Success · Goal Achievement'],['星ふくろう','学業 · 合格 · 目標達成'],['Star Owl','Pag-aaral · Tagumpay · Pag-abot ng Layunin'],['Cú Sao','Học tập · Đỗ đạt · Đạt mục tiêu'],['星鸮','学业 · 成功 · 达成目标']],
+'nine-fox':[0,['백호','수호 · 승리 · 권위'],['White Tiger','Protection · Victory · Authority'],['白虎','守護 · 勝利 · 威厳'],['White Tiger','Proteksyon · Tagumpay · Awtoridad'],['Bạch Hổ','Bảo hộ · Chiến thắng · Uy quyền'],['白虎','守护 · 胜利 · 威严']],
+'sea-dragon':[3,['청룡','성장 · 기회 · 도약'],['Azure Dragon','Growth · Opportunity · Leap'],['青龍','成長 · 機会 · 飛躍'],['Azure Dragon','Paglago · Oportunidad · Pagsulong'],['Thanh Long','Phát triển · Cơ hội · Bứt phá'],['青龙','成长 · 机会 · 飞跃']],
+'unicorn':[2,['주작','열정 · 성공 · 명예'],['Vermilion Bird','Passion · Success · Honor'],['朱雀','情熱 · 成功 · 名誉'],['Vermilion Bird','Pasyon · Tagumpay · Karangalan'],['Chu Tước','Đam mê · Thành công · Danh dự'],['朱雀','热情 · 成功 · 荣耀']],
+'forest-turtle':[1,['현무','안정 · 보호 · 장수'],['Black Tortoise','Stability · Protection · Longevity'],['玄武','安定 · 守護 · 長寿'],['Black Tortoise','Katatagan · Proteksyon · Mahabang Buhay'],['Huyền Vũ','Ổn định · Bảo hộ · Trường thọ'],['玄武','安稳 · 守护 · 长寿']],
+'wing-owl':[4,['황금기린','재물 · 번영 · 행운'],['Golden Qilin','Wealth · Prosperity · Luck'],['黄金麒麟','金運 · 繁栄 · 幸運'],['Golden Qilin','Yaman · Kasaganaan · Suwerte'],['Kỳ Lân Vàng','Tài lộc · Thịnh vượng · May mắn'],['黄金麒麟','财富 · 繁荣 · 好运']],
+'sky-dragon':[0,['백룡','성공 · 권위 · 개운'],['White Dragon','Success · Authority · Auspicious Change'],['白龍','成功 · 威厳 · 開運'],['White Dragon','Tagumpay · Awtoridad · Mabuting Pagbabago'],['Bạch Long','Thành công · Uy quyền · Khai vận'],['白龙','成功 · 威望 · 开运']],
+'fire-phoenix':[2,['주작','열정 · 재물 · 승진'],['Vermilion Bird','Passion · Wealth · Promotion'],['朱雀','情熱 · 金運 · 昇進'],['Vermilion Bird','Pasyon · Yaman · Promotion'],['Chu Tước','Đam mê · Tài lộc · Thăng tiến'],['朱雀','热情 · 财富 · 晋升']],
+'moon-tiger':[3,['청호','수호 · 극복 · 도약'],['Azure Tiger','Protection · Overcoming · Leap'],['青虎','守護 · 克服 · 飛躍'],['Azure Tiger','Proteksyon · Pagtagumpayan · Pagsulong'],['Thanh Hổ','Bảo hộ · Vượt qua · Bứt phá'],['青虎','守护 · 克服 · 飞跃']],
+'qilin':[4,['녹기린','번영 · 성장 · 행운'],['Green Qilin','Prosperity · Growth · Luck'],['緑麒麟','繁栄 · 成長 · 幸運'],['Green Qilin','Kasaganaan · Paglago · Suwerte'],['Lục Kỳ Lân','Thịnh vượng · Phát triển · May mắn'],['绿麒麟','繁荣 · 成长 · 好运']],
+'black-turtle':[1,['현무','안정 · 장수 · 보호'],['Black Tortoise','Stability · Longevity · Protection'],['玄武','安定 · 長寿 · 守護'],['Black Tortoise','Katatagan · Mahabang Buhay · Proteksyon'],['Huyền Vũ','Ổn định · Trường thọ · Bảo hộ'],['玄武','安稳 · 长寿 · 守护']]
+};
+const ix={ko:1,en:2,ja:3,tl:4,vi:5,zh:6};
+function apply(explicit){
+ const l=lang(explicit),c=C[l],head=document.querySelector('.purpose-guardian-heading h2'),intro=document.querySelector('.purpose-guardian-heading p:not(.section-label)');
+ if(head)head.textContent=c.h;if(intro)intro.textContent=c.p;
+ document.querySelectorAll('.gc2-tier').forEach(s=>{const price=Number((s.querySelector('.gc2-tier-price')?.textContent||'').replace(/\D/g,'')),sm=s.querySelector('.gc2-tier-head small');if(sm)sm.textContent=price===100?c.one:c.pd(price===50?5:100)});
+ document.querySelectorAll('.gc2-card[data-guardian-key]').forEach(card=>{const d=I[card.dataset.guardianKey];if(!d)return;const t=d[ix[l]],h=card.querySelector('h3'),p=card.querySelector('.gc2-info p'),lm=card.querySelector('.gc2-limit'),b=card.querySelector('.button'),img=card.querySelector('.gc2-hd-img');if(h&&h.textContent!==t[0])h.textContent=t[0];if(p){const html=`<strong>${E[l][d[0]]}</strong> · ${t[1]}`;if(p.innerHTML!==html)p.innerHTML=html}const tier=card.className.match(/gc2-(basic|personal|rare|legendary)/)?.[1];const lt=tier==='legendary'?'1/1':c.lim(tier==='rare'?5:100);if(lm&&lm.textContent!==lt)lm.textContent=lt;if(b&&b.textContent!==c.sel)b.textContent=c.sel;if(img)img.alt=`${t[0]} Lumen Guardian HD`});
+}
+function schedule(l){setTimeout(()=>apply(l),0);setTimeout(()=>apply(l),80);setTimeout(()=>apply(l),300)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>schedule());else schedule();
+window.addEventListener('load',()=>schedule(),{once:true});
+window.addEventListener('lumen-language-change',e=>schedule(e.detail?.lang));
+document.addEventListener('click',e=>{const ch=e.target.closest?.('.lang-choice');if(ch)schedule(ch.dataset.lang)});
+const target=document.querySelector('#purpose-guardians .archive-grid');if(target)new MutationObserver(()=>schedule()).observe(target,{childList:true});
+})();
