@@ -1,12 +1,14 @@
 const headers={'Cache-Control':'no-store','Content-Type':'application/json; charset=utf-8','X-Content-Type-Options':'nosniff'};
 const json=(body,status=200,extra={})=>new Response(JSON.stringify(body),{status,headers:{...headers,...extra}});
 const clean=(v,max)=>String(v??'').trim().slice(0,max);
+const bool=v=>String(v||'').toLowerCase()==='true';
 const validId=id=>/^LG-\d{8}-[A-Z0-9]{5,12}$/.test(id);
 const makeCheckoutId=()=>`GC-${Date.now()}-${crypto.randomUUID().replace(/-/g,'').slice(0,10).toUpperCase()}`;
 const POLICY_VERSION='guardian-refund-2026-08-12-v1';
 const LANGS=new Set(['ko','en','ja','tl','vi','zh']);
 const normalizeLang=v=>{const raw=String(v||'').trim().toLowerCase();if(raw==='zh-hans'||raw==='zh-cn'||raw.startsWith('zh-'))return'zh';return LANGS.has(raw)?raw:'ko'};
 function safeHttpsUrl(value){try{const u=new URL(String(value||''));return u.protocol==='https:'?u:null}catch{return null}}
+function pgEvidenceReady(env){return bool(env?.LUMEN_PG_APPROVED)&&bool(env?.LUMEN_PG_KYC_COMPLETE)&&bool(env?.LUMEN_PG_SANDBOX_VERIFIED)&&bool(env?.LUMEN_PG_PRODUCTION_READY)}
 async function expireOld(env,guardianId,now){try{await env.GUARDIAN_DB.prepare(`UPDATE guardian_checkout_sessions SET status='expired',failure_code=COALESCE(failure_code,'checkout_expired'),updated_at=? WHERE guardian_id=? AND status IN ('creating','ready') AND expires_at IS NOT NULL AND expires_at<?`).bind(now,guardianId,now).run()}catch{}}
 async function paymentEmergencyState(env){if(env?.LUMEN_PAYMENT_EMERGENCY_HOLD==='true')return{hold:true,reason:'manual_emergency_hold'};try{const control=await env.GUARDIAN_DB.prepare(`SELECT state,note,changed_at FROM guardian_payment_control WHERE control_key='checkout' LIMIT 1`).first();if(control?.state==='hold')return{hold:true,reason:'operator_payment_hold',control};const row=await env.GUARDIAN_DB.prepare(`SELECT incident_id,guardian_id,provider,incident_type,status,severity,summary,updated_at FROM guardian_payment_incidents WHERE status!='resolved' AND severity='critical' ORDER BY updated_at DESC LIMIT 1`).first();if(row)return{hold:true,reason:'critical_payment_incident',incident:row};return{hold:false}}catch{return{hold:true,reason:'incident_state_unavailable'}}}
 export async function onRequestPost({request,env}){
@@ -15,7 +17,8 @@ export async function onRequestPost({request,env}){
   const requestHost=new URL(request.url).hostname.toLowerCase();
   const productionHost=requestHost==='lumendestiny.com'||requestHost==='www.lumendestiny.com';
   // Backend/sandbox readiness is deliberately separate from public sale approval.
-  // Until PG eligibility/KYC/sandbox acceptance is complete, production checkout stays fail-closed.
+  // Production checkout needs all PG evidence plus a final explicit public-arm switch.
+  if(productionHost&&!pgEvidenceReady(env))return json({ok:false,error:'payment_pg_release_not_approved',support:'/support.html'},503);
   if(productionHost&&env?.LUMEN_PAYMENT_PUBLIC_CHECKOUT_ENABLED!=='true')return json({ok:false,error:'payment_public_checkout_not_enabled',support:'/support.html'},503);
   if(productionHost&&env?.LUMEN_PAYMENT_TEST_MODE==='true')return json({ok:false,error:'payment_test_mode_active',support:'/support.html'},503);
   const emergency=await paymentEmergencyState(env);
