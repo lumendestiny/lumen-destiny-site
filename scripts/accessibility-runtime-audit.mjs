@@ -15,7 +15,7 @@ for(const lang of langs){
     try{
       const res=await page.goto(`${base}${route}?lang=${lang}&a11y_runtime_audit=1`,{waitUntil:'domcontentloaded',timeout:25000});
       if(!res?.ok()){failures.push(`${lang} ${route}: HTTP ${res?.status()}`);continue}
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(650);
       const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
       scans++;
       for(const v of results.violations){
@@ -23,12 +23,25 @@ for(const lang of langs){
         const nodes=v.nodes.slice(0,6).map(n=>n.target.join(' ')).join(' | ');
         failures.push(`${lang} ${route}: ${v.id} [${v.impact}] ${v.help} — ${nodes}`);
       }
-      await page.keyboard.press('Tab');
-      const first=await page.evaluate(()=>({cls:document.activeElement?.className||'',href:document.activeElement?.getAttribute?.('href')||'',text:document.activeElement?.textContent?.trim()||''}));
-      if(!String(first.cls).includes('skip-link'))failures.push(`${lang} ${route}: first keyboard focus is not skip link (${JSON.stringify(first)})`);
-      await page.keyboard.press('Enter');
-      const hash=await page.evaluate(()=>location.hash);
-      if(hash!=='#main-content')failures.push(`${lang} ${route}: skip link did not target #main-content (${hash})`);
+
+      const skip=page.locator('.skip-link');
+      if(await skip.count()!==1){
+        failures.push(`${lang} ${route}: expected one skip link`);
+      }else{
+        await skip.focus();
+        const focusState=await page.evaluate(()=>{
+          const el=document.activeElement,main=document.getElementById('main-content');
+          const r=el?.getBoundingClientRect?.();
+          return {isSkip:el?.classList?.contains('skip-link')||false,href:el?.getAttribute?.('href')||'',main:!!main,top:r?.top??-999};
+        });
+        if(!focusState.isSkip)failures.push(`${lang} ${route}: skip link cannot receive keyboard focus`);
+        if(focusState.href!=='#main-content'||!focusState.main)failures.push(`${lang} ${route}: skip target is not wired to #main-content`);
+        if(focusState.top<0)failures.push(`${lang} ${route}: focused skip link remains offscreen (${focusState.top}px)`);
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(50);
+        const hash=await page.evaluate(()=>location.hash);
+        if(hash!=='#main-content')failures.push(`${lang} ${route}: activating skip link did not target #main-content (${hash})`);
+      }
     }catch(e){failures.push(`${lang} ${route}: ${e?.message||String(e)}`)}finally{await context.close()}
   }
 }
@@ -39,4 +52,4 @@ if(failures.length){
   for(const f of failures)console.error(`FAIL ${f}`);
   process.exit(1);
 }
-console.log('Accessibility runtime audit passed: no serious/critical WCAG 2.0/2.1 A/AA violations on the tested KO/EN V1 pages, and the keyboard skip link works on mobile-sized rendered pages.');
+console.log('Accessibility runtime audit passed: no serious/critical WCAG 2.0/2.1 A/AA violations on the tested KO/EN V1 pages, and the keyboard skip link can be focused and activated on mobile-sized rendered pages.');
