@@ -2,56 +2,79 @@
 'use strict';
 
 const BASIC_PREVIEW_IDS=['fortune-cat','koi','sun-bird','new-deer','gold-hamster'];
+const LOCAL_BASIC_FALLBACK='/assets/guardian/sales/guardian-basic-5-hd.webp?v=home-basic-fallback-20260815-1';
 const MAX_RETRIES=3;
 
-function buildSrc(manifest,file,retry){
-  const version=encodeURIComponent(manifest.version||'1');
-  return `${manifest.basePath}${file}?v=${version}&home=1&r=${retry}`;
+function versioned(src,version,retry){
+  if(!src)return'';
+  const join=src.includes('?')?'&':'?';
+  return `${src}${join}v=${encodeURIComponent(version||'1')}&home=1&r=${retry}`;
+}
+
+function basicSource(manifest,id,retry){
+  const file=manifest?.items?.[id];
+  if(!file)return'';
+  return versioned(`${manifest.basePath||''}${file}`,manifest.version||'1',retry);
+}
+
+function makeImage(slot,src){
+  const img=document.createElement('img');
+  let retry=0;
+  let usingFallback=false;
+
+  img.alt='Lumen Guardian Basic preview';
+  img.loading='eager';
+  img.decoding='async';
+  img.fetchPriority='high';
+  img.className='home-guardian-preview-img';
+
+  img.addEventListener('error',()=>{
+    if(!usingFallback&&retry<MAX_RETRIES){
+      retry+=1;
+      const id=slot.dataset.basicGuardianId||'';
+      const next=basicSource(window.LUMEN_GUARDIAN_ARCHIVE_HD,id,retry);
+      if(next){
+        setTimeout(()=>{img.src=next;},120*retry);
+        return;
+      }
+    }
+    if(!usingFallback){
+      usingFallback=true;
+      img.src=LOCAL_BASIC_FALLBACK;
+      return;
+    }
+    slot.dataset.previewError='1';
+  });
+
+  img.addEventListener('load',()=>{
+    slot.dataset.previewLoaded='1';
+    slot.removeAttribute('data-preview-error');
+  });
+
+  img.src=src||LOCAL_BASIC_FALLBACK;
+  return img;
 }
 
 function renderBasicPreviews(){
   const manifest=window.LUMEN_GUARDIAN_ARCHIVE_HD;
-  if(!manifest?.items||!manifest?.basePath)return;
-
   const slots=[...document.querySelectorAll('[data-guardian-preview]')];
+
   slots.forEach((slot,index)=>{
-    const id=slot.dataset.guardianPreview||BASIC_PREVIEW_IDS[index];
-    const file=manifest.items[id];
-    if(!file)return;
+    const id=BASIC_PREVIEW_IDS[index%BASIC_PREVIEW_IDS.length];
+    slot.dataset.basicGuardianId=id;
 
-    const img=document.createElement('img');
-    let retry=0;
+    const src=basicSource(manifest,id,0)||LOCAL_BASIC_FALLBACK;
+    const existing=slot.querySelector('.home-guardian-preview-img');
+    if(existing&&slot.dataset.previewLoaded==='1')return;
 
-    img.alt='';
-    img.loading='eager';
-    img.decoding='async';
-    img.fetchPriority='high';
-    img.className='home-guardian-preview-img';
-
-    img.addEventListener('error',()=>{
-      if(retry<MAX_RETRIES){
-        retry+=1;
-        setTimeout(()=>{
-          img.src=buildSrc(manifest,file,retry);
-        },150*retry);
-        return;
-      }
-      slot.dataset.previewError='1';
-    });
-
-    img.addEventListener('load',()=>{
-      slot.dataset.previewLoaded='1';
-      slot.removeAttribute('data-preview-error');
-    });
-
-    img.src=buildSrc(manifest,file,retry);
-    slot.replaceChildren(img);
+    slot.replaceChildren(makeImage(slot,src));
   });
 }
 
 function boot(){
   renderBasicPreviews();
-  setTimeout(renderBasicPreviews,500);
+  setTimeout(renderBasicPreviews,300);
+  setTimeout(renderBasicPreviews,1000);
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
