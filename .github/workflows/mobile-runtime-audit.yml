@@ -23,6 +23,7 @@ on:
       - 'zh-guardian-*.js'
       - 'guardian-checkout.js'
       - 'scripts/mobile-runtime-audit.mjs'
+      - 'scripts/guardian-archive-anchor-runtime-audit.mjs'
       - '.github/workflows/mobile-runtime-audit.yml'
 
 concurrency:
@@ -49,11 +50,17 @@ jobs:
         env:
           LUMEN_PROD_BASE_URL: https://lumendestiny.com
         run: node scripts/mobile-runtime-audit.mjs
+      - name: Audit Guardian archive button anchor
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/guardian-archive-anchor-runtime-audit.mjs
       - name: Upload failure screenshots
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: mobile-runtime-failures
-          path: artifacts/mobile-runtime/*.png
+          path: |
+            artifacts/mobile-runtime/*.png
+            artifacts/guardian-archive-anchor/*.png
           if-no-files-found: ignore
           retention-days: 7
