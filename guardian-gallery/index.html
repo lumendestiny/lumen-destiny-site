@@ -1,4 +1,5 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guardian Good News | Lumen Destiny</title><link rel="stylesheet" href="/styles.css?v=20260812-5"><link rel="stylesheet" href="/fortune-ui.css?v=20260813-viewport-1"><link rel="stylesheet" href="/result-enhance.css?v=20260812-3"><link rel="stylesheet" href="/service-shell.css?v=20260812-4"><link rel="stylesheet" href="/mobile-section-alignment.css?v=20260815-3"><style>
+#galleryGrid article:only-child{grid-column:1/-1;width:100%;max-width:none;box-sizing:border-box}
 @media(max-width:900px){
   main.result-page>.result-hero>p[data-i18n="galleryHeroCopy"]{
     text-align:left!important;
@@ -7,18 +8,20 @@
     margin-left:0!important;
     margin-right:0!important;
   }
+  #galleryGrid article:only-child{padding:18px 18px}
 }
 @media(min-width:901px){
   main.result-page{min-height:calc(100vh - 80px);box-sizing:border-box;display:flex;flex-direction:column;padding:0 0 12px;overflow:visible}
   main.result-page>.result-hero{width:100%;box-sizing:border-box;max-width:1180px;padding:26px 24px 14px;text-align:center;flex:0 0 auto}
   main.result-page>.result-hero h1{font-size:clamp(2.25rem,3.6vw,3.25rem);line-height:1.08;margin:.2rem 0 .45rem}
   main.result-page>.result-hero>p:last-child{margin:.25rem 0 0;font-size:.96rem}
-  main.result-page>.result-panel{width:calc(100% - 48px);max-width:1180px;box-sizing:border-box;margin:0 auto 12px;padding:20px 28px;min-height:0;flex:0 1 auto}
-  #galleryGrid{margin-top:0;gap:10px}
+  main.result-page>.result-panel{width:calc(100% - 48px);max-width:1180px;box-sizing:border-box;margin:0 auto 12px;padding:20px 22px;min-height:0;flex:0 1 auto}
+  #galleryGrid{width:100%;margin:0;gap:10px}
   #galleryGrid article{min-height:0;padding:16px 18px}
+  #galleryGrid article:only-child{min-height:138px;padding:22px 24px;display:flex;flex-direction:column;justify-content:center}
   #galleryGrid article>span{margin-bottom:6px}
   #galleryGrid p{line-height:1.55}
-  main.result-page .result-disclaimer{margin-top:12px;padding:11px 14px}
+  main.result-page .result-disclaimer{width:100%;box-sizing:border-box;margin-top:10px;padding:11px 14px}
   main.result-page>.result-actions{width:100%;box-sizing:border-box;margin:0 auto;padding:0 24px 4px;flex:0 0 auto}
   main.result-page>.result-actions .button{min-height:46px;padding:0 20px;display:inline-flex;align-items:center;justify-content:center}
 }
@@ -26,8 +29,9 @@
   main.result-page>.result-hero{padding-top:16px;padding-bottom:10px}
   main.result-page>.result-hero h1{font-size:2.35rem;margin:.1rem 0 .3rem}
   main.result-page>.result-hero>p:last-child{font-size:.88rem}
-  main.result-page>.result-panel{padding:15px 22px;margin-bottom:9px}
+  main.result-page>.result-panel{padding:15px 18px;margin-bottom:9px}
   #galleryGrid article{padding:13px 16px}
+  #galleryGrid article:only-child{min-height:118px;padding:18px 20px}
   main.result-page .result-disclaimer{margin-top:9px;padding:9px 12px;font-size:.78rem}
   main.result-page>.result-actions .button{min-height:42px}
 }
