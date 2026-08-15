@@ -1,0 +1,49 @@
+name: Mobile Runtime Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'service-shell.js'
+      - 'service-shell.css'
+      - 'header-language-v2.css'
+      - 'styles.css'
+      - 'fortune-ui.css'
+      - 'guardian/**'
+      - 'guardian-order/**'
+      - 'guardian-gift/**'
+      - 'guardian-verify/**'
+      - 'guardian-i18n.js'
+      - 'guardian-gift-i18n.js'
+      - 'guardian-order-policy-i18n.js'
+      - 'scripts/mobile-runtime-audit.mjs'
+      - '.github/workflows/mobile-runtime-audit.yml'
+
+jobs:
+  runtime-mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Wait for production deployment
+        run: sleep 25
+      - name: Audit rendered mobile layouts
+        env:
+          LUMEN_PROD_BASE_URL: https://lumendestiny.com
+        run: node scripts/mobile-runtime-audit.mjs
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-runtime-failures
+          path: artifacts/mobile-runtime/*.png
+          if-no-files-found: ignore
+          retention-days: 7
