@@ -24,7 +24,9 @@
     const skip=document.createElement('a');
     skip.className='skip-link';
     skip.href='#main-content';
+    skip.tabIndex=0;
     skip.textContent=labels[lang]||labels.ko;
+    skip.setAttribute('aria-label',labels[lang]||labels.ko);
     document.body.prepend(skip);
   }
 
@@ -195,6 +197,12 @@
     }
   }
 
+  if(!document.querySelector('script[src*="/accessibility-labels.js"]')){
+    const a11y=document.createElement('script');
+    a11y.src='/accessibility-labels.js?v=20260815-1';
+    a11y.defer=true;
+    document.head.appendChild(a11y);
+  }
   if(lang==='zh'&&!document.querySelector('script[src*="/zh-i18n.js"]')){
     const z=document.createElement('script');
     z.src='/zh-i18n.js?v=20260812-2';
