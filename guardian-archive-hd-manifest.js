@@ -1,5 +1,5 @@
 window.LUMEN_GUARDIAN_ARCHIVE_HD = Object.freeze({
-  version: '2026-08-15-legendary-slow-motion-3',
+  version: '2026-08-15-legendary-slow-motion-4',
   basePath: '',
   items: {
     'fortune-cat': 'https://lh3.googleusercontent.com/d/1vcq5keNb0iC9wY9tdW9sh27_ZVj7laZs',
@@ -17,10 +17,10 @@ window.LUMEN_GUARDIAN_ARCHIVE_HD = Object.freeze({
     'unicorn': 'https://lh3.googleusercontent.com/d/1ODIg1x6-jm206jcFn2U5qsYn3kUaaJIh',
     'forest-turtle': 'https://lh3.googleusercontent.com/d/1xAHVhJhm3ILYdK_sWMBOZKQ5SvYlw503',
     'wing-owl': 'https://lh3.googleusercontent.com/d/1HjlgNl6h2NuLl3clWCtJevKCnYDY7ZW2',
-    'sky-dragon': 'https://drive.google.com/uc?export=view&id=1qUQk3cYWSKvELS19XH5UJso3ExU-Whin',
-    'fire-phoenix': 'https://drive.google.com/uc?export=view&id=1RbwAFl7iBO1SA_N-grLHUwdJN6uM6xCC',
-    'moon-tiger': 'https://drive.google.com/uc?export=view&id=1ayHVJXsUbtGrYPhdxWdzEU6LnNmGlEbM',
-    'qilin': 'https://drive.google.com/uc?export=view&id=1UvYrUeWOstshsi3DRyaVh8yLb2sSCtaP',
-    'black-turtle': 'https://drive.google.com/uc?export=view&id=1KfrRx0K_svFe0myWVliYf5sbuPaRz-Fh'
+    'sky-dragon': 'https://lh3.googleusercontent.com/d/1qUQk3cYWSKvELS19XH5UJso3ExU-Whin',
+    'fire-phoenix': 'https://lh3.googleusercontent.com/d/1RbwAFl7iBO1SA_N-grLHUwdJN6uM6xCC',
+    'moon-tiger': 'https://lh3.googleusercontent.com/d/1ayHVJXsUbtGrYPhdxWdzEU6LnNmGlEbM',
+    'qilin': 'https://lh3.googleusercontent.com/d/1UvYrUeWOstshsi3DRyaVh8yLb2sSCtaP',
+    'black-turtle': 'https://lh3.googleusercontent.com/d/1KfrRx0K_svFe0myWVliYf5sbuPaRz-Fh'
   }
 });
