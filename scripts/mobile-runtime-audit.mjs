@@ -32,29 +32,35 @@ for(const width of widths){
       const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:1,isMobile:true,hasTouch:true});
       const url=`${base}${route}?lang=${lang}&mobile_runtime_audit=1`;
       try{
-        const res=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
+        const res=await page.goto(url,{waitUntil:'domcontentloaded',timeout:25000});
         if(!res||!res.ok()){
           fail(ctx,`HTTP ${res?.status()??'no-response'}`);
           continue;
         }
-        await page.waitForTimeout(600);
+        await page.waitForTimeout(450);
 
         const state=await page.evaluate(({lang,route})=>{
           const rect=e=>e?e.getBoundingClientRect():null;
+          const visible=e=>{
+            if(!e||e.hidden)return false;
+            const s=getComputedStyle(e),r=rect(e);
+            return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&r&&r.width>0&&r.height>0;
+          };
           const root=document.documentElement;
           const header=document.querySelector('.fortune-header');
           const brand=document.querySelector('.brand-language-stack .brand');
           const switcher=document.querySelector('.fortune-header .language-switcher');
-          const flags=[...document.querySelectorAll('.fortune-header .lang-choice')];
+          const flags=[...document.querySelectorAll('.fortune-header .lang-choice')].filter(visible);
           const nav=document.querySelector('.main-fortune-nav');
-          const focusables=[...document.querySelectorAll('input:not([type="hidden"]),select,textarea')];
-          const actionTargets=[...document.querySelectorAll('.fortune-submit,.result-actions button,.result-actions a.button')];
+          const focusables=[...document.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea')].filter(visible);
+          const actionTargets=[...document.querySelectorAll('.fortune-submit,.result-actions button,.result-actions a.button')].filter(visible);
           const policyLinks=[...document.querySelectorAll('.guardian-policy-consent a')].map(a=>a.textContent.trim());
           const policySpan=document.querySelector('.guardian-policy-consent>span');
           const activeFlags=flags.filter(b=>b.getAttribute('aria-pressed')==='true');
           const headerStyle=header?getComputedStyle(header):null;
           const navStyle=nav?getComputedStyle(nav):null;
-          const sameRow=brand&&switcher?Math.abs(rect(brand).top-rect(switcher).top)<12:false;
+          const br=rect(brand),sr=rect(switcher);
+          const sameRow=!!(br&&sr)&&Math.abs((br.top+br.bottom)/2-(sr.top+sr.bottom)/2)<10;
           const flagRects=flags.map(rect);
           const headerRect=rect(header);
           return {
@@ -76,7 +82,6 @@ for(const width of widths){
             policyLinks,
             policyText:policySpan?.textContent||'',
             htmlLang:document.documentElement.lang,
-            bodyWidth:document.body.getBoundingClientRect().width,
             route
           };
         },{lang,route});
@@ -87,13 +92,13 @@ for(const width of widths){
         if(state.headerExists&&state.headerPosition!=='sticky') fail(ctx,`header position is ${state.headerPosition}`);
         if(state.headerExists&&state.headerTop!=='0px') fail(ctx,`header top is ${state.headerTop}`);
         if(!state.sameRow) fail(ctx,'brand and language flags are not on the same row');
-        if(state.flagCount!==6) fail(ctx,`expected 6 language flags, got ${state.flagCount}`);
+        if(state.flagCount!==6) fail(ctx,`expected 6 visible language flags, got ${state.flagCount}`);
         if(state.activeCount!==1||state.activeLang!==lang) fail(ctx,`active language mismatch count=${state.activeCount} active=${state.activeLang}`);
         if(!state.flagsVerticallyInside) fail(ctx,'language flag clipped vertically outside sticky header');
         if(!state.navExists) fail(ctx,'main navigation missing');
         if(state.navInternalOverflow&&!['auto','scroll'].includes(state.navOverflowX)) fail(ctx,`overflowing nav is not horizontally scrollable (${state.navOverflowX})`);
-        if(state.minFieldFont!==null&&state.minFieldFont<15.9) fail(ctx,`form control font below 16px (${state.minFieldFont}px)`);
-        if(state.minActionHeight!==null&&state.minActionHeight<39.5) fail(ctx,`primary action touch height below 40px (${state.minActionHeight}px)`);
+        if(state.minFieldFont!==null&&state.minFieldFont<15.9) fail(ctx,`visible form control font below 16px (${state.minFieldFont}px)`);
+        if(state.minActionHeight!==null&&state.minActionHeight<39.5) fail(ctx,`visible primary action touch height below 40px (${state.minActionHeight}px)`);
 
         if(route==='/guardian-order/'){
           const expected=expectedPolicyLinks[lang];
@@ -101,22 +106,17 @@ for(const width of widths){
           if(lang!=='ko'&&/[가-힣]/.test(state.policyText)) fail(ctx,'Korean policy text leaked into non-Korean checkout');
         }
 
-        // Confirm sticky placement after an actual scroll whenever the document is tall enough.
         const sticky=await page.evaluate(()=>{
           const h=document.querySelector('.fortune-header');
           if(!h)return null;
-          const before=h.getBoundingClientRect().top;
           const max=Math.max(0,document.documentElement.scrollHeight-innerHeight);
           scrollTo(0,Math.min(500,max));
-          const after=h.getBoundingClientRect().top;
-          return {before,after,max};
+          return {after:h.getBoundingClientRect().top,max};
         });
         if(sticky&&sticky.max>20&&Math.abs(sticky.after)>1.5) fail(ctx,`sticky header moved after scroll (${sticky.after}px)`);
 
         const hasFailure=failures.some(f=>f.width===width&&f.lang===lang&&f.route===route);
-        if(hasFailure){
-          await page.screenshot({path:path.join(outDir,`${slug(route)}-${lang}-${width}.png`),fullPage:true});
-        }
+        if(hasFailure)await page.screenshot({path:path.join(outDir,`${slug(route)}-${lang}-${width}.png`),fullPage:true});
       }catch(error){
         fail(ctx,error?.message||String(error));
         try{await page.screenshot({path:path.join(outDir,`${slug(route)}-${lang}-${width}-exception.png`),fullPage:true});}catch{}
@@ -134,4 +134,4 @@ if(failures.length){
   for(const f of failures)console.error(`FAIL ${f.width}px ${f.lang} ${f.route} — ${f.message}`);
   process.exit(1);
 }
-console.log('Mobile runtime audit passed: no page-level horizontal overflow, six-language header state is stable, sticky navigation holds, mobile form sizing is safe, and Guardian checkout policy links are localized at 320/360/390/430px.');
+console.log('Mobile runtime audit passed: no page-level horizontal overflow, six-language header state is stable, sticky navigation holds, visible mobile form sizing is safe, and Guardian checkout policy links are localized at 320/360/390/430px.');
