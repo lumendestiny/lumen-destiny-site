@@ -5,6 +5,7 @@ const checks = [];
 const add = (name, ok, detail='') => checks.push({name, ok, detail});
 
 const checkout = read('functions/api/payments/checkout.js');
+const paymentControl = read('functions/api/admin/payment-control.js');
 const health = read('functions/api/health.js');
 const webhook = read('functions/api/payments/webhook.js');
 const refunds = read('functions/api/payments/refunds.js');
@@ -17,6 +18,9 @@ const refundPolicy = read('refund-policy.html');
 add('public checkout has explicit final arm', checkout.includes('LUMEN_PAYMENT_PUBLIC_CHECKOUT_ENABLED') && checkout.includes('payment_public_checkout_not_enabled'));
 add('public checkout requires PG evidence', ['LUMEN_PG_APPROVED','LUMEN_PG_KYC_COMPLETE','LUMEN_PG_SANDBOX_VERIFIED','LUMEN_PG_PRODUCTION_READY','payment_pg_release_not_approved'].every(x=>checkout.includes(x)));
 add('production checkout blocks test mode', checkout.includes('payment_test_mode_active') && checkout.includes('productionHost'));
+add('checkout DB control requires explicit open', checkout.includes("if(!control)return{hold:true,reason:'payment_control_missing'}") && checkout.includes("if(control.state!=='open')") && checkout.includes("payment_control_invalid"));
+add('checkout DB control read failure is hold', checkout.includes("catch{return{hold:true,reason:'incident_state_unavailable'}}"));
+add('admin payment control defaults missing row to hold', paymentControl.includes("state:'hold',note:'Missing control row is treated as fail-closed HOLD'") && paymentControl.includes("state(env)||{state:'hold'}"));
 add('health separates backend and public payment readiness', health.includes('paymentsBackendEnabled') && health.includes('paymentPublicCheckoutEnabled') && health.includes('pgEvidenceReady') && health.includes('publicPaymentsEnabled'));
 add('browser checkout rechecks consent at final action', (checkoutUi.match(/if\(agree&&!agree\.checked\)/g)||[]).length >= 2 && checkoutUi.includes('policyAccepted:true'));
 add('checkout policy links preserve language', checkoutUi.includes('/refund-policy.html?lang=${encodeURIComponent(lang)}') && checkoutUi.includes('/terms.html?lang=${encodeURIComponent(lang)}'));
