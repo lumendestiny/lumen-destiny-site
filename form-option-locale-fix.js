@@ -1,13 +1,13 @@
 (()=>{
 'use strict';
 
-const UNKNOWN_LABEL={
-  ko:'모름 (태어난 시간)',
-  en:'Unknown (birth time)',
-  ja:'不明（出生時刻）',
-  tl:'Hindi alam (oras ng kapanganakan)',
-  vi:'Không biết (giờ sinh)',
-  zh:'未知（出生时间）'
+const BIRTH_TIME_LABEL={
+  ko:'태어난 시간',
+  en:'Birth time',
+  ja:'出生時間',
+  tl:'Oras ng kapanganakan',
+  vi:'Giờ sinh',
+  zh:'出生时间'
 };
 
 function normalizeLang(value){
@@ -26,7 +26,7 @@ function currentLang(explicit){
   return normalizeLang(explicit||window.__LUMEN_LANG__||queryLang||localStorage.getItem('lumen-lang')||document.documentElement.lang||'ko');
 }
 
-function localizeUnknownOption(select,lang){
+function localizeBirthTimeOption(select,lang){
   if(!select)return;
   let option=[...select.options].find(o=>o.value==='');
   if(!option){
@@ -34,14 +34,14 @@ function localizeUnknownOption(select,lang){
     option.value='';
     select.insertBefore(option,select.firstChild||null);
   }
-  option.textContent=UNKNOWN_LABEL[lang]||UNKNOWN_LABEL.ko;
+  option.textContent=BIRTH_TIME_LABEL[lang]||BIRTH_TIME_LABEL.ko;
 }
 
 function apply(explicit){
   const lang=currentLang(explicit);
-  localizeUnknownOption(document.getElementById('birthTime'),lang);
-  localizeUnknownOption(document.getElementById('aTime'),lang);
-  localizeUnknownOption(document.getElementById('bTime'),lang);
+  localizeBirthTimeOption(document.getElementById('birthTime'),lang);
+  localizeBirthTimeOption(document.getElementById('aTime'),lang);
+  localizeBirthTimeOption(document.getElementById('bTime'),lang);
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>apply());
