@@ -122,9 +122,9 @@
   const days=(y,m)=>new Date(Number(y),Number(m),0).getDate();
   function setup(prefix){
     const y=document.getElementById(prefix+'Year'),m=document.getElementById(prefix+'Month'),d=document.getElementById(prefix+'Day'),birth=document.getElementById(prefix+'Birth'),timeChoice=document.getElementById(prefix+'TimeChoice'),time=document.getElementById(prefix+'Time'),cal=document.getElementById(prefix+'Calendar'),leap=document.getElementById(prefix+'Leap'),leapLabel=document.getElementById(prefix+'LeapLabel');
-    y.add(new Option('연도',''));for(let n=1900;n<=2050;n++)y.add(new Option(n+'년',String(n)));
-    m.add(new Option('월',''));for(let n=1;n<=12;n++)m.add(new Option(pad(n)+'월',pad(n)));
-    function fillDays(){const old=d.value;d.innerHTML='';d.add(new Option('일',''));const max=y.value&&m.value?days(y.value,m.value):31;for(let n=1;n<=max;n++)d.add(new Option(pad(n)+'일',pad(n)));if([...d.options].some(o=>o.value===old))d.value=old;syncBirth()}
+    y.add(new Option('연도',''));for(let n=1900;n<=2050;n++)y.add(new Option(n+'년',String(n),n===1980,n===1980));
+    m.add(new Option('월',''));for(let n=1;n<=12;n++)m.add(new Option(pad(n)+'월',pad(n),n===1,n===1));
+    function fillDays(){const old=d.value||'01';d.innerHTML='';d.add(new Option('일',''));const max=y.value&&m.value?days(y.value,m.value):31;for(let n=1;n<=max;n++)d.add(new Option(pad(n)+'일',pad(n)));if([...d.options].some(o=>o.value===old))d.value=old;else d.value='01';syncBirth()}
     function syncBirth(){birth.value=y.value&&m.value&&d.value?`${y.value}-${m.value}-${d.value}`:''}
     y.addEventListener('change',fillDays);m.addEventListener('change',fillDays);d.addEventListener('change',syncBirth);fillDays();
     timeChoice.add(new Option('태어난 시간',''));for(let h=0;h<24;h++)for(const min of [0,30]){const v=pad(h)+':'+pad(min);timeChoice.add(new Option(v,v))}timeChoice.addEventListener('change',()=>time.value=timeChoice.value);
