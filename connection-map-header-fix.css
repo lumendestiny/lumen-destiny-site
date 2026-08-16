@@ -1,9 +1,60 @@
-/* 2026-08-16: Connection Map header parity with the Lumen Destiny home header. */
+/* 2026-08-16: Connection Map header must match the Compatibility header exactly. */
+
+/* Compatibility/fortune-ui desktop header geometry.  The explicit min-width is
+   important because header-language-v2 uses a 270px grid column; without it the
+   Korean brand can shrink to one syllable per line. */
+body.connection-map-page .brand-language-stack{
+  display:flex!important;
+  flex-direction:row!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  gap:14px!important;
+  min-width:360px!important;
+  width:auto!important;
+  flex-wrap:nowrap!important;
+  overflow:visible!important;
+}
+body.connection-map-page .brand-language-stack .brand{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:max-content!important;
+  white-space:nowrap!important;
+  font-size:1.72rem!important;
+  font-weight:950!important;
+  line-height:1!important;
+}
+body.connection-map-page .language-switcher{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:max-content!important;
+}
+
+/* Use the exact Compatibility navigation cell treatment. */
+body.connection-map-page .main-fortune-nav{
+  display:flex!important;
+  gap:0!important;
+  height:100%!important;
+  align-items:stretch!important;
+}
+body.connection-map-page .main-fortune-nav a{
+  display:flex!important;
+  align-items:center!important;
+  height:100%!important;
+  padding:0 15px!important;
+  color:#24242b!important;
+  position:relative!important;
+  white-space:nowrap!important;
+  background:transparent;
+  transition:background .18s ease,color .18s ease!important;
+}
+body.connection-map-page .main-fortune-nav a:hover{
+  color:#4b38d2!important;
+  background:#f7f5ff!important;
+}
 body.connection-map-page .main-fortune-nav a.active,
 body.connection-map-page .main-fortune-nav a[aria-current="page"]{
   color:#4b38d2!important;
   background:#f1efff!important;
-  position:relative!important;
 }
 body.connection-map-page .main-fortune-nav a.active::after,
 body.connection-map-page .main-fortune-nav a[aria-current="page"]::after{
@@ -17,21 +68,50 @@ body.connection-map-page .main-fortune-nav a[aria-current="page"]::after{
   display:block!important;
 }
 
-/* Keep the language selector in the exact same brand/language stack used by home. */
-body.connection-map-page .brand-language-stack{
-  display:flex!important;
-  flex-direction:row!important;
-  align-items:center!important;
-  justify-content:flex-start!important;
+@media(max-width:1180px) and (min-width:781px){
+  body.connection-map-page .brand-language-stack{
+    min-width:300px!important;
+    gap:10px!important;
+  }
+  body.connection-map-page .brand-language-stack .brand{
+    font-size:1.55rem!important;
+  }
+  body.connection-map-page .main-fortune-nav a{
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
 }
 
 @media(max-width:780px){
+  body.connection-map-page .brand-language-stack{
+    min-width:0!important;
+    width:100%!important;
+    padding:9px 0 5px!important;
+    gap:10px!important;
+    justify-content:space-between!important;
+    flex-wrap:nowrap!important;
+  }
+  body.connection-map-page .brand-language-stack .brand{
+    min-width:max-content!important;
+    font-size:1.42rem!important;
+  }
+  body.connection-map-page .language-switcher{
+    flex:1 1 auto!important;
+    min-width:0!important;
+    overflow-x:auto!important;
+  }
+  body.connection-map-page .main-fortune-nav{
+    height:50px!important;
+    justify-content:flex-start!important;
+    overflow-x:auto!important;
+  }
+  body.connection-map-page .main-fortune-nav a{
+    height:50px!important;
+    padding:0 12px!important;
+  }
   body.connection-map-page .main-fortune-nav a.active::after,
   body.connection-map-page .main-fortune-nav a[aria-current="page"]::after{
     left:10px!important;
     right:10px!important;
-  }
-  body.connection-map-page .brand-language-stack{
-    justify-content:space-between!important;
   }
 }
