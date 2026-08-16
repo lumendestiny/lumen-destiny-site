@@ -1,4 +1,17 @@
 (()=>{
+  if(!document.querySelector('link[href*="/auth-shell.css"]')){
+    const authCss=document.createElement('link');
+    authCss.rel='stylesheet';
+    authCss.href='/auth-shell.css?v=20260816-1';
+    document.head.appendChild(authCss);
+  }
+  if(!document.querySelector('script[src*="/auth-runtime.js"]')){
+    const authRuntime=document.createElement('script');
+    authRuntime.type='module';
+    authRuntime.src='/auth-runtime.js?v=20260816-1';
+    document.head.appendChild(authRuntime);
+  }
+
   document.querySelectorAll('link[href*="header-language-v2.css"]').forEach(el=>el.remove());
   const f=document.createElement('link');
   f.rel='stylesheet';
@@ -93,7 +106,7 @@
     zh:{saju:'免费四柱',wealth:'财运',year:'新年运势',month:'月运',today:'今日运势',compat:'合婚',connection:'缘分地图',guardian:'Guardian'}
   }[lang]||{};
 
-  const stable=new Set(['/compatibility','/compatibility-result','/connection-map','/guardian','/guardian-order','/guardian-gift','/guardian-campaigns','/guardian-gallery','/guardian-physical-status','/guardian-verify','/guardian-story']);
+  const stable=new Set(['/compatibility','/compatibility-result','/connection-map','/guardian','/guardian-order','/guardian-gift','/guardian-campaigns','/guardian-gallery','/guardian-physical-status','/guardian-verify','/guardian-story','/login']);
   const stablePath=p=>{
     p=p.replace(/\.html$/,'').replace(/\/$/,'');
     return stable.has(p)?p:p||'/';
