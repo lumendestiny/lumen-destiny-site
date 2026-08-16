@@ -9,6 +9,7 @@ export default function RootLayout() {
       <Stack.Screen name="fortune" options={{ title: '운세' }} />
       <Stack.Screen name="compatibility" options={{ title: '궁합' }} />
       <Stack.Screen name="connection-map" options={{ title: 'LUMEN LINK · 인연지도' }} />
+      <Stack.Screen name="link-join" options={{ title: 'LUMEN LINK 초대' }} />
       <Stack.Screen name="guardian" options={{ title: 'LUMEN GUARDIAN' }} />
       <Stack.Screen name="guardian-order" options={{ title: 'Guardian 발급 준비' }} />
       <Stack.Screen name="guardian-verify" options={{ title: 'Guardian 인증' }} />
