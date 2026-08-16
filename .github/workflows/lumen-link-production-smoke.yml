@@ -1,0 +1,29 @@
+name: LUMEN LINK Production Smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check LUMEN LINK health
+        shell: bash
+        run: |
+          set -euo pipefail
+          body=$(curl -fsS https://lumendestiny.com/api/lumen-link/health)
+          echo "$body"
+          echo "$body" | grep -q '"ok":true'
+      - name: Check invalid invite handling
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/lumen-link-invalid.txt -w '%{http_code}' https://lumendestiny.com/link/invalid)
+          test "$code" = "400"
+      - name: Confirm production readiness marker
+        shell: bash
+        run: echo "LUMEN LINK public endpoints are reachable. Full invite/join E2E requires an actual one-time invite token."
