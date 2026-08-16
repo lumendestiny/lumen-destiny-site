@@ -1,0 +1,54 @@
+/* 2026-08-16: Home fortune services — balanced 3 x 2 desktop layout */
+.fortune-services .fortune-service-grid{
+  width:100%;
+  max-width:1380px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+  align-items:stretch;
+}
+.fortune-services .fortune-service-card{
+  min-height:238px;
+  padding:24px 22px;
+  height:100%;
+}
+.fortune-services .fortune-service-card h3{
+  font-size:1.32rem;
+}
+.fortune-services .fortune-service-card p{
+  font-size:.93rem;
+  line-height:1.62;
+}
+.fortune-services .fortune-service-card a{
+  padding-top:20px;
+}
+
+@media (min-width:1181px) and (max-height:820px){
+  .fortune-services .fortune-service-grid{gap:14px 16px;}
+  .fortune-services .fortune-service-card{
+    min-height:205px;
+    padding:18px 20px;
+  }
+  .fortune-services .fortune-service-card h3{font-size:1.18rem;}
+  .fortune-services .fortune-service-card p{font-size:.84rem;line-height:1.52;}
+  .fortune-services .fortune-service-card a{padding-top:14px;}
+}
+
+@media (max-width:900px){
+  .fortune-services .fortune-service-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+  }
+}
+
+@media (max-width:780px){
+  .fortune-services .fortune-service-grid{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .fortune-services .fortune-service-card{
+    min-height:180px;
+    padding:20px 18px;
+  }
+}
