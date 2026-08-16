@@ -5,6 +5,14 @@ const BASIC_PREVIEW_IDS=['fortune-cat','koi','sun-bird','new-deer','gold-hamster
 const LOCAL_BASIC_FALLBACK='/assets/guardian/sales/guardian-basic-5-hd.webp?v=home-basic-fallback-20260815-1';
 const MAX_RETRIES=3;
 
+function enforceLaunchScope(){
+  if(document.querySelector('script[src*="/home-no-consult.js"]'))return;
+  const s=document.createElement('script');
+  s.src='/home-no-consult.js?v=20260816-1';
+  s.defer=true;
+  document.head.appendChild(s);
+}
+
 function versioned(src,version,retry){
   if(!src)return'';
   const join=src.includes('?')?'&':'?';
@@ -72,6 +80,7 @@ function renderBasicPreviews(){
 }
 
 function boot(){
+  enforceLaunchScope();
   renderBasicPreviews();
   setTimeout(renderBasicPreviews,300);
   setTimeout(renderBasicPreviews,1000);
