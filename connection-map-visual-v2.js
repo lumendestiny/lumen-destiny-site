@@ -1,4 +1,13 @@
 (()=>{
+  function ensureConnectionI18n(){
+    if(document.querySelector('script[src*="/connection-map-i18n-v2.js"]'))return;
+    const s=document.createElement('script');
+    s.src='/connection-map-i18n-v2.js?v=20260816-1';
+    s.defer=true;
+    document.head.appendChild(s);
+  }
+  ensureConnectionI18n();
+
   const map=document.getElementById('networkMap');
   const selected=document.getElementById('selectedPerson');
   const ranking=document.getElementById('contributionRanking');
