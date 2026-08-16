@@ -13,6 +13,14 @@ function enforceLaunchScope(){
   document.head.appendChild(s);
 }
 
+function ensureHomeI18n(){
+  if(document.querySelector('script[src*="/home-i18n-v2.js"]'))return;
+  const s=document.createElement('script');
+  s.src='/home-i18n-v2.js?v=20260816-1';
+  s.defer=true;
+  document.head.appendChild(s);
+}
+
 function versioned(src,version,retry){
   if(!src)return'';
   const join=src.includes('?')?'&':'?';
@@ -81,6 +89,7 @@ function renderBasicPreviews(){
 
 function boot(){
   enforceLaunchScope();
+  ensureHomeI18n();
   renderBasicPreviews();
   setTimeout(renderBasicPreviews,300);
   setTimeout(renderBasicPreviews,1000);
