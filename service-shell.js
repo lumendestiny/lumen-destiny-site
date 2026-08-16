@@ -1,4 +1,16 @@
 (()=>{
+  if(location.pathname.startsWith('/connection-map')&&!window.__LUMEN_CONNECTION_STORAGE_SCOPED__){
+    const userId=String(localStorage.getItem('lumen-auth-user-id')||'').trim();
+    if(userId){
+      window.__LUMEN_CONNECTION_STORAGE_SCOPED__=true;
+      const keyMap={'lumen-connection-profile-v1':`lumen-connection-profile-v2:${userId}`,'lumen-connection-network-web-v1':`lumen-connection-network-web-v2:${userId}`};
+      const originalGet=Storage.prototype.getItem,originalSet=Storage.prototype.setItem,originalRemove=Storage.prototype.removeItem;
+      Storage.prototype.getItem=function(key){return originalGet.call(this,keyMap[key]||key)};
+      Storage.prototype.setItem=function(key,value){return originalSet.call(this,keyMap[key]||key,value)};
+      Storage.prototype.removeItem=function(key){return originalRemove.call(this,keyMap[key]||key)};
+    }
+  }
+
   if(!document.querySelector('link[href*="/auth-shell.css"]')){
     const authCss=document.createElement('link');
     authCss.rel='stylesheet';
