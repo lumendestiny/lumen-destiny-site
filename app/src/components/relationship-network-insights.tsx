@@ -18,6 +18,7 @@ export default function RelationshipNetworkInsights({meElements,members,activeGr
  const filteredMembers=useMemo(()=>filterMembersByRelation(members,activeGroup),[activeGroup,members]);
  const summary=useMemo(()=>summarizeNetwork(meElements,filteredMembers),[meElements,filteredMembers]);
  const ranking=useMemo(()=>filteredMembers.map(member=>({member,impact:summarizeMemberImpact(meElements,filteredMembers,member.id)})).filter((item):item is RankedImpact=>!!item.impact).sort((a,b)=>b.impact.coverageDelta-a.impact.coverageDelta||b.member.score-a.member.score).slice(0,3),[meElements,filteredMembers]);
+ const maxContribution=useMemo(()=>Math.max(1,...ranking.map(item=>Math.abs(item.impact.coverageDelta))),[ranking]);
  const validCompareIds=compareIds.filter(id=>filteredMembers.some(member=>member.id===id));
  const selected=useMemo(()=>validCompareIds.map(id=>filteredMembers.find(member=>member.id===id)).filter((member):member is NetworkMember=>!!member),[validCompareIds,filteredMembers]);
  const activeLabel=relationGroupLabel(activeGroup);
@@ -36,12 +37,12 @@ export default function RelationshipNetworkInsights({meElements,members,activeGr
    <View style={styles.groupSummary}><View style={styles.groupMetric}><Text style={styles.groupLabel}>{activeLabel} 인연</Text><Text style={styles.groupValue}>{filteredMembers.length}명</Text></View><View style={styles.groupMetric}><Text style={styles.groupLabel}>관계망 균형도</Text><Text style={styles.groupValue}>{summary.coverage}</Text></View><View style={styles.groupMetric}><Text style={styles.groupLabel}>부족한 기운</Text><Text style={styles.groupValue}>{summary.weakest.join('·')}</Text></View></View>
    <Text style={styles.groupCopy}>{activeGroup==='all'?`전체 인연망에서는 ${summary.weakest.join('·')} 기운이 상대적으로 낮습니다.`:`${activeLabel} 관계만 따로 보면 ${summary.weakest.join('·')} 기운이 상대적으로 낮고, 개인 기준 대비 균형 변화는 ${signed(summary.balanceDelta)}점입니다.`}</Text>
    <Text style={styles.subTitle}>{activeLabel} · 균형 기여 TOP 3</Text>
-   {ranking.map(({member,impact},index)=><View key={member.id} style={styles.rankRow}><View style={styles.rankNo}><Text style={styles.rankNoText}>{index+1}</Text></View><View style={styles.flex}><Text numberOfLines={1} ellipsizeMode="tail" style={styles.name}>{member.name} · {member.relation}</Text><Text style={styles.meta}>보완도 {member.score} · 균형 변화 {signed(impact.coverageDelta)}</Text></View><View style={[styles.deltaBadge,impact.coverageDelta<0&&styles.deltaBadgeDown]}><Text style={[styles.deltaText,impact.coverageDelta<0&&styles.deltaTextDown]}>{signed(impact.coverageDelta)}</Text></View></View>)}
-   <Text style={styles.note}>균형 점수 변화 기준입니다. 음수도 관계의 좋고 나쁨을 뜻하지 않습니다.</Text>
+   {ranking.map(({member,impact},index)=>{const widthPct=Math.max(8,Math.round((Math.abs(impact.coverageDelta)/maxContribution)*100));return <View key={member.id} style={styles.rankRow}><View style={styles.rankNo}><Text style={styles.rankNoText}>{index+1}</Text></View><View style={styles.flex}><Text numberOfLines={1} ellipsizeMode="tail" style={styles.name}>{member.name} · {member.relation}</Text><Text style={styles.meta}>보완도 {member.score} · 균형 변화 {signed(impact.coverageDelta)}</Text><View style={styles.rankTrack}><View style={[styles.rankFill,{width:`${widthPct}%`},impact.coverageDelta<0&&styles.rankFillDown]}/></View></View><View style={[styles.deltaBadge,impact.coverageDelta<0&&styles.deltaBadgeDown]}><Text style={[styles.deltaText,impact.coverageDelta<0&&styles.deltaTextDown]}>{signed(impact.coverageDelta)}</Text></View></View>})}
+   <Text style={styles.note}>막대 길이는 현재 관계군 안에서의 상대적 균형 기여 크기를 보여줍니다. 음수도 관계의 좋고 나쁨을 뜻하지 않습니다.</Text>
    <View style={styles.divider}/>
    <Text style={styles.subTitle}>{activeLabel} · 인연 둘 비교하기</Text>
    <Text style={styles.compareGuide}>최대 두 명을 선택합니다 · 비교 기준: 현재 부족한 {weakest} 기운</Text>
-   <View style={styles.pickerRow}>{filteredMembers.map(member=>{const active=validCompareIds.includes(member.id);return <Pressable key={member.id} onPress={()=>toggleCompare(member.id)} style={[styles.picker,active&&styles.pickerActive,tiny&&styles.pickerTiny]}><Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pickerText,active&&styles.pickerTextActive]}>{member.name}</Text><Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pickerMeta,active&&styles.pickerMetaActive]}>{member.relation}</Text></Pressable>})}</View>
+   <View style={styles.pickerRow}>{filteredMembers.map(member=>{const active=validCompareIds.includes(member.id);return <Pressable key={member.id} onPress={()=>toggleCompare(member.id)} accessibilityRole="button" accessibilityState={{selected:active}} accessibilityLabel={`${member.name}, ${member.relation}, 비교 ${active?'선택됨':'선택 안 됨'}`} style={[styles.picker,active&&styles.pickerActive,tiny&&styles.pickerTiny]}><Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pickerText,active&&styles.pickerTextActive]}>{member.name}</Text><Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pickerMeta,active&&styles.pickerMetaActive]}>{member.relation}</Text></Pressable>})}</View>
    {selected.length?<View style={[styles.compareBox,tiny&&styles.compareBoxTiny]}>{selected.map((member,index)=>{const value=elementPercent(member.elements,weakest);return <View key={member.id} style={styles.compareSide}><Text numberOfLines={1} ellipsizeMode="tail" style={styles.compareName}>{member.name}</Text><Text style={styles.compareElement}>{weakest} {value}%</Text><Text style={styles.compareScore}>보완도 {member.score}</Text>{index===0&&selected.length===2?<Text style={styles.vs}>VS</Text>:null}</View>})}</View>:null}
    <Text style={styles.compareCopy}>{compareCopy}</Text>
    {a&&b?<Text style={styles.disclaimer}>※ 이 비교는 선택한 관계군에서 현재 부족한 오행의 상대적 보유 비중을 보는 참고 지표이며 사람의 가치나 관계의 미래를 평가하지 않습니다.</Text>:null}
@@ -50,7 +51,7 @@ export default function RelationshipNetworkInsights({meElements,members,activeGr
 }
 
 const styles=StyleSheet.create({
- wrap:{marginTop:16,padding:16,borderRadius:16,backgroundColor:'#fff',borderWidth:1,borderColor:'#e4e0ff'},
+ wrap:{marginTop:16,padding:16,borderRadius:18,backgroundColor:'#fff',borderWidth:1,borderColor:'#e4e0ff'},
  wrapCompact:{padding:13,borderRadius:14},
  title:{fontSize:17,fontWeight:'900',color:'#242735'},
  lead:{marginTop:5,fontSize:12,lineHeight:19,color:'#686d79'},
@@ -60,12 +61,15 @@ const styles=StyleSheet.create({
  groupValue:{marginTop:3,fontSize:17,fontWeight:'900',color:'#5146c8',textAlign:'center'},
  groupCopy:{marginTop:8,fontSize:11,lineHeight:18,color:'#626776'},
  subTitle:{marginTop:16,fontSize:13,fontWeight:'900',color:'#5146c8'},
- rankRow:{marginTop:9,minHeight:58,flexDirection:'row',alignItems:'center',gap:9,padding:10,borderRadius:12,backgroundColor:'#f8f8fb'},
+ rankRow:{marginTop:9,minHeight:64,flexDirection:'row',alignItems:'center',gap:9,padding:10,borderRadius:13,backgroundColor:'#fff',borderWidth:1,borderColor:'#ece8fa'},
  rankNo:{width:28,height:28,borderRadius:14,alignItems:'center',justifyContent:'center',backgroundColor:'#ece9ff'},
  rankNoText:{fontSize:12,fontWeight:'900',color:'#5146c8'},
  flex:{flex:1,minWidth:0},
  name:{fontSize:13,fontWeight:'900',color:'#2d3040'},
  meta:{marginTop:3,fontSize:11,color:'#6d7280'},
+ rankTrack:{height:4,marginTop:7,borderRadius:999,backgroundColor:'#ece9f8',overflow:'hidden'},
+ rankFill:{height:'100%',borderRadius:999,backgroundColor:'#7b61df'},
+ rankFillDown:{backgroundColor:'#d88b9c'},
  deltaBadge:{flexShrink:0,paddingHorizontal:7,paddingVertical:5,borderRadius:999,backgroundColor:'#e7f5ee'},
  deltaBadgeDown:{backgroundColor:'#f7eaea'},
  deltaText:{fontSize:11,fontWeight:'900',color:'#327457'},
