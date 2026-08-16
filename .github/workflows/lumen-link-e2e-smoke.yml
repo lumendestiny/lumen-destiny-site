@@ -1,0 +1,152 @@
+name: LUMEN LINK E2E Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/lumen-link-e2e-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Wait for production deployment
+        run: sleep 35
+
+      - name: Require production-ready LUMEN LINK
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS https://lumendestiny.com/api/lumen-link/health > /tmp/health.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/health.json'))
+          assert d.get('ok') is True, d
+          assert d.get('ready') is True, d
+          c=d.get('checks') or {}
+          assert c.get('featureFlag') is True, d
+          assert c.get('d1Bound') is True, d
+          assert c.get('schemaReady') is True, d
+          print('health ready')
+          PY
+
+      - name: Create one-time synthetic invite
+        id: create
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/create-payload.json <<'JSON'
+          {
+            "inviterLabel": "LUMEN_E2E_INVITER",
+            "elements": {"목":1,"화":3,"토":2,"금":3,"수":1},
+            "weakest": ["목","수"]
+          }
+          JSON
+          curl -fsS -X POST https://lumendestiny.com/api/lumen-link/create \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/create-payload.json > /tmp/create.json
+          TOKEN=$(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/create.json'))
+          assert d.get('ok') is True, d
+          token=d['invite']['token']
+          assert len(token)>=20
+          print(token)
+          PY
+          )
+          echo "::add-mask::$TOKEN"
+          echo "TOKEN=$TOKEN" >> "$GITHUB_ENV"
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/create.json'))
+          assert d['invite']['id'].startswith('LL-')
+          assert d['invite']['expiresAt']
+          print('invite created', d['invite']['id'])
+          PY
+
+      - name: Verify recipient invite API and landing page
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS "https://lumendestiny.com/api/lumen-link/invite?token=${TOKEN}" > /tmp/invite.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/invite.json'))
+          assert d.get('ok') is True, d
+          assert d['invite']['inviterLabel']=='LUMEN_E2E_INVITER', d
+          assert d['invite']['status']=='open', d
+          print('invite open')
+          PY
+          code=$(curl -sS -o /tmp/landing.html -w '%{http_code}' "https://lumendestiny.com/link/${TOKEN}")
+          test "$code" = "200"
+          grep -q 'LUMEN DESTINY · CONNECTION MAP' /tmp/landing.html
+          grep -q 'LUMEN_E2E_INVITER' /tmp/landing.html
+          grep -q '내 정보 입력하고 연결하기' /tmp/landing.html
+          echo 'landing rendered'
+
+      - name: Join synthetic participant
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/join-payload.json
+          import json, os
+          print(json.dumps({
+            'token': os.environ['TOKEN'],
+            'participantLabel': 'LUMEN_E2E_PARTICIPANT',
+            'relationLabel': 'system-e2e-test',
+            'elements': {'목':3,'화':1,'토':2,'금':1,'수':3},
+            'weakest': ['화','금']
+          }, ensure_ascii=False))
+          PY
+          curl -fsS -X POST https://lumendestiny.com/api/lumen-link/join \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/join-payload.json > /tmp/join.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/join.json'))
+          assert d.get('ok') is True, d
+          r=d['relationship']
+          assert r['id'].startswith('LLR-'), r
+          assert isinstance(r['score'], int), r
+          assert r['grade'], r
+          print('join complete', r['id'], r['score'], r['grade'])
+          PY
+
+      - name: Verify inviter can retrieve joined relationship
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS "https://lumendestiny.com/api/lumen-link/status?token=${TOKEN}" > /tmp/status.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/status.json'))
+          assert d.get('ok') is True, d
+          assert d['invite']['status']=='used', d
+          r=d.get('relationship') or {}
+          assert r.get('participantLabel')=='LUMEN_E2E_PARTICIPANT', d
+          assert r.get('relationLabel')=='system-e2e-test', d
+          assert isinstance(r.get('score'), int), d
+          assert r.get('grade'), d
+          print('status retrieval complete', r['score'], r['grade'])
+          PY
+
+      - name: Verify one-time invite cannot be reused
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/reuse.json -w '%{http_code}' -X POST https://lumendestiny.com/api/lumen-link/join \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/join-payload.json)
+          test "$code" = "409"
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/reuse.json'))
+          assert d.get('ok') is False, d
+          assert d.get('error')=='invite_closed', d
+          print('reuse correctly blocked')
+          PY
