@@ -1,0 +1,50 @@
+name: Android V1 Release Candidate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/android-v1-apk
+    paths:
+      - 'android-release/**'
+      - '.github/workflows/android-v1-release.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-release-aab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 16 platform
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.0'
+
+      - name: Build release AAB validation artifact
+        working-directory: android-release
+        run: gradle --no-daemon :app:bundleRelease
+
+      - name: Upload release candidate AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lumen-Destiny-V1-Release-AAB-UNSIGNED
+          path: android-release/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
