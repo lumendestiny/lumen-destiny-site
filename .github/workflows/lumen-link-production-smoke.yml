@@ -1,6 +1,14 @@
 name: LUMEN LINK Production Smoke
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/link/**'
+      - 'functions/api/lumen-link/**'
+      - 'migrations/0011_lumen_link.sql'
+      - 'migrations/0012_lumen_link_hardening.sql'
+      - '.github/workflows/lumen-link-production-smoke.yml'
   workflow_dispatch:
 
 permissions:
@@ -9,21 +17,39 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
-      - name: Check LUMEN LINK health
+      - name: Wait for production deployment
+        shell: bash
+        run: sleep 35
+      - name: Check LUMEN LINK health and fail-closed state
         shell: bash
         run: |
           set -euo pipefail
-          body=$(curl -fsS https://lumendestiny.com/api/lumen-link/health)
-          echo "$body"
-          echo "$body" | grep -q '"ok":true'
+          code=$(curl -sS -o /tmp/lumen-link-health.json -w '%{http_code}' https://lumendestiny.com/api/lumen-link/health)
+          cat /tmp/lumen-link-health.json
+          echo
+          echo "HTTP $code"
+          test "$code" = "200" -o "$code" = "503"
+          grep -q '"ok":true' /tmp/lumen-link-health.json
+          grep -q '"service":"lumen-link"' /tmp/lumen-link-health.json
+          if [ "$code" = "200" ]; then
+            grep -q '"ready":true' /tmp/lumen-link-health.json
+            echo "LUMEN LINK is production-ready."
+          else
+            grep -q '"ready":false' /tmp/lumen-link-health.json
+            grep -q '"mode":"preflight"' /tmp/lumen-link-health.json
+            echo "LUMEN LINK is deployed but safely fail-closed in preflight mode."
+          fi
       - name: Check invalid invite handling
         shell: bash
         run: |
           set -euo pipefail
           code=$(curl -sS -o /tmp/lumen-link-invalid.txt -w '%{http_code}' https://lumendestiny.com/link/invalid)
+          cat /tmp/lumen-link-invalid.txt
+          echo
+          echo "HTTP $code"
           test "$code" = "400"
-      - name: Confirm production readiness marker
+      - name: Confirm recipient route policy
         shell: bash
-        run: echo "LUMEN LINK public endpoints are reachable. Full invite/join E2E requires an actual one-time invite token."
+        run: echo "LUMEN LINK recipient route is reachable. Full invite/join E2E requires an actual one-time invite after D1 schema and feature flag are ready."
