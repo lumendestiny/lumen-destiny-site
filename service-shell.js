@@ -85,15 +85,15 @@
 
   const nav=document.querySelector('.main-fortune-nav');
   const common={
-    ko:{saju:'무료사주',wealth:'금전운',year:'신년운세',month:'월간운세',today:'오늘의 운세',compat:'궁합',guardian:'가디언'},
-    en:{saju:'Free Saju',wealth:'Money',year:'Year',month:'Month',today:'Today',compat:'Compatibility',guardian:'Guardian'},
-    ja:{saju:'無料四柱',wealth:'金運',year:'新年運',month:'月運',today:'今日の運勢',compat:'相性',guardian:'ガーディアン'},
-    tl:{saju:'Free Saju',wealth:'Pera',year:'Taon',month:'Buwan',today:'Ngayon',compat:'Compatibility',guardian:'Guardian'},
-    vi:{saju:'Tứ trụ miễn phí',wealth:'Tài vận',year:'Năm',month:'Tháng',today:'Hôm nay',compat:'Hợp tuổi',guardian:'Guardian'},
-    zh:{saju:'免费四柱',wealth:'财运',year:'新年运势',month:'月运',today:'今日运势',compat:'合婚',guardian:'Guardian'}
+    ko:{saju:'무료사주',wealth:'금전운',year:'신년운세',month:'월간운세',today:'오늘의 운세',compat:'궁합',connection:'인연지도',guardian:'가디언'},
+    en:{saju:'Free Saju',wealth:'Money',year:'Year',month:'Month',today:'Today',compat:'Compatibility',connection:'Connection Map',guardian:'Guardian'},
+    ja:{saju:'無料四柱',wealth:'金運',year:'新年運',month:'月運',today:'今日の運勢',compat:'相性',connection:'ご縁マップ',guardian:'ガーディアン'},
+    tl:{saju:'Free Saju',wealth:'Pera',year:'Taon',month:'Buwan',today:'Ngayon',compat:'Compatibility',connection:'Connection Map',guardian:'Guardian'},
+    vi:{saju:'Tứ trụ miễn phí',wealth:'Tài vận',year:'Năm',month:'Tháng',today:'Hôm nay',compat:'Hợp tuổi',connection:'Bản đồ quan hệ',guardian:'Guardian'},
+    zh:{saju:'免费四柱',wealth:'财运',year:'新年运势',month:'月运',today:'今日运势',compat:'合婚',connection:'缘分地图',guardian:'Guardian'}
   }[lang]||{};
 
-  const stable=new Set(['/compatibility','/compatibility-result','/guardian','/guardian-order','/guardian-gift','/guardian-campaigns','/guardian-gallery','/guardian-physical-status','/guardian-verify','/guardian-story']);
+  const stable=new Set(['/compatibility','/compatibility-result','/connection-map','/guardian','/guardian-order','/guardian-gift','/guardian-campaigns','/guardian-gallery','/guardian-physical-status','/guardian-verify','/guardian-story']);
   const stablePath=p=>{
     p=p.replace(/\.html$/,'').replace(/\/$/,'');
     return stable.has(p)?p:p||'/';
@@ -136,12 +136,24 @@
         ['a[href*="#year"]','year'],
         ['a[href*="#month"]','month'],
         ['a[href*="#today"]','today'],
-        ['a[href*="compatibility"]','compat']
+        ['a[href*="compatibility"]','compat'],
+        ['a[href*="connection-map"]','connection']
       ];
       map.forEach(([sel,key])=>{
         const a=nav.querySelector(sel);
         if(a&&common[key])a.textContent=common[key];
       });
+      let connection=nav.querySelector('a[href*="connection-map"]');
+      if(!connection){
+        connection=document.createElement('a');
+        connection.href='/connection-map';
+        nav.appendChild(connection);
+      }
+      connection.textContent=common.connection||'Connection Map';
+      if(stablePath(location.pathname)==='/connection-map'){
+        connection.classList.add('active');
+        connection.setAttribute('aria-current','page');
+      }
       let g=nav.querySelector('a[href*="guardian"]');
       if(!g){
         g=document.createElement('a');
