@@ -1,3 +1,5 @@
+import{authorizeRequest}from'../_auth.js';
+
 const headers={'Cache-Control':'no-store','Content-Type':'application/json; charset=utf-8','X-Content-Type-Options':'nosniff'};
 const json=(body,status=200,extra={})=>new Response(JSON.stringify(body),{status,headers:{...headers,...extra}});
 const clean=(v,max)=>String(v??'').trim().slice(0,max);
@@ -14,8 +16,6 @@ async function paymentEmergencyState(env){
   if(env?.LUMEN_PAYMENT_EMERGENCY_HOLD==='true')return{hold:true,reason:'manual_emergency_hold'};
   try{
     const control=await env.GUARDIAN_DB.prepare(`SELECT state,note,changed_at FROM guardian_payment_control WHERE control_key='checkout' LIMIT 1`).first();
-    // Fail closed: checkout is allowed only when the database control explicitly says open.
-    // Missing row, unknown state, or any non-open value remains HOLD.
     if(!control)return{hold:true,reason:'payment_control_missing'};
     if(control.state!=='open')return{hold:true,reason:control.state==='hold'?'operator_payment_hold':'payment_control_invalid',control};
     const row=await env.GUARDIAN_DB.prepare(`SELECT incident_id,guardian_id,provider,incident_type,status,severity,summary,updated_at FROM guardian_payment_incidents WHERE status!='resolved' AND severity='critical' ORDER BY updated_at DESC LIMIT 1`).first();
@@ -24,12 +24,12 @@ async function paymentEmergencyState(env){
   }catch{return{hold:true,reason:'incident_state_unavailable'}}
 }
 export async function onRequestPost({request,env}){
+  const auth=await authorizeRequest(request,env);
+  if(auth.error)return json({ok:false,error:auth.error},auth.status||401);
   if(env?.LUMEN_PAYMENTS_ENABLED!=='true')return json({ok:false,error:'payments_not_enabled'},503);
   if(!env?.GUARDIAN_DB)return json({ok:false,error:'storage_not_configured'},503);
   const requestHost=new URL(request.url).hostname.toLowerCase();
   const productionHost=requestHost==='lumendestiny.com'||requestHost==='www.lumendestiny.com';
-  // Backend/sandbox readiness is deliberately separate from public sale approval.
-  // Production checkout needs all PG evidence plus a final explicit public-arm switch.
   if(productionHost&&!pgEvidenceReady(env))return json({ok:false,error:'payment_pg_release_not_approved',support:'/support.html'},503);
   if(productionHost&&env?.LUMEN_PAYMENT_PUBLIC_CHECKOUT_ENABLED!=='true')return json({ok:false,error:'payment_public_checkout_not_enabled',support:'/support.html'},503);
   if(productionHost&&env?.LUMEN_PAYMENT_TEST_MODE==='true')return json({ok:false,error:'payment_test_mode_active',support:'/support.html'},503);
@@ -43,8 +43,15 @@ export async function onRequestPost({request,env}){
   const id=clean(body?.guardianId,40).toUpperCase(),lang=normalizeLang(body?.lang),policyAccepted=body?.policyAccepted===true,policyVersion=clean(body?.policyVersion||POLICY_VERSION,80);
   if(!validId(id))return json({ok:false,error:'invalid_guardian_id'},400);
   if(!policyAccepted||policyVersion!==POLICY_VERSION)return json({ok:false,error:'policy_acceptance_required',policyVersion:POLICY_VERSION},409);
-  let order;try{order=await env.GUARDIAN_DB.prepare(`SELECT id,tier,price_usd,display_name,payment_status,issuance_status,refund_status FROM guardian_orders WHERE id=? LIMIT 1`).bind(id).first()}catch{return json({ok:false,error:'storage_read_failed'},500)}
+  let order;
+  try{
+    order=await env.GUARDIAN_DB.prepare(`SELECT id,tier,price_usd,display_name,payment_status,issuance_status,refund_status,user_id FROM guardian_orders WHERE id=? LIMIT 1`).bind(id).first();
+  }catch(e){
+    if(auth.required)return json({ok:false,error:'auth_schema_not_ready'},503);
+    try{order=await env.GUARDIAN_DB.prepare(`SELECT id,tier,price_usd,display_name,payment_status,issuance_status,refund_status FROM guardian_orders WHERE id=? LIMIT 1`).bind(id).first()}catch{return json({ok:false,error:'storage_read_failed'},500)}
+  }
   if(!order)return json({ok:false,error:'not_found'},404);
+  if(auth.required&&(!order.user_id||order.user_id!==auth.user?.id))return json({ok:false,error:'not_found'},404);
   if(order.payment_status==='paid'||order.payment_status==='refunded'||order.issuance_status==='issued'||order.refund_status==='pending'||order.refund_status==='processing')return json({ok:false,error:'order_not_payable',verifyUrl:`/guardian-verify/?id=${encodeURIComponent(id)}&lang=${encodeURIComponent(lang)}`},409);
   const priceUsd=Number(order.price_usd),amountMinor=Math.round(priceUsd*100);
   if(!Number.isFinite(priceUsd)||priceUsd<=0||!Number.isInteger(amountMinor)||amountMinor<=0)return json({ok:false,error:'invalid_server_price'},500);
@@ -56,7 +63,7 @@ export async function onRequestPost({request,env}){
   if(open?.checkout_url)return json({ok:true,reused:true,checkoutId:open.checkout_id,guardianId:id,amount:priceUsd,amountMinor,currency:'USD',provider,checkoutUrl:open.checkout_url,expiresAt:open.expires_at||null,returnUrl,policyVersion:POLICY_VERSION,policyAcceptedAt:now});
   const checkoutId=makeCheckoutId(),createdAt=now,expiresAt=new Date(Date.now()+30*60*1000).toISOString();
   try{await env.GUARDIAN_DB.prepare(`INSERT INTO guardian_checkout_sessions (checkout_id,guardian_id,provider,amount_usd,currency,status,created_at,updated_at,expires_at,policy_version,policy_accepted_at) VALUES (?,?,?,?,?,'creating',?,?,?,?,?)`).bind(checkoutId,id,provider,priceUsd,'USD',createdAt,createdAt,expiresAt,POLICY_VERSION,now).run()}catch{return json({ok:false,error:'checkout_storage_failed'},500)}
-  let res,data={};try{res=await fetch(adapterUrl.toString(),{method:'POST',headers:{'content-type':'application/json','x-lumen-adapter-secret':env.LUMEN_PAYMENT_ADAPTER_SECRET},body:JSON.stringify({checkoutId,guardianId:id,amountMinor,currency:'USD',lang,description:`Lumen Guardian ${order.tier}`,customerLabel:clean(order.display_name,40),returnUrl,cancelUrl:returnUrl,metadata:{guardianId:id,tier:order.tier,checkoutId,policyVersion:POLICY_VERSION}})});try{data=await res.json()}catch{}}catch{await env.GUARDIAN_DB.prepare(`UPDATE guardian_checkout_sessions SET status='adapter_error',failure_code='adapter_unreachable',updated_at=? WHERE checkout_id=?`).bind(new Date().toISOString(),checkoutId).run().catch(()=>{});return json({ok:false,error:'payment_adapter_unreachable'},502)}
+  let res,data={};try{res=await fetch(adapterUrl.toString(),{method:'POST',headers:{'content-type':'application/json','x-lumen-adapter-secret':env.LUMEN_PAYMENT_ADAPTER_SECRET},body:JSON.stringify({checkoutId,guardianId:id,amountMinor,currency:'USD',lang,description:`Lumen Guardian ${order.tier}`,customerLabel:clean(order.display_name,40),returnUrl,cancelUrl:returnUrl,metadata:{guardianId:id,tier:order.tier,checkoutId,policyVersion:POLICY_VERSION,userId:auth.user?.id||null}})});try{data=await res.json()}catch{}}catch{await env.GUARDIAN_DB.prepare(`UPDATE guardian_checkout_sessions SET status='adapter_error',failure_code='adapter_unreachable',updated_at=? WHERE checkout_id=?`).bind(new Date().toISOString(),checkoutId).run().catch(()=>{});return json({ok:false,error:'payment_adapter_unreachable'},502)}
   const checkoutUrl=safeHttpsUrl(data?.checkoutUrl),providerSessionId=clean(data?.providerSessionId||data?.sessionId,160);
   if(!res.ok||!checkoutUrl){await env.GUARDIAN_DB.prepare(`UPDATE guardian_checkout_sessions SET status='adapter_rejected',failure_code=COALESCE(?, 'adapter_rejected'),updated_at=? WHERE checkout_id=?`).bind(clean(data?.error,80)||'adapter_rejected',new Date().toISOString(),checkoutId).run().catch(()=>{});return json({ok:false,error:'payment_adapter_error',providerError:clean(data?.error,80)||null},502)}
   const updatedAt=new Date().toISOString();try{await env.GUARDIAN_DB.prepare(`UPDATE guardian_checkout_sessions SET status='ready',provider_session_id=?,checkout_url=?,updated_at=? WHERE checkout_id=?`).bind(providerSessionId||null,checkoutUrl.toString(),updatedAt,checkoutId).run()}catch{return json({ok:false,error:'checkout_storage_failed'},500)}
