@@ -14,8 +14,9 @@ if(!D)return;
 const same=(el,v,html=false)=>{if(!el)return;if(html){if(el.innerHTML!==v)el.innerHTML=v}else if(el.textContent!==v)el.textContent=v};
 function addStyle(){if(document.getElementById('guardian-locale-polish-style'))return;const s=document.createElement('style');s.id='guardian-locale-polish-style';s.textContent=`
 .guardian-archive-intro-screen .purpose-guardian-heading>p:last-child{text-align:center!important;margin-left:auto!important;margin-right:auto!important}
-.guardian-value-guide .guardian-tier-button{text-align:center!important;align-items:center!important}
-.guardian-value-guide .guardian-tier-button strong,.guardian-value-guide .guardian-tier-button span,.guardian-value-guide .guardian-tier-button p,.guardian-value-guide .guardian-tier-button em{width:100%!important;text-align:center!important}
+.guardian-value-guide .guardian-tier-button{text-align:left!important;align-items:flex-start!important;justify-content:center!important}
+.guardian-value-guide .guardian-tier-button strong,.guardian-value-guide .guardian-tier-button span,.guardian-value-guide .guardian-tier-button p,.guardian-value-guide .guardian-tier-button em{width:100%!important;text-align:left!important}
+@media(min-width:901px){.guardian-value-guide .guardian-tier-button{padding-left:40px!important;padding-right:32px!important}}
 .physical-track-page .result-hero .section-label,.guardian-verify-page .result-hero .section-label{font-size:clamp(.86rem,1vw,1rem)!important;line-height:1.2!important;letter-spacing:.14em!important;text-align:center!important;margin:0 auto 12px!important;width:100%!important}
 .physical-track-page .result-hero p:last-child,.guardian-verify-page .result-hero p:last-child{text-align:center!important;margin-left:auto!important;margin-right:auto!important}
 .physical-track-page .result-disclaimer,.guardian-verify-page .result-disclaimer{text-align:center!important}
