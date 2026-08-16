@@ -17,7 +17,7 @@ Engineering readiness:
 - Test package: `com.lumendestiny.app.debug`.
 - Production package reserved in source: `com.lumendestiny.app`.
 - Store-release source targets Android API 36.
-- Release-candidate AAB validation is built separately from the physical-device test APK.
+- API 36 release-candidate AAB validation: PASS (unsigned engineering artifact).
 
 Before Google Play upload:
 - Complete real Android physical-device checklist and record evidence.
@@ -34,7 +34,7 @@ Before Google Play upload:
 Engineering readiness:
 - Native iOS project definition and WKWebView-based shell exist.
 - Native navigation includes back, refresh and system share controls.
-- CI simulator build validates source without signing.
+- CI simulator build without signing: PASS.
 - Production bundle identifier reserved in source: `com.lumendestiny.app`.
 
 Before App Store Connect upload:
@@ -46,6 +46,10 @@ Before App Store Connect upload:
 - Prepare required App Store screenshots and app icon assets.
 - Verify age rating and review notes.
 - Reassess App Review Guideline 4.2: the submitted binary must provide sufficient app-like value beyond a repackaged website. Native toolbar controls alone are not treated as proof that 4.2 is satisfied.
+
+## Store copy
+
+Draft Korean/English listing copy and reviewer notes are maintained in `STORE_LISTING_DRAFT.md`. Final screenshots/icons must be produced from or checked against the final release candidate so the listing accurately represents the submitted app.
 
 ## Existing operational HOLD gates
 
