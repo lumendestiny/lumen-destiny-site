@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>로그인 | 루멘 명운</title>
+  <link rel="stylesheet" href="/styles.css?v=20260812-5">
+  <link rel="stylesheet" href="/login/login.css?v=20260816-1">
+</head>
+<body class="lumen-login-page">
+  <header class="login-header">
+    <a class="login-brand" href="/">루멘 명운</a>
+    <div class="login-languages" aria-label="언어 선택">
+      <button type="button" data-lang="ko" aria-label="한국어"><img src="/assets/flags/kr-official-locked-v2.svg" alt=""></button>
+      <button type="button" data-lang="en" aria-label="English"><img src="/assets/flags/us-official.svg" alt=""></button>
+      <button type="button" data-lang="ja" aria-label="日本語"><img src="/assets/flags/ja.svg" alt=""></button>
+      <button type="button" data-lang="tl" aria-label="Tagalog"><img src="/assets/flags/tl.svg" alt=""></button>
+      <button type="button" data-lang="vi" aria-label="Tiếng Việt"><img src="/assets/flags/vi.svg" alt=""></button>
+      <button type="button" data-lang="zh" aria-label="简体中文"><img src="/assets/flags/zh.svg" alt=""></button>
+    </div>
+  </header>
+
+  <main class="login-main">
+    <section class="login-card" aria-labelledby="loginTitle">
+      <p class="login-eyebrow">LUMEN PRIVATE ACCESS</p>
+      <h1 id="loginTitle">루멘 명운 로그인</h1>
+      <p id="loginIntro" class="login-intro">인연지도와 Guardian 서비스를 안전하게 이어서 사용하려면 로그인해 주세요.</p>
+      <div id="protectedNotice" class="login-notice" hidden>개인정보 보호를 위해 로그인이 필요한 서비스입니다.</div>
+      <div id="setupNotice" class="login-setup" hidden></div>
+
+      <div class="social-login" aria-label="소셜 로그인">
+        <button type="button" class="social-button google" data-provider="google"><span class="provider-mark">G</span><span data-social-label="google">Google로 계속</span></button>
+        <button type="button" class="social-button kakao" data-provider="kakao"><span class="provider-mark">K</span><span data-social-label="kakao">Kakao로 계속</span></button>
+        <button type="button" class="social-button x" data-provider="x"><span class="provider-mark">X</span><span data-social-label="x">X로 계속</span></button>
+      </div>
+
+      <div class="login-divider"><span>또는</span></div>
+
+      <div class="login-tabs" role="tablist" aria-label="로그인 방식">
+        <button id="tabLogin" type="button" class="active" role="tab" aria-selected="true">로그인</button>
+        <button id="tabSignup" type="button" role="tab" aria-selected="false">직접 가입</button>
+      </div>
+
+      <form id="emailAuthForm" class="email-auth-form">
+        <label><span id="emailLabel">이메일</span><input id="authEmail" type="email" autocomplete="email" inputmode="email" required></label>
+        <label><span id="passwordLabel">비밀번호</span><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required></label>
+        <button id="emailSubmit" class="email-submit" type="submit">이메일로 로그인</button>
+      </form>
+
+      <p id="authMessage" class="auth-message" role="status" aria-live="polite"></p>
+      <p id="loginPrivacy" class="login-privacy">로그인 계정은 서비스 접근과 본인 데이터 구분에만 사용하며, 사주 계산에 입력한 원본 생년월일·출생시간은 계정에 저장하지 않는 원칙을 유지합니다.</p>
+      <div class="login-legal"><a href="/privacy.html">개인정보처리방침</a><a href="/terms.html">이용약관</a></div>
+    </section>
+  </main>
+  <script type="module" src="/login/login.js?v=20260816-1"></script>
+</body>
+</html>
