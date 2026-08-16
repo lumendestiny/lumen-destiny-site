@@ -1,53 +1,27 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { elementPercent } from '../lib/connection-engine';
 import type { ElementCounts } from '../lib/connection-engine';
-import { summarizeMemberImpact, summarizeNetwork } from '../lib/connection-network';
-import type { MemberImpact, NetworkMember } from '../lib/connection-network';
+import { filterMembersByRelation, relationGroupLabel, summarizeMemberImpact, summarizeNetwork } from '../lib/connection-network';
+import type { MemberImpact, NetworkMember, RelationFilter } from '../lib/connection-network';
 
-type Props={meElements:ElementCounts;members:NetworkMember[]};
+type Props={meElements:ElementCounts;members:NetworkMember[];activeGroup:RelationFilter};
 type RankedImpact={member:NetworkMember;impact:MemberImpact};
-type RelationGroup='all'|'family'|'partner'|'friend'|'work'|'other';
-type RelationOption={id:RelationGroup;label:string};
-
-const RELATION_OPTIONS:RelationOption[]=[
- {id:'all',label:'전체'},
- {id:'family',label:'가족'},
- {id:'partner',label:'연인·배우자'},
- {id:'friend',label:'친구'},
- {id:'work',label:'직장·사업'},
- {id:'other',label:'기타'},
-];
-
-const PARTNER_WORDS=['아내','남편','배우자','연인','애인','여자친구','남자친구','약혼','와이프','허즈번드','wife','husband','partner','girlfriend','boyfriend'];
-const FAMILY_WORDS=['가족','부모','엄마','아빠','어머니','아버지','할머니','할아버지','형','누나','언니','오빠','동생','아들','딸','자녀','아이','사촌','삼촌','이모','고모','조카','며느리','사위','장모','장인','시어머니','시아버지','family','mother','father','sister','brother','son','daughter'];
-const FRIEND_WORDS=['친구','지인','동창','동문','선배','후배','친한','베프','friend'];
-const WORK_WORDS=['직장','회사','동료','상사','부하','팀장','대표','사장','직원','거래처','고객','사업','비즈니스','파트너사','협력','투자자','업무','work','coworker','colleague','boss','client','business'];
 
 function signed(value:number){return `${value>0?'+':''}${value}`;}
-function includesAny(value:string,words:string[]){const normalized=value.trim().toLowerCase();return words.some(word=>normalized.includes(word.toLowerCase()));}
-function relationGroup(relation:string):Exclude<RelationGroup,'all'>{
- if(includesAny(relation,PARTNER_WORDS))return 'partner';
- if(includesAny(relation,FAMILY_WORDS))return 'family';
- if(includesAny(relation,WORK_WORDS))return 'work';
- if(includesAny(relation,FRIEND_WORDS))return 'friend';
- return 'other';
-}
 
-export default function RelationshipNetworkInsights({meElements,members}:Props){
+export default function RelationshipNetworkInsights({meElements,members,activeGroup}:Props){
  const {width}=useWindowDimensions();
  const compact=width<480;
  const tiny=width<350;
- const[activeGroup,setActiveGroup]=useState<RelationGroup>('all');
  const[compareIds,setCompareIds]=useState<string[]>([]);
- const counts=useMemo(()=>Object.fromEntries(RELATION_OPTIONS.map(option=>[option.id,option.id==='all'?members.length:members.filter(member=>relationGroup(member.relation)===option.id).length])) as Record<RelationGroup,number>,[members]);
- const filteredMembers=useMemo(()=>activeGroup==='all'?members:members.filter(member=>relationGroup(member.relation)===activeGroup),[activeGroup,members]);
+ const filteredMembers=useMemo(()=>filterMembersByRelation(members,activeGroup),[activeGroup,members]);
  const summary=useMemo(()=>summarizeNetwork(meElements,filteredMembers),[meElements,filteredMembers]);
  const ranking=useMemo(()=>filteredMembers.map(member=>({member,impact:summarizeMemberImpact(meElements,filteredMembers,member.id)})).filter((item):item is RankedImpact=>!!item.impact).sort((a,b)=>b.impact.coverageDelta-a.impact.coverageDelta||b.member.score-a.member.score).slice(0,3),[meElements,filteredMembers]);
- const selected=useMemo(()=>compareIds.map(id=>filteredMembers.find(member=>member.id===id)).filter((member):member is NetworkMember=>!!member),[compareIds,filteredMembers]);
- const activeLabel=RELATION_OPTIONS.find(option=>option.id===activeGroup)?.label||'전체';
+ const validCompareIds=compareIds.filter(id=>filteredMembers.some(member=>member.id===id));
+ const selected=useMemo(()=>validCompareIds.map(id=>filteredMembers.find(member=>member.id===id)).filter((member):member is NetworkMember=>!!member),[validCompareIds,filteredMembers]);
+ const activeLabel=relationGroupLabel(activeGroup);
  const weakest=summary.weakest[0];
- useEffect(()=>{setCompareIds([])},[activeGroup]);
  const toggleCompare=(id:string)=>setCompareIds(current=>current.includes(id)?current.filter(value=>value!==id):current.length<2?[...current,id]:[current[1],id]);
  const a=selected[0],b=selected[1];
  const aValue=a?elementPercent(a.elements,weakest):0;
@@ -56,10 +30,8 @@ export default function RelationshipNetworkInsights({meElements,members}:Props){
  const compareCopy=a&&b?(winner?`현재 ${activeLabel} 인연망에서 상대적으로 부족한 ${weakest} 기운을 기준으로 ${winner.name}님이 더 높은 비중을 가지고 있습니다.`:`두 사람의 ${weakest} 기운 비중은 같습니다.`):selected.length===1?'비교할 인연을 한 명 더 선택해 주세요.':'두 사람을 선택하면 현재 부족한 오행을 누가 더 많이 가지고 있는지 비교합니다.';
  if(!members.length)return null;
  return <View style={[styles.wrap,compact&&styles.wrapCompact]}>
-  <Text style={styles.title}>관계별 인연 영향 분석</Text>
-  <Text style={styles.lead}>가족·연인·친구·직장처럼 관계군을 나눠 보면 같은 사람도 어떤 인연망 안에 있는지에 따라 의미가 달라집니다.</Text>
-  <Text style={styles.filterTitle}>관계별 인연망 보기</Text>
-  <View style={styles.filterRow}>{RELATION_OPTIONS.map(option=>{const active=activeGroup===option.id;return <Pressable key={option.id} onPress={()=>setActiveGroup(option.id)} style={[styles.filterChip,active&&styles.filterChipActive,tiny&&styles.filterChipTiny]}><Text style={[styles.filterText,active&&styles.filterTextActive]}>{option.label}</Text><Text style={[styles.filterCount,active&&styles.filterCountActive]}>{counts[option.id]}</Text></Pressable>})}</View>
+  <Text style={styles.title}>{activeLabel} 인연 영향 분석</Text>
+  <Text style={styles.lead}>현재 지도에 표시된 관계군만 따로 계산합니다. 관계 필터를 바꾸면 균형도·부족 오행·기여 순위·비교 결과가 함께 바뀝니다.</Text>
   {filteredMembers.length?<>
    <View style={styles.groupSummary}><View style={styles.groupMetric}><Text style={styles.groupLabel}>{activeLabel} 인연</Text><Text style={styles.groupValue}>{filteredMembers.length}명</Text></View><View style={styles.groupMetric}><Text style={styles.groupLabel}>관계망 균형도</Text><Text style={styles.groupValue}>{summary.coverage}</Text></View><View style={styles.groupMetric}><Text style={styles.groupLabel}>부족한 기운</Text><Text style={styles.groupValue}>{summary.weakest.join('·')}</Text></View></View>
    <Text style={styles.groupCopy}>{activeGroup==='all'?`전체 인연망에서는 ${summary.weakest.join('·')} 기운이 상대적으로 낮습니다.`:`${activeLabel} 관계만 따로 보면 ${summary.weakest.join('·')} 기운이 상대적으로 낮고, 개인 기준 대비 균형 변화는 ${signed(summary.balanceDelta)}점입니다.`}</Text>
@@ -69,11 +41,11 @@ export default function RelationshipNetworkInsights({meElements,members}:Props){
    <View style={styles.divider}/>
    <Text style={styles.subTitle}>{activeLabel} · 인연 둘 비교하기</Text>
    <Text style={styles.compareGuide}>최대 두 명을 선택합니다 · 비교 기준: 현재 부족한 {weakest} 기운</Text>
-   <View style={styles.pickerRow}>{filteredMembers.map(member=>{const active=compareIds.includes(member.id);return <Pressable key={member.id} onPress={()=>toggleCompare(member.id)} style={[styles.picker,active&&styles.pickerActive,tiny&&styles.pickerTiny]}><Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pickerText,active&&styles.pickerTextActive]}>{member.name}</Text><Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pickerMeta,active&&styles.pickerMetaActive]}>{member.relation}</Text></Pressable>})}</View>
+   <View style={styles.pickerRow}>{filteredMembers.map(member=>{const active=validCompareIds.includes(member.id);return <Pressable key={member.id} onPress={()=>toggleCompare(member.id)} style={[styles.picker,active&&styles.pickerActive,tiny&&styles.pickerTiny]}><Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pickerText,active&&styles.pickerTextActive]}>{member.name}</Text><Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pickerMeta,active&&styles.pickerMetaActive]}>{member.relation}</Text></Pressable>})}</View>
    {selected.length?<View style={[styles.compareBox,tiny&&styles.compareBoxTiny]}>{selected.map((member,index)=>{const value=elementPercent(member.elements,weakest);return <View key={member.id} style={styles.compareSide}><Text numberOfLines={1} ellipsizeMode="tail" style={styles.compareName}>{member.name}</Text><Text style={styles.compareElement}>{weakest} {value}%</Text><Text style={styles.compareScore}>보완도 {member.score}</Text>{index===0&&selected.length===2?<Text style={styles.vs}>VS</Text>:null}</View>})}</View>:null}
    <Text style={styles.compareCopy}>{compareCopy}</Text>
    {a&&b?<Text style={styles.disclaimer}>※ 이 비교는 선택한 관계군에서 현재 부족한 오행의 상대적 보유 비중을 보는 참고 지표이며 사람의 가치나 관계의 미래를 평가하지 않습니다.</Text>:null}
-  </>:<View style={styles.emptyBox}><Text style={styles.emptyTitle}>{activeLabel} 인연이 아직 없습니다.</Text><Text style={styles.emptyCopy}>인연을 추가할 때 관계를 입력하면 자동으로 이 관계군에 분류됩니다. 다른 관계군을 선택하거나 새로운 인연을 연결해 보세요.</Text></View>}
+  </>:<View style={styles.emptyBox}><Text style={styles.emptyTitle}>{activeLabel} 인연이 아직 없습니다.</Text><Text style={styles.emptyCopy}>다른 관계군을 선택하거나, 연결된 인연의 관계군을 직접 수정해 이 지도에 포함할 수 있습니다.</Text></View>}
  </View>;
 }
 
@@ -82,15 +54,6 @@ const styles=StyleSheet.create({
  wrapCompact:{padding:13,borderRadius:14},
  title:{fontSize:17,fontWeight:'900',color:'#242735'},
  lead:{marginTop:5,fontSize:12,lineHeight:19,color:'#686d79'},
- filterTitle:{marginTop:16,fontSize:12,fontWeight:'900',color:'#474b59'},
- filterRow:{marginTop:9,flexDirection:'row',flexWrap:'wrap',gap:7},
- filterChip:{minHeight:42,paddingHorizontal:11,paddingVertical:7,borderRadius:999,borderWidth:1,borderColor:'#e1e2e8',backgroundColor:'#fff',flexDirection:'row',alignItems:'center',gap:5},
- filterChipTiny:{paddingHorizontal:9},
- filterChipActive:{borderColor:'#5146c8',backgroundColor:'#5146c8'},
- filterText:{fontSize:11,fontWeight:'900',color:'#555a66'},
- filterTextActive:{color:'#fff'},
- filterCount:{minWidth:18,height:18,paddingHorizontal:4,borderRadius:9,textAlign:'center',textAlignVertical:'center',fontSize:9,fontWeight:'900',color:'#777d89',backgroundColor:'#f1f1f5'},
- filterCountActive:{color:'#5146c8',backgroundColor:'#fff'},
  groupSummary:{marginTop:13,flexDirection:'row',gap:7,padding:10,borderRadius:13,backgroundColor:'#f7f6ff'},
  groupMetric:{flex:1,minWidth:0,alignItems:'center'},
  groupLabel:{fontSize:9,lineHeight:13,fontWeight:'800',color:'#777d89',textAlign:'center'},
