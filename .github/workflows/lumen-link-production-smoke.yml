@@ -4,10 +4,12 @@ on:
   push:
     branches: [main]
     paths:
+      - '.deploy-trigger'
       - 'functions/link/**'
       - 'functions/api/lumen-link/**'
       - 'migrations/0011_lumen_link.sql'
       - 'migrations/0012_lumen_link_hardening.sql'
+      - 'migrations/LUMEN_LINK_PRODUCTION_FORWARD_SAFE.sql'
       - '.github/workflows/lumen-link-production-smoke.yml'
   workflow_dispatch:
 
