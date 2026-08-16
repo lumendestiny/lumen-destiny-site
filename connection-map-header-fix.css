@@ -1,0 +1,37 @@
+/* 2026-08-16: Connection Map header parity with the Lumen Destiny home header. */
+body.connection-map-page .main-fortune-nav a.active,
+body.connection-map-page .main-fortune-nav a[aria-current="page"]{
+  color:#4b38d2!important;
+  background:#f1efff!important;
+  position:relative!important;
+}
+body.connection-map-page .main-fortune-nav a.active::after,
+body.connection-map-page .main-fortune-nav a[aria-current="page"]::after{
+  content:""!important;
+  position:absolute!important;
+  left:15px!important;
+  right:15px!important;
+  bottom:0!important;
+  height:3px!important;
+  background:#4b38d2!important;
+  display:block!important;
+}
+
+/* Keep the language selector in the exact same brand/language stack used by home. */
+body.connection-map-page .brand-language-stack{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+}
+
+@media(max-width:780px){
+  body.connection-map-page .main-fortune-nav a.active::after,
+  body.connection-map-page .main-fortune-nav a[aria-current="page"]::after{
+    left:10px!important;
+    right:10px!important;
+  }
+  body.connection-map-page .brand-language-stack{
+    justify-content:space-between!important;
+  }
+}
