@@ -24,6 +24,18 @@ export type NetworkSummary={
  message:string;
 };
 
+export type MemberImpact={
+ memberId:string;
+ beforeCoverage:number;
+ afterCoverage:number;
+ coverageDelta:number;
+ beforeAggregate:Record<ElementName,number>;
+ afterAggregate:Record<ElementName,number>;
+ elementDelta:Record<ElementName,number>;
+ strongestIncrease:ElementName[];
+ strongestDecrease:ElementName[];
+};
+
 function coverageOf(values:Record<ElementName,number>){
  const list=ELEMENT_ORDER.map(k=>values[k]);
  const spread=Math.max(...list)-Math.min(...list);
@@ -35,13 +47,17 @@ function percentOf(counts:ElementCounts){
  return Object.fromEntries(ELEMENT_ORDER.map(k=>[k,Math.round((counts[k]/total)*100)])) as Record<ElementName,number>;
 }
 
-export function summarizeNetwork(me:ElementCounts,members:NetworkMember[]):NetworkSummary{
- const personalAggregate=percentOf(me);
- const personalCoverage=coverageOf(personalAggregate);
+function aggregateNetwork(me:ElementCounts,members:NetworkMember[]){
  const totals=Object.fromEntries(ELEMENT_ORDER.map(k=>[k,me[k]])) as Record<ElementName,number>;
  for(const member of members){for(const k of ELEMENT_ORDER)totals[k]+=member.elements[k];}
  const total=ELEMENT_ORDER.reduce((sum,k)=>sum+totals[k],0)||1;
- const aggregate=Object.fromEntries(ELEMENT_ORDER.map(k=>[k,Math.round((totals[k]/total)*100)])) as Record<ElementName,number>;
+ return Object.fromEntries(ELEMENT_ORDER.map(k=>[k,Math.round((totals[k]/total)*100)])) as Record<ElementName,number>;
+}
+
+export function summarizeNetwork(me:ElementCounts,members:NetworkMember[]):NetworkSummary{
+ const personalAggregate=percentOf(me);
+ const personalCoverage=coverageOf(personalAggregate);
+ const aggregate=aggregateNetwork(me,members);
  const values=ELEMENT_ORDER.map(k=>aggregate[k]);
  const max=Math.max(...values),min=Math.min(...values);
  const strongest=ELEMENT_ORDER.filter(k=>aggregate[k]===max),weakest=ELEMENT_ORDER.filter(k=>aggregate[k]===min);
@@ -58,4 +74,20 @@ export function summarizeNetwork(me:ElementCounts,members:NetworkMember[]):Netwo
   else message+=' 개인 기준과 현재 인연망의 균형도는 같습니다.';
  }
  return {memberCount:members.length,averageScore,aggregate,strongest,weakest,coverage,personalCoverage,balanceDelta,recommendedElements,message};
+}
+
+export function summarizeMemberImpact(me:ElementCounts,members:NetworkMember[],memberId:string):MemberImpact|null{
+ const member=members.find(item=>item.id===memberId);
+ if(!member)return null;
+ const beforeMembers=members.filter(item=>item.id!==memberId);
+ const beforeAggregate=aggregateNetwork(me,beforeMembers);
+ const afterAggregate=aggregateNetwork(me,members);
+ const beforeCoverage=coverageOf(beforeAggregate);
+ const afterCoverage=coverageOf(afterAggregate);
+ const elementDelta=Object.fromEntries(ELEMENT_ORDER.map(k=>[k,afterAggregate[k]-beforeAggregate[k]])) as Record<ElementName,number>;
+ const deltaValues=ELEMENT_ORDER.map(k=>elementDelta[k]);
+ const maxDelta=Math.max(...deltaValues),minDelta=Math.min(...deltaValues);
+ const strongestIncrease=maxDelta>0?ELEMENT_ORDER.filter(k=>elementDelta[k]===maxDelta):[];
+ const strongestDecrease=minDelta<0?ELEMENT_ORDER.filter(k=>elementDelta[k]===minDelta):[];
+ return {memberId,beforeCoverage,afterCoverage,coverageDelta:afterCoverage-beforeCoverage,beforeAggregate,afterAggregate,elementDelta,strongestIncrease,strongestDecrease};
 }
