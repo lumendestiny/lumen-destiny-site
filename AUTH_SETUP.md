@@ -1,6 +1,6 @@
 # Lumen Destiny authentication activation
 
-The repository now contains a login/signup UI and auth gate for Connection Map and Guardian services. Authentication uses Supabase Auth so Google, Kakao, X and email/password can share one account/session layer.
+The repository now contains a login/signup UI and auth gate for Connection Map and Guardian services. Authentication uses Supabase Auth so Google, Kakao, X, Facebook and email/password can share one account/session layer.
 
 ## Privacy rules
 
@@ -9,11 +9,14 @@ The repository now contains a login/signup UI and auth gate for Connection Map a
 - Guardian orders may store the authenticated `user_id` so orders and checkout can be owner-scoped.
 - `/guardian-verify/` stays public because QR authenticity verification must work for a recipient who is not signed in. Other Guardian service pages are login-gated after auth enforcement is enabled.
 
-## 1. Create/configure Supabase
+## 1. Supabase project
 
-Create a Supabase project and enable Authentication.
+Connected production Auth project:
 
-Set the site URL to:
+- Project ref: `vbuvefezimrqqvqysdsv`
+- Region: `ap-northeast-1`
+
+Set the Supabase Auth site URL to:
 
 `https://lumendestiny.com`
 
@@ -31,12 +34,13 @@ Enable these Supabase Auth providers:
 - Google
 - Kakao
 - X / Twitter OAuth 2.0
+- Facebook / Meta
 
 Provider client secrets belong in the provider dashboards/Supabase settings, never in this repository or browser JavaScript.
 
-## 3. Cloudflare Pages environment variables
+## 3. Public project configuration
 
-Add these variables to the Lumen Destiny Pages project:
+The website can use the Supabase project URL and publishable key as browser-safe public configuration. Cloudflare environment variables can override the repository defaults:
 
 - `SUPABASE_URL` = project URL
 - `SUPABASE_PUBLISHABLE_KEY` = public/publishable browser key
@@ -55,13 +59,14 @@ Test all six languages and all sign-in methods:
 1. Google sign-in
 2. Kakao sign-in
 3. X sign-in
-4. Email signup and verification
-5. Email/password sign-in
-6. Sign out
-7. Protected route returns to the original `next` path after sign-in
-8. Guardian order creation and checkout send the Bearer access token
-9. A signed-in user cannot checkout another user's Guardian order
-10. `/guardian-verify/` remains usable without sign-in
+4. Facebook sign-in
+5. Email signup and verification
+6. Email/password sign-in
+7. Sign out
+8. Protected route returns to the original `next` path after sign-in
+9. Guardian order creation and checkout send the Bearer access token
+10. A signed-in user cannot checkout another user's Guardian order
+11. `/guardian-verify/` remains usable without sign-in
 
 ## 6. Turn on login requirement
 
