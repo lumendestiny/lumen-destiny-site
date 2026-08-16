@@ -37,7 +37,12 @@ must('service-shell.js',['Choose language','言語を選択','Pumili ng wika','C
 // V1 product scope lock: consultation source may remain for a future upgrade, but legacy
 // AI configuration alone cannot expose the route or backend.
 must('functions/api/consult.js',['LUMEN_PUBLIC_CONSULT_ENABLED','feature_not_in_v1']);
-must('functions/api/health.js',['publicConsultEnabled','consult:publicConsultEnabled','scope:\'v1-saju-fortune-compatibility-guardian\'']);
+const health=must('functions/api/health.js',['publicConsultEnabled','consult:publicConsultEnabled']);
+const allowedHealthScopes=[
+  "scope:'v1-saju-fortune-compatibility-guardian'",
+  "scope:'v1-saju-fortune-compatibility-guardian-auth'"
+];
+if(!allowedHealthScopes.some(scope=>health.includes(scope))) throw new Error(`functions/api/health.js: missing allowed V1 scope (${allowedHealthScopes.join(' or ')})`);
 must('_redirects',['/consult.html / 302','/consult / 302','/consult/ / 302']);
 must('_headers',['/consult/*','X-Robots-Tag: noindex, nofollow, noarchive']);
 
