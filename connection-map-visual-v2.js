@@ -1,6 +1,7 @@
 (()=>{
   const map=document.getElementById('networkMap');
   const selected=document.getElementById('selectedPerson');
+  const ranking=document.getElementById('contributionRanking');
   if(!map)return;
   const sets={
     partner:['아내','남편','배우자','연인','애인','여자친구','남자친구','wife','husband','partner','girlfriend','boyfriend'],
@@ -15,6 +16,21 @@
     for(const [group,words] of Object.entries(sets))if(words.some(w=>value.includes(w.toLowerCase())))return group;
     return 'other';
   };
+  const numeric=text=>{const match=String(text||'').replace(/,/g,'').match(/[+-]?\d+(?:\.\d+)?/);return match?Number(match[0]):0};
+  function decorateRanking(){
+    if(!ranking)return;
+    const rows=[...ranking.querySelectorAll('.rank-row')];
+    const values=rows.map(row=>numeric(row.querySelector('.rank-delta')?.textContent));
+    const max=Math.max(1,...values.map(Math.abs));
+    rows.forEach((row,index)=>{
+      let meter=row.querySelector('.rank-meter');
+      if(!meter){meter=document.createElement('span');meter.className='rank-meter';const fill=document.createElement('span');fill.className='rank-meter-fill';meter.appendChild(fill);row.appendChild(meter)}
+      const fill=meter.querySelector('.rank-meter-fill');
+      const value=values[index]||0;
+      if(fill){fill.style.width=`${Math.max(8,Math.round(Math.abs(value)/max*100))}%`;fill.classList.toggle('down',value<0)}
+      meter.setAttribute('aria-hidden','true');
+    });
+  }
   function decorate(){
     map.querySelectorAll('.node').forEach(node=>{
       const relation=node.querySelector('small')?.textContent||'';
@@ -36,9 +52,13 @@
       const group=infer(meta);
       selected.dataset.group=group;
     }
+    decorateRanking();
   }
-  const observer=new MutationObserver(()=>requestAnimationFrame(decorate));
+  let queued=false;
+  const requestDecorate=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;decorate()})};
+  const observer=new MutationObserver(requestDecorate);
   observer.observe(map,{childList:true,subtree:true,characterData:true});
   if(selected)observer.observe(selected,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
+  if(ranking)observer.observe(ranking,{childList:true,subtree:true,characterData:true});
   decorate();
 })();
