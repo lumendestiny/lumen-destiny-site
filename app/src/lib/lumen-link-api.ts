@@ -1,3 +1,5 @@
+import { savePendingInvite } from './lumen-link-invite-vault';
+
 const API_BASE='https://lumendestiny.com';
 
 export type LinkInvite={id:string;token:string;expiresAt:string};
@@ -9,7 +11,9 @@ export async function createLumenLinkInvite(input:{inviterLabel:string;elements:
  const r=await fetch(`${API_BASE}/api/lumen-link/create`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
  const data=await r.json();
  if(!r.ok||!data?.ok)throw new Error(data?.error||'invite_create_failed');
- return data.invite as LinkInvite;
+ const invite=data.invite as LinkInvite;
+ await savePendingInvite(invite,input.inviterLabel?`${input.inviterLabel}님의 인연지도 초대`:'인연지도 초대');
+ return invite;
 }
 
 export async function getLumenLinkInvite(token:string):Promise<PublicLinkInvite>{
