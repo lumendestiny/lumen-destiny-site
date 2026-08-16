@@ -22,7 +22,6 @@ if(compatibility.includes("el.textContent=L.error+' '+(e.message||'')")) throw n
 must('compatibility/index.html',['aBirth','bBirth','aCalendar','bCalendar','aLeap','bLeap','lang']);
 must('compatibility-result/index.html',['compatibility.js','compatError','compatContent']);
 
-// Core result modules currently use a dedicated zh post-processing layer. Lock both the modules and the Chinese coverage until native zh branches replace it.
 for(const p of ['result-enhance.js','result-deep.js','wealth-detail.js','transit-reading.js','current-ten-gods.js']) must('result.html',[p]);
 must('result-zh-v1.js',["q.get('lang')","zh-CN","核心摘要","财星位置与财运流向","年运 · 月运 · 日运走势","连接十神与关系的解读","当前天干形成的十神","正财","偏财","今年","本月","今天"]);
 must('result.html',['result-zh-v1.js']);
@@ -34,10 +33,13 @@ must('guardian-order/index.html',['guardianPolicyAgree','guardianConfirm','refun
 must('guardian-order-policy-i18n.js',["lang.startsWith('zh')","lang.startsWith('ja')","lang.startsWith('vi')","lang.startsWith('tl')","lang.startsWith('en')",'Refund & cancellation policy','返金・キャンセルポリシー','Patakaran sa refund at cancellation','Chính sách hoàn tiền và hủy','退款与取消政策',"preview.setAttribute('aria-label'","agree.setAttribute('aria-label'"]);
 must('service-shell.js',['Choose language','言語を選択','Pumili ng wika','Chọn ngôn ngữ','选择语言','script[src*="/guardian-i18n.js"]','guardian-order-policy-i18n.js',"stablePath(location.pathname)==='/guardian-order'"]);
 
-// V1 product scope lock: consultation source may remain for a future upgrade, but legacy
-// AI configuration alone cannot expose the route or backend.
 must('functions/api/consult.js',['LUMEN_PUBLIC_CONSULT_ENABLED','feature_not_in_v1']);
-must('functions/api/health.js',['publicConsultEnabled','consult:publicConsultEnabled','scope:\'v1-saju-fortune-compatibility-guardian\'']);
+const health=must('functions/api/health.js',['publicConsultEnabled','consult:publicConsultEnabled']);
+const allowedHealthScopes=[
+  "scope:'v1-saju-fortune-compatibility-guardian'",
+  "scope:'v1-saju-fortune-compatibility-guardian-auth'"
+];
+if(!allowedHealthScopes.some(scope=>health.includes(scope))) throw new Error(`functions/api/health.js: missing allowed V1 scope (${allowedHealthScopes.join(' or ')})`);
 must('_redirects',['/consult.html / 302','/consult / 302','/consult/ / 302']);
 must('_headers',['/consult/*','X-Robots-Tag: noindex, nofollow, noarchive']);
 
