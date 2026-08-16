@@ -1,3 +1,5 @@
+import{authorizeRequest}from'../_auth.js';
+
 const headers={'Cache-Control':'no-store','Content-Type':'application/json; charset=utf-8','X-Content-Type-Options':'nosniff'};
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
 const TIERS={basic:{price:5,limit:100},custom:{price:10,limit:100},rare:{price:50,limit:5},legendary:{price:100,limit:1}};
@@ -13,6 +15,10 @@ async function ensureSlots(env,editionKey,tier,limit){
 }
 
 export async function onRequestPost({request,env}){
+  const auth=await authorizeRequest(request,env);
+  if(auth.error)return json({ok:false,error:auth.error},auth.status||401);
+  const userId=auth.user?.id||null;
+
   let body;
   try{body=await request.json()}catch{return json({ok:false,error:'invalid_json'},400)}
 
@@ -51,11 +57,12 @@ export async function onRequestPost({request,env}){
   try{
     await ensureSlots(env,editionKey,tier,meta.limit);
     try{
-      await env.GUARDIAN_DB.prepare(`INSERT INTO guardian_orders (id,tier,price_usd,edition_limit,display_name,wish_type,payment_status,issuance_status,created_at,verification_token,is_gift,giver_name,recipient_name,gift_message,campaign_id,target_date,edition_key,guardian_element,guardian_design_key,personalization_source) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-        .bind(id,tier,meta.price,meta.limit,displayName,wishType,'pending','pending',createdAt,token,isGift,giverName||null,recipientName||null,giftMessage||null,campaignId||null,targetDate||null,editionKey,guardianElement,guardianDesignKey,personalizationSource).run();
+      await env.GUARDIAN_DB.prepare(`INSERT INTO guardian_orders (id,tier,price_usd,edition_limit,display_name,wish_type,payment_status,issuance_status,created_at,verification_token,is_gift,giver_name,recipient_name,gift_message,campaign_id,target_date,edition_key,guardian_element,guardian_design_key,personalization_source,user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+        .bind(id,tier,meta.price,meta.limit,displayName,wishType,'pending','pending',createdAt,token,isGift,giverName||null,recipientName||null,giftMessage||null,campaignId||null,targetDate||null,editionKey,guardianElement,guardianDesignKey,personalizationSource,userId).run();
     }catch(e){
       const msg=String(e?.message||e||'');
-      if(!/guardian_element|guardian_design_key|personalization_source|no such column/i.test(msg))throw e;
+      if(/user_id|no such column/i.test(msg)&&auth.required)return json({ok:false,error:'auth_schema_not_ready'},503);
+      if(!/guardian_element|guardian_design_key|personalization_source|user_id|no such column/i.test(msg))throw e;
       await env.GUARDIAN_DB.prepare(`INSERT INTO guardian_orders (id,tier,price_usd,edition_limit,display_name,wish_type,payment_status,issuance_status,created_at,verification_token,is_gift,giver_name,recipient_name,gift_message,campaign_id,target_date,edition_key) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
         .bind(id,tier,meta.price,meta.limit,displayName,wishType,'pending','pending',createdAt,token,isGift,giverName||null,recipientName||null,giftMessage||null,campaignId||null,targetDate||null,editionKey).run();
     }
