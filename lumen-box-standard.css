@@ -1,0 +1,102 @@
+/* Lumen Destiny shared box standard — 2026-08-16
+   Use this visual language for reusable information/action boxes across the site. */
+:root{
+  --lumen-box-bg:#fff;
+  --lumen-box-border:#e4e5ea;
+  --lumen-box-border-active:#cfc8ff;
+  --lumen-box-accent:#4b38d2;
+  --lumen-box-soft:#f8f7ff;
+  --lumen-box-text:#202534;
+  --lumen-box-muted:#6d7380;
+  --lumen-box-shadow:0 5px 18px rgba(28,32,45,.035);
+  --lumen-box-shadow-active:0 10px 28px rgba(75,56,210,.10);
+}
+
+/* Reusable opt-in utility for future Lumen information/action boxes. */
+.lumen-box{
+  box-sizing:border-box;
+  background:var(--lumen-box-bg);
+  border:1px solid var(--lumen-box-border);
+  color:var(--lumen-box-text);
+  box-shadow:var(--lumen-box-shadow);
+}
+.lumen-box-action{
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.lumen-box-action:hover,
+.lumen-box-action:focus-within{
+  background:var(--lumen-box-soft);
+  border-color:var(--lumen-box-border-active);
+  box-shadow:var(--lumen-box-shadow-active);
+}
+
+/* Home fortune-service boxes use the Lumen action-box standard. */
+.fortune-services .fortune-service-card{
+  background:var(--lumen-box-bg);
+  border-color:var(--lumen-box-border);
+  color:var(--lumen-box-text);
+  box-shadow:var(--lumen-box-shadow);
+}
+.fortune-services .fortune-service-card:hover,
+.fortune-services .fortune-service-card:focus-within{
+  background:var(--lumen-box-soft);
+  border-color:var(--lumen-box-border-active);
+  box-shadow:var(--lumen-box-shadow-active);
+}
+
+/* Guardian archive: same box language, while Guardian artwork/rarity effects remain intact. */
+#purpose-guardians .guardian-tier-button,
+#purpose-guardians .gc2-tier,
+#purpose-guardians .gc2-card{
+  box-sizing:border-box!important;
+  background:var(--lumen-box-bg)!important;
+  border:1px solid var(--lumen-box-border)!important;
+  border-radius:0!important;
+  color:var(--lumen-box-text);
+}
+#purpose-guardians .guardian-tier-button{
+  box-shadow:var(--lumen-box-shadow)!important;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
+}
+#purpose-guardians .guardian-tier-button:hover,
+#purpose-guardians .guardian-tier-button:focus-visible{
+  background:var(--lumen-box-soft)!important;
+  border-color:var(--lumen-box-border-active)!important;
+  box-shadow:var(--lumen-box-shadow-active)!important;
+  transform:translateY(-1px)!important;
+  outline:3px solid rgba(75,56,210,.16)!important;
+  outline-offset:2px!important;
+}
+#purpose-guardians .gc2-tier{
+  box-shadow:0 8px 24px rgba(28,32,45,.045)!important;
+}
+#purpose-guardians .gc2-card{
+  box-shadow:none!important;
+  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
+}
+#purpose-guardians .gc2-card:hover{
+  border-color:var(--lumen-box-border-active)!important;
+  box-shadow:var(--lumen-box-shadow-active)!important;
+  transform:translateY(-1px);
+}
+#purpose-guardians .gc2-rare:before,
+#purpose-guardians .gc2-legendary:before{
+  border-radius:0!important;
+}
+#purpose-guardians .gc2-info{
+  background:#fff;
+}
+#purpose-guardians .gc2-info .button{
+  border-radius:0!important;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .lumen-box-action,
+  .fortune-services .fortune-service-card,
+  #purpose-guardians .guardian-tier-button,
+  #purpose-guardians .gc2-card{
+    transition:none!important;
+    transform:none!important;
+  }
+}
