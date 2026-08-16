@@ -189,6 +189,12 @@
       s.defer=true;
       document.head.appendChild(s);
     }
+    if(!document.querySelector('script[src*="/guardian-locale-polish.js"]')){
+      const polish=document.createElement('script');
+      polish.src='/guardian-locale-polish.js?v=20260816-1';
+      polish.defer=true;
+      document.head.appendChild(polish);
+    }
     if(!document.querySelector('script[src*="/guardian-flow-enhance.js"]')){
       const flow=document.createElement('script');
       flow.src='/guardian-flow-enhance.js?v=20260814-1';
