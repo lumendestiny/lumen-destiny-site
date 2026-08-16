@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'functions/link/[token].js'
       - 'functions/link/_middleware.js'
       - 'functions/api/lumen-link/share-image.js'
       - '.github/workflows/lumen-link-share-preview-smoke.yml'
@@ -46,4 +47,6 @@ jobs:
           grep -q 'name="twitter:card" content="summary_large_image"' /tmp/invite.html
           grep -q '당신을 루멘 인연지도에<br>초대했습니다' /tmp/invite.html
           grep -q '출생정보 원본은 상대방에게 공개되지 않습니다' /tmp/invite.html
-          echo 'share preview metadata and copy ok'
+          ! grep -q '당신과의 인연을<br>연결하고 싶어 합니다' /tmp/invite.html
+          grep -q '@media(max-width:350px)' /tmp/invite.html
+          echo 'share preview metadata and mobile copy ok'
