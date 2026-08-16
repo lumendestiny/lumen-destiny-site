@@ -1,3 +1,3 @@
 Lumen Destiny production redeploy trigger
-Date: 2026-08-14
-Purpose: Deploy precise centered alignment for LUMEN GUARDIAN hero label, title, and subtitle while preserving verified HD Guardian masters.
+Date: 2026-08-16
+Purpose: Apply production environment variable LUMEN_LINK_ENABLED=true after verified D1 schema readiness. No application code changes in this trigger.
