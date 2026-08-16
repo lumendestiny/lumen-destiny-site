@@ -26,6 +26,33 @@
 /compatibility-result/*
   X-Robots-Tag: noindex, nofollow, noarchive
 
+/login/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/connection-map/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/guardian/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/guardian-order/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/guardian-gift/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/guardian-gallery/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/guardian-campaigns/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/guardian-story/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/guardian-physical-status/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
 /guardian-payment-result.html
   X-Robots-Tag: noindex, nofollow, noarchive
 
