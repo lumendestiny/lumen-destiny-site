@@ -1,4 +1,4 @@
-/* 2026-08-16: Home fortune services — balanced 3 x 2 desktop layout */
+/* 2026-08-16: Home fortune services — balanced 3 x 2 desktop layout + full-card actions */
 .fortune-services .fortune-service-grid{
   width:100%;
   max-width:1380px;
@@ -9,9 +9,17 @@
   align-items:stretch;
 }
 .fortune-services .fortune-service-card{
+  position:relative;
   min-height:238px;
   padding:24px 22px;
   height:100%;
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.fortune-services .fortune-service-card:hover,
+.fortune-services .fortune-service-card:focus-within{
+  transform:translateY(-1px);
 }
 .fortune-services .fortune-service-card h3{
   font-size:1.32rem;
@@ -22,6 +30,20 @@
 }
 .fortune-services .fortune-service-card a{
   padding-top:20px;
+  position:static;
+  text-decoration:none;
+}
+/* The existing CTA link becomes a transparent full-card hit target.
+   This keeps one semantic link per card while making the whole box clickable. */
+.fortune-services .fortune-service-card a::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:3;
+}
+.fortune-services .fortune-service-card:focus-within{
+  outline:3px solid rgba(75,56,210,.18);
+  outline-offset:3px;
 }
 
 @media (min-width:1181px) and (max-height:820px){
@@ -50,5 +72,15 @@
   .fortune-services .fortune-service-card{
     min-height:180px;
     padding:20px 18px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .fortune-services .fortune-service-card{
+    transition:none;
+  }
+  .fortune-services .fortune-service-card:hover,
+  .fortune-services .fortune-service-card:focus-within{
+    transform:none;
   }
 }
