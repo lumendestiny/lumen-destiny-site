@@ -1,6 +1,6 @@
 # Lumen Destiny V1 Scope
 
-Updated: 2026-08-15
+Updated: 2026-08-16
 
 ## Included in V1
 - Free Saju / Four Pillars input and results
@@ -11,9 +11,9 @@ Updated: 2026-08-15
 
 ## Explicitly excluded from V1
 - Face reading / physiognomy (관상)
-- 1:1 AI consultation
+- 1:1 AI consultation on website, app launch surfaces, navigation, service cards and marketing surfaces
 
-These excluded features are not launch blockers and must not be exposed in V1 navigation, sitemap, marketing copy or release-gate requirements. They may be reconsidered only as a later product upgrade.
+These excluded features are not launch blockers and must not be exposed in V1 navigation, sitemap, marketing copy, website launch UI, app launch UI or release-gate requirements. The consultation implementation may remain dormant in source for a possible later reactivation, but public V1 routes and launch surfaces must not expose it. It may be reconsidered only as a later product upgrade.
 
 ## V1 release principle
 The V1 launch gate is evaluated only against the included scope above. Payment can remain disabled until an approved payment provider completes eligibility/KYC/sandbox requirements; the free Saju, fortune, compatibility and Guardian preview/archive experience may ship independently when their release checks pass.
