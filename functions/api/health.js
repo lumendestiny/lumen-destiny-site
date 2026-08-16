@@ -31,6 +31,8 @@ export async function onRequestGet({env}){
   const refundAdapterUrl=!!env?.LUMEN_PAYMENT_REFUND_ADAPTER_URL;
   const internalSecret=!!env?.LUMEN_INTERNAL_SECRET;
   const webhookSecret=!!env?.LUMEN_PAYMENT_WEBHOOK_SECRET;
+  const authProviderReady=!!env?.SUPABASE_URL&&!!(env?.SUPABASE_PUBLISHABLE_KEY||env?.SUPABASE_ANON_KEY);
+  const authRequired=bool(env?.LUMEN_AUTH_REQUIRED);
 
   const checkoutReady=publicPaymentsEnabled&&guardianDbQuery&&paymentProvider&&paymentAdapterUrl&&paymentAdapterSecret;
   const refundReady=publicPaymentsEnabled&&guardianDbQuery&&refundAdapterUrl&&paymentAdapterSecret&&internalSecret;
@@ -47,6 +49,8 @@ export async function onRequestGet({env}){
     paymentRefunds:refundReady,
     paymentMaintenance:opsReady,
     guardianOperations:opsReady,
+    authentication:authProviderReady,
+    loginGate:authProviderReady&&authRequired,
     paymentTestMode,
     testE2E:testReady
   };
@@ -70,13 +74,15 @@ export async function onRequestGet({env}){
     refundAdapterUrl,
     internalSecret,
     webhookSecret,
+    authProviderReady,
+    authRequired,
     paymentTestMode
   };
   return Response.json({
     ok:true,
     service:'lumen-destiny-api',
-    version:'2026-08-15.2',
-    scope:'v1-saju-fortune-compatibility-guardian',
+    version:'2026-08-16.1',
+    scope:'v1-saju-fortune-compatibility-guardian-auth',
     features,
     configured,
     diagnostics:{guardianDbError},
