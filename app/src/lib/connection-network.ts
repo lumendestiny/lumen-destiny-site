@@ -1,15 +1,48 @@
 import type { ElementCounts, ElementName } from './connection-engine';
 import { ELEMENT_ORDER } from './connection-engine';
 
+export type RelationGroup='family'|'partner'|'friend'|'work'|'other';
+export type RelationFilter='all'|RelationGroup;
+
+export const RELATION_FILTER_OPTIONS:{id:RelationFilter;label:string}[]=[
+ {id:'all',label:'전체'},
+ {id:'family',label:'가족'},
+ {id:'partner',label:'연인·배우자'},
+ {id:'friend',label:'친구'},
+ {id:'work',label:'직장·사업'},
+ {id:'other',label:'기타'},
+];
+
+const PARTNER_WORDS=['아내','남편','배우자','연인','애인','여자친구','남자친구','약혼','와이프','허즈번드','wife','husband','partner','girlfriend','boyfriend'];
+const FAMILY_WORDS=['가족','부모','엄마','아빠','어머니','아버지','할머니','할아버지','형','누나','언니','오빠','동생','아들','딸','자녀','아이','사촌','삼촌','이모','고모','조카','며느리','사위','장모','장인','시어머니','시아버지','family','mother','father','sister','brother','son','daughter'];
+const FRIEND_WORDS=['친구','지인','동창','동문','선배','후배','친한','베프','friend'];
+const WORK_WORDS=['직장','회사','동료','상사','부하','팀장','대표','사장','직원','거래처','고객','사업','비즈니스','파트너사','협력','투자자','업무','work','coworker','colleague','boss','client','business'];
+
+function includesAny(value:string,words:string[]){const normalized=value.trim().toLowerCase();return words.some(word=>normalized.includes(word.toLowerCase()));}
+
+export function inferRelationGroup(relation:string):RelationGroup{
+ if(includesAny(relation,PARTNER_WORDS))return 'partner';
+ if(includesAny(relation,FAMILY_WORDS))return 'family';
+ if(includesAny(relation,WORK_WORDS))return 'work';
+ if(includesAny(relation,FRIEND_WORDS))return 'friend';
+ return 'other';
+}
+
+export function relationGroupLabel(group:RelationFilter){return RELATION_FILTER_OPTIONS.find(option=>option.id===group)?.label||'기타';}
+
 export type NetworkMember={
  id:string;
  name:string;
  relation:string;
+ relationGroup?:RelationGroup;
  elements:ElementCounts;
  score:number;
  grade:string;
  addedAt:string;
 };
+
+export function memberRelationGroup(member:NetworkMember):RelationGroup{return member.relationGroup||inferRelationGroup(member.relation);}
+export function filterMembersByRelation(members:NetworkMember[],group:RelationFilter){return group==='all'?members:members.filter(member=>memberRelationGroup(member)===group);}
 
 export type NetworkSummary={
  memberCount:number;
