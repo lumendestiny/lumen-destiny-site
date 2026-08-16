@@ -1,6 +1,6 @@
 const base=(process.env.LUMEN_PROD_BASE_URL||'https://lumendestiny.com').replace(/\/$/,'');
 const langs=['ko','en','ja','tl','vi','zh'];
-const corePaths=['/','/compatibility','/guardian','/guardian-order','/guardian-verify'];
+const corePaths=['/','/compatibility','/connection-map','/guardian','/guardian-order','/guardian-verify'];
 const legalPaths=['/privacy.html','/terms.html','/refund-policy.html','/support.html'];
 const pages=[];
 for(const lang of langs){for(const p of corePaths)pages.push(`${p}?lang=${lang}`);for(const p of legalPaths)pages.push(`${p}?lang=${lang}`)}
