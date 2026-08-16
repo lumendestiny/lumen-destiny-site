@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { NetworkMember } from './connection-network';
+import type { NetworkMember, RelationGroup } from './connection-network';
 
 const KEY='lumen-link-network-v1';
 
@@ -21,6 +21,13 @@ export async function addConnectionMember(member:NetworkMember){
 export async function removeConnectionMember(id:string){
  const current=await loadConnectionNetwork();
  const next=current.filter(x=>x.id!==id);
+ await saveConnectionNetwork(next);
+ return next;
+}
+
+export async function updateConnectionMemberRelationGroup(id:string,relationGroup:RelationGroup){
+ const current=await loadConnectionNetwork();
+ const next=current.map(member=>member.id===id?{...member,relationGroup}:member);
  await saveConnectionNetwork(next);
  return next;
 }
