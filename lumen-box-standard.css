@@ -22,16 +22,18 @@
 }
 .lumen-box-action{
   cursor:pointer;
-  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease,outline-color .18s ease;
 }
 .lumen-box-action:hover,
 .lumen-box-action:focus-within{
   background:var(--lumen-box-soft);
   border-color:var(--lumen-box-border-active);
   box-shadow:var(--lumen-box-shadow-active);
+  outline:3px solid rgba(75,56,210,.16);
+  outline-offset:2px;
 }
 
-/* Home fortune-service boxes use the Lumen action-box standard. */
+/* Home fortune-service boxes use the same hover/focus border treatment as Guardian archive boxes. */
 .fortune-services .fortune-service-card{
   background:var(--lumen-box-bg);
   border-color:var(--lumen-box-border);
@@ -43,6 +45,8 @@
   background:var(--lumen-box-soft);
   border-color:var(--lumen-box-border-active);
   box-shadow:var(--lumen-box-shadow-active);
+  outline:3px solid rgba(75,56,210,.16);
+  outline-offset:2px;
 }
 
 /* Guardian archive: same box language, while Guardian artwork/rarity effects remain intact. */
