@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { elementPercent } from '../lib/connection-engine';
 import type { ElementCounts } from '../lib/connection-engine';
 import { filterMembersByRelation, relationGroupLabel, summarizeMemberImpact, summarizeNetwork } from '../lib/connection-network';
@@ -15,6 +15,9 @@ export default function RelationshipNetworkInsights({meElements,members,activeGr
  const compact=width<480;
  const tiny=width<350;
  const[compareIds,setCompareIds]=useState<string[]>([]);
+ const[arrival,setArrival]=useState<NetworkMember|null>(null);
+ const arrivalAnim=useRef(new Animated.Value(0)).current;
+ const announcedIds=useRef(new Set<string>());
  const filteredMembers=useMemo(()=>filterMembersByRelation(members,activeGroup),[activeGroup,members]);
  const summary=useMemo(()=>summarizeNetwork(meElements,filteredMembers),[meElements,filteredMembers]);
  const ranking=useMemo(()=>filteredMembers.map(member=>({member,impact:summarizeMemberImpact(meElements,filteredMembers,member.id)})).filter((item):item is RankedImpact=>!!item.impact).sort((a,b)=>b.impact.coverageDelta-a.impact.coverageDelta||b.member.score-a.member.score).slice(0,3),[meElements,filteredMembers]);
@@ -29,10 +32,25 @@ export default function RelationshipNetworkInsights({meElements,members,activeGr
  const bValue=b?elementPercent(b.elements,weakest):0;
  const winner=a&&b?(aValue===bValue?null:aValue>bValue?a:b):null;
  const compareCopy=a&&b?(winner?`현재 ${activeLabel} 인연망에서 상대적으로 부족한 ${weakest} 기운을 기준으로 ${winner.name}님이 더 높은 비중을 가지고 있습니다.`:`두 사람의 ${weakest} 기운 비중은 같습니다.`):selected.length===1?'비교할 인연을 한 명 더 선택해 주세요.':'두 사람을 선택하면 현재 부족한 오행을 누가 더 많이 가지고 있는지 비교합니다.';
+ useEffect(()=>{
+  const now=Date.now();
+  const recent=[...members].filter(member=>{const time=Date.parse(member.addedAt||'');return Number.isFinite(time)&&now-time>=0&&now-time<20000&&!announcedIds.current.has(member.id)}).sort((x,y)=>Date.parse(y.addedAt)-Date.parse(x.addedAt))[0];
+  if(!recent)return;
+  announcedIds.current.add(recent.id);
+  setArrival(recent);
+  arrivalAnim.stopAnimation();
+  arrivalAnim.setValue(0);
+  Animated.sequence([
+   Animated.spring(arrivalAnim,{toValue:1,useNativeDriver:true,damping:14,stiffness:150,mass:.8}),
+   Animated.delay(2200),
+   Animated.timing(arrivalAnim,{toValue:0,duration:260,useNativeDriver:true})
+  ]).start(({finished})=>{if(finished)setArrival(null)});
+ },[members,arrivalAnim]);
  if(!members.length)return null;
  return <View style={[styles.wrap,compact&&styles.wrapCompact]}>
   <Text style={styles.title}>{activeLabel} 인연 영향 분석</Text>
   <Text style={styles.lead}>현재 지도에 표시된 관계군만 따로 계산합니다. 관계 필터를 바꾸면 균형도·부족 오행·기여 순위·비교 결과가 함께 바뀝니다.</Text>
+  {arrival?<Animated.View accessibilityRole="alert" style={[styles.arrival,{opacity:arrivalAnim,transform:[{translateY:arrivalAnim.interpolate({inputRange:[0,1],outputRange:[-10,0]})},{scale:arrivalAnim.interpolate({inputRange:[0,1],outputRange:[.97,1]})}]}]}><View style={styles.arrivalSpark}><Text style={styles.arrivalSparkText}>✦</Text></View><View style={styles.arrivalCopy}><Text style={styles.arrivalEyebrow}>새 인연 연결</Text><Text numberOfLines={1} ellipsizeMode="tail" style={styles.arrivalTitle}>{arrival.name}님이 인연지도에 들어왔습니다.</Text><Text numberOfLines={1} ellipsizeMode="tail" style={styles.arrivalMeta}>{arrival.relation} · 오행 보완도 {arrival.score}</Text></View></Animated.View>:null}
   {filteredMembers.length?<>
    <View style={styles.groupSummary}><View style={styles.groupMetric}><Text style={styles.groupLabel}>{activeLabel} 인연</Text><Text style={styles.groupValue}>{filteredMembers.length}명</Text></View><View style={styles.groupMetric}><Text style={styles.groupLabel}>관계망 균형도</Text><Text style={styles.groupValue}>{summary.coverage}</Text></View><View style={styles.groupMetric}><Text style={styles.groupLabel}>부족한 기운</Text><Text style={styles.groupValue}>{summary.weakest.join('·')}</Text></View></View>
    <Text style={styles.groupCopy}>{activeGroup==='all'?`전체 인연망에서는 ${summary.weakest.join('·')} 기운이 상대적으로 낮습니다.`:`${activeLabel} 관계만 따로 보면 ${summary.weakest.join('·')} 기운이 상대적으로 낮고, 개인 기준 대비 균형 변화는 ${signed(summary.balanceDelta)}점입니다.`}</Text>
@@ -55,6 +73,13 @@ const styles=StyleSheet.create({
  wrapCompact:{padding:13,borderRadius:14},
  title:{fontSize:17,fontWeight:'900',color:'#242735'},
  lead:{marginTop:5,fontSize:12,lineHeight:19,color:'#686d79'},
+ arrival:{marginTop:12,minHeight:66,padding:11,borderRadius:15,backgroundColor:'#f4f1ff',borderWidth:1,borderColor:'#dcd3ff',flexDirection:'row',alignItems:'center',gap:10},
+ arrivalSpark:{width:38,height:38,borderRadius:19,backgroundColor:'#6d55dc',alignItems:'center',justifyContent:'center',shadowColor:'#5146c8',shadowOpacity:.18,shadowRadius:8,shadowOffset:{width:0,height:4},elevation:3},
+ arrivalSparkText:{fontSize:16,fontWeight:'900',color:'#fff'},
+ arrivalCopy:{flex:1,minWidth:0},
+ arrivalEyebrow:{fontSize:9,fontWeight:'900',letterSpacing:.7,color:'#6d55dc'},
+ arrivalTitle:{marginTop:2,fontSize:13,fontWeight:'900',color:'#29263a'},
+ arrivalMeta:{marginTop:2,fontSize:10,color:'#77738a'},
  groupSummary:{marginTop:13,flexDirection:'row',gap:7,padding:10,borderRadius:13,backgroundColor:'#f7f6ff'},
  groupMetric:{flex:1,minWidth:0,alignItems:'center'},
  groupLabel:{fontSize:9,lineHeight:13,fontWeight:'800',color:'#777d89',textAlign:'center'},
