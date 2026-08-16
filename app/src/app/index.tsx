@@ -6,6 +6,7 @@ const items = [
   ['운세', '금전운 · 신년운세 · 월간운세 · 오늘의 운세', '/fortune'],
   ['궁합', '두 사람의 흐름을 비교', '/compatibility'],
   ['LUMEN LINK', '지인과 연결해 보는 인연 오행지도', '/connection-map'],
+  ['LUMEN LINK 초대 관리', '보낸 링크와 참여 결과 다시 확인', '/link-invites'],
   ['LUMEN GUARDIAN', '사주 결과와 연결된 맞춤 Guardian', '/guardian'],
   ['내 Guardian', '발급받거나 선물 받은 Guardian 보관함', '/my-guardian'],
   ['계정 · 동기화', '기기 변경 후 Guardian 복원을 위한 계정 준비', '/account'],
