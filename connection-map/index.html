@@ -13,22 +13,27 @@
   <link rel="stylesheet" href="/connection-map.css?v=20260816-1">
   <link rel="stylesheet" href="/connection-map-visual-v2.css?v=20260816-1">
   <style>
-    /* Lumen standard personal-data form: compatibility form is the visual baseline. */
+    /* Lumen standard personal-data form: compatibility form is the visual/structural baseline. */
     .connection-grid{background:#f8f8fa;border:1px solid #ececf0;padding:16px 18px 18px;gap:16px;align-items:stretch}
     .connection-grid .lumen-personal-form{box-sizing:border-box;border:1px solid #e3e4e9;border-radius:14px;background:#fff;padding:18px;margin:0;box-shadow:0 5px 16px rgba(28,32,45,.035)}
     .lumen-personal-form .card-head h2{font-size:1.12rem;margin:3px 0 0;color:#242936}
     .lumen-personal-form .card-copy{margin:9px 0 2px;font-size:.86rem;line-height:1.6;color:#727784}
-    .lumen-personal-form label{display:block;margin-top:11px;font-size:.91rem;font-weight:750;color:#252a36}
-    .lumen-personal-form input:not([type="checkbox"]),.lumen-personal-form select{box-sizing:border-box;display:block;width:100%;max-width:100%;height:44px;min-height:44px;margin-top:6px;border:1px solid #e1e1e7;border-radius:0;background:#fff;color:#252a36;font:inherit;font-size:.92rem;font-weight:500;padding:0 12px;outline:none;min-width:0}
-    .lumen-personal-form input:not([type="checkbox"]):focus,.lumen-personal-form select:focus{border-color:#7665df;box-shadow:0 0 0 2px rgba(75,56,210,.09)}
+    .lumen-personal-form label,.lumen-field-label{display:block;margin-top:11px;font-size:.91rem;font-weight:750;color:#252a36}
+    .lumen-personal-form input:not([type="checkbox"]):not([type="hidden"]),.lumen-personal-form select{box-sizing:border-box;display:block;width:100%;max-width:100%;height:44px;min-height:44px;margin-top:6px;border:1px solid #e1e1e7;border-radius:0;background:#fff;color:#252a36;font:inherit;font-size:.92rem;font-weight:500;padding:0 12px;outline:none;min-width:0}
+    .lumen-personal-form input:not([type="checkbox"]):not([type="hidden"]):focus,.lumen-personal-form select:focus{border-color:#7665df;box-shadow:0 0 0 2px rgba(75,56,210,.09)}
+    .lumen-personal-form input[type="hidden"]{display:none!important}
     .lumen-personal-form .field-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
-    .lumen-personal-form .check-field{box-sizing:border-box;display:flex!important;height:44px;min-height:44px;margin-top:38px!important;border:1px solid #e1e1e7;border-radius:0;background:#fff;padding:0 12px;align-items:center;gap:8px;color:#252a36}
+    .lumen-birth-field{margin-top:11px}.lumen-birth-field .lumen-field-label{margin-top:0;margin-bottom:6px}
+    .lumen-birth-row{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px;width:100%;min-width:0}
+    .lumen-birth-row select{margin-top:0!important;padding-left:10px;padding-right:24px;font-size:.88rem}
+    .lumen-personal-form .check-field{box-sizing:border-box;display:none!important;height:44px;min-height:44px;margin-top:11px!important;border:1px solid #e1e1e7;border-radius:0;background:#fff;padding:0 12px;align-items:center;gap:8px;color:#252a36}
+    .lumen-personal-form .check-field.is-visible{display:flex!important}
     .lumen-personal-form .check-field input{width:18px!important;height:18px!important;min-height:18px!important;margin:0!important}
     .lumen-personal-form>.connection-btn{width:100%;height:50px;min-height:50px;margin-top:15px;border:0;border-radius:0;background:#4b38d2;color:#fff;font-size:1.04rem;font-weight:850}
     .lumen-personal-form>.connection-btn:hover{background:#4130c3}
     .lumen-personal-form .step{border-radius:0;background:#f1efff;color:#4b38d2}
-    @media(max-width:720px){.connection-grid{padding:16px;display:block}.connection-grid .lumen-personal-form{padding:16px}.connection-grid .lumen-personal-form+.lumen-personal-form{margin-top:16px}.lumen-personal-form input:not([type="checkbox"]),.lumen-personal-form select{height:50px;min-height:50px;padding:0 13px;font-size:16px}.lumen-personal-form .field-row{gap:8px}.lumen-personal-form .check-field{height:50px;min-height:50px;margin-top:40px!important}.lumen-personal-form>.connection-btn{height:56px;min-height:56px;margin-top:16px}}
-    @media(max-width:420px){.lumen-personal-form .field-row{grid-template-columns:1fr}.lumen-personal-form .check-field{margin-top:10px!important}}
+    @media(max-width:720px){.connection-grid{padding:16px;display:block}.connection-grid .lumen-personal-form{padding:16px}.connection-grid .lumen-personal-form+.lumen-personal-form{margin-top:16px}.lumen-personal-form input:not([type="checkbox"]):not([type="hidden"]),.lumen-personal-form select{height:50px;min-height:50px;padding:0 13px;font-size:16px}.lumen-personal-form .field-row{gap:8px}.lumen-birth-row{grid-template-columns:1.2fr 1fr 1fr;gap:4px}.lumen-birth-row select{padding-left:7px;padding-right:20px;font-size:14px}.lumen-personal-form .check-field{height:50px;min-height:50px}.lumen-personal-form>.connection-btn{height:56px;min-height:56px;margin-top:16px}}
+    @media(max-width:420px){.lumen-personal-form .field-row{grid-template-columns:1fr}.lumen-birth-row{grid-template-columns:1.2fr 1fr 1fr}}
   </style>
 </head>
 <body>
@@ -50,9 +55,12 @@
     <article class="connection-card input-card lumen-personal-form">
       <div class="card-head"><div><span class="step">01</span><h2>나의 기준 만들기</h2></div><span id="profileStatus" class="status-pill">기준 없음</span></div>
       <p class="card-copy">한 번 계산하면 원본 생년월일 대신 계산된 오행 분포만 이 브라우저에 저장되어 다음 인연을 추가할 때 기준으로 사용됩니다.</p>
-      <label>이름 또는 닉네임<input id="meName" maxlength="24" placeholder="예: 지환"></label>
-      <div class="field-row"><label>생년월일<input id="meBirth" type="date" min="1900-01-01" max="2050-12-31"></label><label>출생시간<input id="meTime" type="time" step="1800"></label></div>
-      <div class="field-row"><label>달력<select id="meCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select></label><label class="check-field"><input id="meLeap" type="checkbox"> 음력 윤달</label></div>
+      <label>이름 또는 닉네임<input id="meName" maxlength="24" placeholder="이름"></label>
+      <div class="lumen-birth-field"><span class="lumen-field-label">생년월일</span><div class="lumen-birth-row"><select id="meYear" aria-label="나의 출생 연도"></select><select id="meMonth" aria-label="나의 출생 월"></select><select id="meDay" aria-label="나의 출생 일"></select></div></div>
+      <input id="meBirth" type="hidden">
+      <label>태어난 시간<select id="meTimeChoice" aria-label="나의 태어난 시간"></select></label><input id="meTime" type="hidden">
+      <label>달력<select id="meCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select></label>
+      <label class="check-field" id="meLeapLabel"><input id="meLeap" type="checkbox"> 음력 윤달</label>
       <button id="saveProfile" class="connection-btn dark" type="button">나의 오행 기준 계산</button>
       <div id="profileSummary" class="mini-summary" hidden></div>
     </article>
@@ -60,10 +68,12 @@
     <article class="connection-card input-card lumen-personal-form">
       <div class="card-head"><div><span class="step">02</span><h2>인연 연결하기</h2></div></div>
       <p class="card-copy">상대방의 원본 출생정보는 저장하지 않습니다. 계산 후 표시 이름·관계와 오행 결과만 인연망에 추가할 수 있습니다.</p>
-      <label>관계<input id="otherRelation" maxlength="30" placeholder="예: 아내, 친구, 직장 동료"></label>
-      <label>이름 또는 닉네임<input id="otherName" maxlength="24" placeholder="지도에 표시할 이름"></label>
-      <div class="field-row"><label>생년월일<input id="otherBirth" type="date" min="1900-01-01" max="2050-12-31"></label><label>출생시간<input id="otherTime" type="time" step="1800"></label></div>
-      <div class="field-row"><label>달력<select id="otherCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select></label><label class="check-field"><input id="otherLeap" type="checkbox"> 음력 윤달</label></div>
+      <div class="field-row"><label>이름 또는 닉네임<input id="otherName" maxlength="24" placeholder="이름"></label><label>관계<input id="otherRelation" maxlength="30" placeholder="예: 아내, 친구"></label></div>
+      <div class="lumen-birth-field"><span class="lumen-field-label">생년월일</span><div class="lumen-birth-row"><select id="otherYear" aria-label="상대방 출생 연도"></select><select id="otherMonth" aria-label="상대방 출생 월"></select><select id="otherDay" aria-label="상대방 출생 일"></select></div></div>
+      <input id="otherBirth" type="hidden">
+      <label>태어난 시간<select id="otherTimeChoice" aria-label="상대방 태어난 시간"></select></label><input id="otherTime" type="hidden">
+      <label>달력<select id="otherCalendar"><option value="solar">양력</option><option value="lunar">음력</option></select></label>
+      <label class="check-field" id="otherLeapLabel"><input id="otherLeap" type="checkbox"> 음력 윤달</label>
       <button id="calculateConnection" class="connection-btn primary" type="button">이 인연의 변화 계산</button>
       <p id="formMessage" class="form-message" role="status"></p>
     </article>
@@ -105,6 +115,23 @@
 </main>
 <footer><div><strong>루멘 명운 · Lumen Destiny</strong></div><div class="footer-links"><a href="/privacy.html">개인정보처리방침</a><a href="/terms.html">이용약관</a><a href="/support.html">고객지원</a></div></footer>
 <script src="/service-shell.js?v=20260813-nav-1" defer></script>
+<script>
+(()=>{
+  const pad=n=>String(n).padStart(2,'0');
+  const days=(y,m)=>new Date(Number(y),Number(m),0).getDate();
+  function setup(prefix){
+    const y=document.getElementById(prefix+'Year'),m=document.getElementById(prefix+'Month'),d=document.getElementById(prefix+'Day'),birth=document.getElementById(prefix+'Birth'),timeChoice=document.getElementById(prefix+'TimeChoice'),time=document.getElementById(prefix+'Time'),cal=document.getElementById(prefix+'Calendar'),leap=document.getElementById(prefix+'Leap'),leapLabel=document.getElementById(prefix+'LeapLabel');
+    y.add(new Option('연도',''));for(let n=1900;n<=2050;n++)y.add(new Option(n+'년',String(n)));
+    m.add(new Option('월',''));for(let n=1;n<=12;n++)m.add(new Option(pad(n)+'월',pad(n)));
+    function fillDays(){const old=d.value;d.innerHTML='';d.add(new Option('일',''));const max=y.value&&m.value?days(y.value,m.value):31;for(let n=1;n<=max;n++)d.add(new Option(pad(n)+'일',pad(n)));if([...d.options].some(o=>o.value===old))d.value=old;syncBirth()}
+    function syncBirth(){birth.value=y.value&&m.value&&d.value?`${y.value}-${m.value}-${d.value}`:''}
+    y.addEventListener('change',fillDays);m.addEventListener('change',fillDays);d.addEventListener('change',syncBirth);fillDays();
+    timeChoice.add(new Option('태어난 시간',''));for(let h=0;h<24;h++)for(const min of [0,30]){const v=pad(h)+':'+pad(min);timeChoice.add(new Option(v,v))}timeChoice.addEventListener('change',()=>time.value=timeChoice.value);
+    function syncLeap(){const lunar=cal.value==='lunar';leapLabel.classList.toggle('is-visible',lunar);if(!lunar)leap.checked=false}cal.addEventListener('change',syncLeap);syncLeap();
+  }
+  setup('me');setup('other');
+})();
+</script>
 <script type="module" src="/connection-map.js?v=20260816-1"></script>
 <script src="/connection-map-visual-v2.js?v=20260816-1" defer></script>
 </body>
