@@ -1,0 +1,49 @@
+name: LUMEN LINK Share Preview Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/link/_middleware.js'
+      - 'functions/api/lumen-link/share-image.js'
+      - '.github/workflows/lumen-link-share-preview-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Wait for production deployment
+        run: sleep 35
+      - name: Verify social preview PNG
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS -D /tmp/image-headers.txt https://lumendestiny.com/api/lumen-link/share-image -o /tmp/share.png
+          grep -qi '^content-type: image/png' /tmp/image-headers.txt
+          test "$(wc -c < /tmp/share.png)" -gt 10000
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/share.png').read_bytes()
+          assert p[:8] == b'\x89PNG\r\n\x1a\n'
+          w=int.from_bytes(p[16:20],'big'); h=int.from_bytes(p[20:24],'big')
+          assert (w,h)==(1200,630),(w,h)
+          print('share image ok',w,h,len(p))
+          PY
+      - name: Verify invitation metadata and copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          token='01234567890123456789012345678901'
+          code=$(curl -sS -o /tmp/invite.html -w '%{http_code}' "https://lumendestiny.com/link/${token}")
+          test "$code" = "200"
+          grep -q 'property="og:image" content="https://lumendestiny.com/api/lumen-link/share-image"' /tmp/invite.html
+          grep -q 'property="og:image:width" content="1200"' /tmp/invite.html
+          grep -q 'name="twitter:card" content="summary_large_image"' /tmp/invite.html
+          grep -q '당신을 루멘 인연지도에<br>초대했습니다' /tmp/invite.html
+          grep -q '출생정보 원본은 상대방에게 공개되지 않습니다' /tmp/invite.html
+          echo 'share preview metadata and copy ok'
