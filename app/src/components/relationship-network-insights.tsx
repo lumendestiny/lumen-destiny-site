@@ -17,7 +17,8 @@ export default function RelationshipNetworkInsights({meElements,members,activeGr
  const[compareIds,setCompareIds]=useState<string[]>([]);
  const[arrival,setArrival]=useState<NetworkMember|null>(null);
  const arrivalAnim=useRef(new Animated.Value(0)).current;
- const announcedIds=useRef(new Set<string>());
+ const knownIds=useRef(new Set<string>());
+ const seeded=useRef(false);
  const filteredMembers=useMemo(()=>filterMembersByRelation(members,activeGroup),[activeGroup,members]);
  const summary=useMemo(()=>summarizeNetwork(meElements,filteredMembers),[meElements,filteredMembers]);
  const ranking=useMemo(()=>filteredMembers.map(member=>({member,impact:summarizeMemberImpact(meElements,filteredMembers,member.id)})).filter((item):item is RankedImpact=>!!item.impact).sort((a,b)=>b.impact.coverageDelta-a.impact.coverageDelta||b.member.score-a.member.score).slice(0,3),[meElements,filteredMembers]);
@@ -33,11 +34,12 @@ export default function RelationshipNetworkInsights({meElements,members,activeGr
  const winner=a&&b?(aValue===bValue?null:aValue>bValue?a:b):null;
  const compareCopy=a&&b?(winner?`현재 ${activeLabel} 인연망에서 상대적으로 부족한 ${weakest} 기운을 기준으로 ${winner.name}님이 더 높은 비중을 가지고 있습니다.`:`두 사람의 ${weakest} 기운 비중은 같습니다.`):selected.length===1?'비교할 인연을 한 명 더 선택해 주세요.':'두 사람을 선택하면 현재 부족한 오행을 누가 더 많이 가지고 있는지 비교합니다.';
  useEffect(()=>{
-  const now=Date.now();
-  const recent=[...members].filter(member=>{const time=Date.parse(member.addedAt||'');return Number.isFinite(time)&&now-time>=0&&now-time<20000&&!announcedIds.current.has(member.id)}).sort((x,y)=>Date.parse(y.addedAt)-Date.parse(x.addedAt))[0];
-  if(!recent)return;
-  announcedIds.current.add(recent.id);
-  setArrival(recent);
+  if(!seeded.current){members.forEach(member=>knownIds.current.add(member.id));seeded.current=true;return;}
+  const added=members.filter(member=>!knownIds.current.has(member.id));
+  members.forEach(member=>knownIds.current.add(member.id));
+  if(!added.length)return;
+  const next=added[added.length-1];
+  setArrival(next);
   arrivalAnim.stopAnimation();
   arrivalAnim.setValue(0);
   Animated.sequence([
