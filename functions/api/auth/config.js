@@ -23,7 +23,7 @@ export async function onRequestGet({env}){
     required:enabled&&yes(env?.LUMEN_AUTH_REQUIRED),
     url:enabled?url:'',
     publishableKey:enabled?publishableKey:'',
-    methods:{email:true,google:true,kakao:true,x:true,facebook:true},
+    methods:{email:true,google:true,kakao:false,x:true,facebook:true},
     publicRoutes:['/','/compatibility','/compatibility-result','/guardian-verify','/privacy.html','/terms.html','/support.html','/login']
   });
 }
