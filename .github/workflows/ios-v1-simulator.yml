@@ -1,0 +1,39 @@
+name: iOS V1 Simulator Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/android-v1-apk
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios-v1-simulator.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios-simulator:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Build without signing
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -project LumenDestiny.xcodeproj \
+            -scheme LumenDestiny \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            CODE_SIGNING_ALLOWED=NO \
+            build
