@@ -1,6 +1,7 @@
 const API_BASE='https://lumendestiny.com';
 
 export type LinkInvite={id:string;token:string;expiresAt:string};
+export type PublicLinkInvite={id:string;inviterLabel:string;status:string;expiresAt:string};
 export type LinkRelationship={id:string;participantLabel:string;relationLabel:string;elements:Record<string,number>;weakest:string[];score:number;grade:string;strongestForInviter:string|null;strongestForParticipant:string|null;sharedGap:string[];createdAt:string};
 export type LinkInviteStatus={invite:{id:string;status:string;expiresAt:string;usedAt:string|null};relationship:LinkRelationship|null};
 
@@ -9,6 +10,13 @@ export async function createLumenLinkInvite(input:{inviterLabel:string;elements:
  const data=await r.json();
  if(!r.ok||!data?.ok)throw new Error(data?.error||'invite_create_failed');
  return data.invite as LinkInvite;
+}
+
+export async function getLumenLinkInvite(token:string):Promise<PublicLinkInvite>{
+ const r=await fetch(`${API_BASE}/api/lumen-link/invite?token=${encodeURIComponent(token)}`,{headers:{Accept:'application/json'}});
+ const data=await r.json();
+ if(!r.ok||!data?.ok)throw new Error(data?.error||'invite_lookup_failed');
+ return data.invite as PublicLinkInvite;
 }
 
 export async function joinLumenLinkInvite(input:{token:string;participantLabel:string;relationLabel?:string;elements:Record<string,number>;weakest:string[]}){
