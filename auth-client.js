@@ -34,23 +34,25 @@ export async function getAuthClient(){
 export async function completeAuthCallback(){
   const client=await getAuthClient();
   if(!client)return null;
-  const u=new URL(location.href),code=u.searchParams.get('code');
-  if(code){
-    const {data,error}=await client.auth.exchangeCodeForSession(code);
-    if(error)throw error;
-    u.searchParams.delete('code');
-    u.searchParams.delete('auth');
-    history.replaceState(null,'',u.pathname+u.search+u.hash);
-    return data?.session||null;
+  const {data,error}=await client.auth.getSession();
+  if(error)throw error;
+  const session=data?.session||null;
+  if(session){
+    const u=new URL(location.href);
+    if(u.searchParams.has('code')){
+      u.searchParams.delete('code');
+      u.searchParams.delete('auth');
+      history.replaceState(null,'',u.pathname+u.search+u.hash);
+    }
   }
-  const {data}=await client.auth.getSession();
-  return data?.session||null;
+  return session;
 }
 
 export async function getSession(){
   const client=await getAuthClient();
   if(!client)return null;
-  const {data}=await client.auth.getSession();
+  const {data,error}=await client.auth.getSession();
+  if(error)throw error;
   return data?.session||null;
 }
 
