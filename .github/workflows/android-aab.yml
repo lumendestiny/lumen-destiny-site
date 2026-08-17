@@ -1,0 +1,78 @@
+name: Build Android AAB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android API 36
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+
+      - name: Install JavaScript dependencies
+        run: npm install
+
+      - name: Prepare bundled web assets
+        run: npm run android:prepare
+
+      - name: Create Android project
+        run: npx cap add android
+
+      - name: Target Android 16 / API 36
+        shell: bash
+        run: |
+          if [ -f android/variables.gradle ]; then
+            sed -i -E 's/compileSdkVersion = [0-9]+/compileSdkVersion = 36/' android/variables.gradle
+            sed -i -E 's/targetSdkVersion = [0-9]+/targetSdkVersion = 36/' android/variables.gradle
+          fi
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build release app bundle
+        working-directory: android
+        run: ./gradlew bundleRelease
+
+      - name: Decode upload keystore
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        shell: bash
+        run: echo '${{ secrets.ANDROID_KEYSTORE_BASE64 }}' | base64 --decode > android/upload-keystore.jks
+
+      - name: Sign AAB with upload key
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        shell: bash
+        run: |
+          jarsigner \
+            -keystore android/upload-keystore.jks \
+            -storepass '${{ secrets.ANDROID_KEYSTORE_PASSWORD }}' \
+            -keypass '${{ secrets.ANDROID_KEY_PASSWORD }}' \
+            android/app/build/outputs/bundle/release/app-release.aab \
+            '${{ secrets.ANDROID_KEY_ALIAS }}'
+          jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lumen-destiny-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
