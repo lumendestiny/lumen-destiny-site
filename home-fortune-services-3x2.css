@@ -75,6 +75,16 @@
     gap:14px;
   }
   .fortune-services .fortune-service-card{scroll-margin-top:180px;}
+  /* Keep the same selected-card treatment on tablets and phones even if other mobile CSS overrides card backgrounds. */
+  .fortune-services .fortune-service-card:target{
+    background:#f1efff!important;
+    border-color:#6b5ae0!important;
+    box-shadow:0 10px 28px rgba(75,56,210,.14),inset 0 0 0 1px rgba(75,56,210,.08)!important;
+  }
+  .fortune-services .fortune-service-card:target h3,
+  .fortune-services .fortune-service-card:target>a{
+    color:#4333bb!important;
+  }
 }
 
 @media (max-width:780px){
@@ -85,6 +95,12 @@
   .fortune-services .fortune-service-card{
     min-height:180px;
     padding:20px 18px;
+    scroll-margin-top:170px;
+  }
+  .fortune-services .fortune-service-card:target{
+    background:#f1efff!important;
+    border-color:#6b5ae0!important;
+    box-shadow:0 8px 22px rgba(75,56,210,.14),inset 0 0 0 1px rgba(75,56,210,.08)!important;
   }
 }
 
