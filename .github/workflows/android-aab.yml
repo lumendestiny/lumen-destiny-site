@@ -13,6 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,21 +63,27 @@ jobs:
         working-directory: android
         run: ./gradlew bundleRelease
 
-      - name: Decode upload keystore
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      - name: Verify signing secrets exist
         shell: bash
-        run: echo '${{ secrets.ANDROID_KEYSTORE_BASE64 }}' | base64 --decode > android/upload-keystore.jks
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_PASSWORD"
+          test -n "$ANDROID_KEY_ALIAS"
+
+      - name: Decode upload keystore
+        shell: bash
+        run: printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
 
       - name: Sign AAB with upload key
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
         shell: bash
         run: |
           jarsigner \
             -keystore android/upload-keystore.jks \
-            -storepass '${{ secrets.ANDROID_KEYSTORE_PASSWORD }}' \
-            -keypass '${{ secrets.ANDROID_KEY_PASSWORD }}' \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+            -keypass "$ANDROID_KEY_PASSWORD" \
             android/app/build/outputs/bundle/release/app-release.aab \
-            '${{ secrets.ANDROID_KEY_ALIAS }}'
+            "$ANDROID_KEY_ALIAS"
           jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-release.aab
 
       - name: Upload AAB artifact
