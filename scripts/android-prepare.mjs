@@ -1,15 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const appId = (process.env.LUMEN_ANDROID_APP_ID || '').trim();
-if (!appId) {
-  console.error('\nLUMEN_ANDROID_APP_ID is required. Use the exact package name already registered in Google Play Console.\n');
-  process.exit(2);
-}
-if (!/^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$/.test(appId)) {
-  console.error(`Invalid Android application ID: ${appId}`);
-  process.exit(2);
-}
+const appId = 'com.lumendestiny.app';
 
 const root = process.cwd();
 const webDir = path.join(root, 'www');
