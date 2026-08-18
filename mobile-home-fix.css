@@ -1,313 +1,239 @@
-/* 2026-08-18: Final mobile home composition
-   Goal: brand -> language flags -> 3x2 fortune menu -> Lumen Destiny hero.
-   Desktop/tablet layouts remain unchanged. */
+/* 2026-08-18: Mobile/app home parity with approved desktop first-screen composition.
+   Goal: compact brand + flags row, text-only horizontal nav, then a clean full-height hero.
+   No icon cards, no nav subtitles, no extra hero sentence/underline on the first screen. */
 @media (max-width:780px){
-  body{overflow-x:hidden;}
+  html,body{overflow-x:hidden;background:#fff}
 
   .fortune-header{
-    height:auto;
-    min-height:0;
-    padding:20px 14px 0;
-    display:block;
-    position:relative;
-    top:auto;
-    z-index:20;
-    background:#fff;
-    border-bottom:0;
-    box-shadow:none;
+    position:relative!important;
+    top:auto!important;
+    z-index:20!important;
+    height:auto!important;
+    min-height:0!important;
+    padding:12px 14px 0!important;
+    display:block!important;
+    background:#fff!important;
+    border-bottom:1px solid #ececf1!important;
+    box-shadow:none!important;
   }
 
   .brand-language-stack{
-    display:flex;
-    flex-direction:column;
-    min-width:0;
-    padding:0;
-    gap:0;
-    flex-wrap:nowrap;
-    align-items:center;
-    justify-content:center;
-    overflow:visible;
-  }
-
-  .fortune-header .brand{
-    flex:0 0 auto;
-    display:block;
-    margin:0 0 15px;
-    padding:0;
-    font-size:2rem!important;
-    line-height:1.1;
-    font-weight:850;
-    letter-spacing:-.055em;
-    white-space:nowrap;
-    text-align:center;
-  }
-
-  .language-switcher{
-    width:100%;
-    max-width:none!important;
-    height:auto!important;
-    min-height:38px;
+    width:100%!important;
     display:flex!important;
-    justify-content:center!important;
+    flex-direction:row!important;
     align-items:center!important;
+    justify-content:flex-start!important;
+    gap:8px!important;
+    padding:0!important;
+    margin:0!important;
     flex-wrap:nowrap!important;
-    gap:7px!important;
+    overflow:visible!important;
+  }
+
+  .fortune-header .brand,
+  .brand-language-stack .brand{
+    flex:0 0 auto!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    margin:0!important;
+    padding:0!important;
+    font-size:1.08rem!important;
+    line-height:1.1!important;
+    font-weight:850!important;
+    letter-spacing:-.055em!important;
+    white-space:nowrap!important;
+    text-align:left!important;
+  }
+
+  .language-switcher,
+  .brand-language-stack .language-switcher{
+    flex:0 0 auto!important;
+    width:auto!important;
+    max-width:none!important;
+    min-height:0!important;
+    height:auto!important;
+    margin:0!important;
+    padding:0!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:4px!important;
+    flex-wrap:nowrap!important;
     overflow:visible!important;
   }
 
   .lang-choice{
-    flex:0 0 auto;
-    min-width:38px!important;
-    width:38px!important;
-    height:34px!important;
+    flex:0 0 auto!important;
+    min-width:36px!important;
+    width:36px!important;
+    height:31px!important;
     padding:0!important;
-    border-radius:7px!important;
+    margin:0!important;
     display:inline-flex!important;
     align-items:center!important;
     justify-content:center!important;
-    font-size:1.2rem!important;
+    border-radius:6px!important;
+    font-size:1.05rem!important;
+    line-height:1!important;
     background:#fff!important;
-    border:1px solid #e4e2ec!important;
+    border:1px solid #dedee7!important;
     box-shadow:none!important;
   }
 
   .lang-choice.active,
   .lang-choice[aria-current="true"]{
     border:2px solid #4b38d2!important;
-    box-shadow:0 0 0 1px rgba(75,56,210,.08)!important;
+    box-shadow:none!important;
   }
 
-  /* Reuse the real navigation links as the six mobile cards. */
+  /* Same visual language as desktop: one clean text row, horizontally scrollable on phones. */
   .main-fortune-nav{
-    width:100%;
-    height:auto;
-    margin:22px 0 0;
-    padding:0;
-    display:grid!important;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    grid-template-rows:repeat(2,minmax(112px,auto));
-    align-items:stretch!important;
-    justify-content:stretch!important;
-    gap:0!important;
-    overflow:hidden!important;
-    border:1px solid #ebe9f1;
-    border-radius:12px;
-    background:#fff;
-    scrollbar-width:none;
-  }
-
-  .main-fortune-nav::-webkit-scrollbar{display:none;}
-
-  .main-fortune-nav a{
-    position:relative;
-    min-width:0;
-    min-height:112px;
-    padding:15px 5px 12px;
+    width:calc(100% + 28px)!important;
+    max-width:none!important;
+    height:50px!important;
+    margin:10px -14px 0!important;
+    padding:0 14px!important;
     display:flex!important;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    border:0;
-    border-right:1px solid #ebe9f1;
-    border-bottom:1px solid #ebe9f1;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:24px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    white-space:nowrap!important;
+    border:0!important;
+    border-top:1px solid #f2f2f5!important;
     border-radius:0!important;
     background:#fff!important;
+    box-shadow:none!important;
+    scrollbar-width:none!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  .main-fortune-nav::-webkit-scrollbar{display:none!important}
+
+  .main-fortune-nav a{
+    position:relative!important;
+    flex:0 0 auto!important;
+    min-width:auto!important;
+    min-height:0!important;
+    height:50px!important;
+    padding:0!important;
+    margin:0!important;
+    display:inline-flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:0!important;
+    border:0!important;
+    border-bottom:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    background-image:none!important;
     color:#151824!important;
-    font-size:1rem!important;
+    font-size:.96rem!important;
     font-weight:800!important;
-    line-height:1.12;
-    letter-spacing:-.035em;
-    text-align:center;
-    white-space:nowrap;
+    line-height:1!important;
+    letter-spacing:-.035em!important;
+    text-align:center!important;
+    white-space:nowrap!important;
     box-shadow:none!important;
     transform:none!important;
     text-decoration:none!important;
+    outline:none!important;
   }
 
-  .main-fortune-nav a:nth-child(3n){border-right:0;}
-  .main-fortune-nav a:nth-child(n+4):nth-child(-n+6){border-bottom:0;}
-  .main-fortune-nav a:nth-child(n+7){display:none!important;}
+  .main-fortune-nav a::before,
+  .main-fortune-nav a::after,
+  .main-fortune-nav a img,
+  .main-fortune-nav a svg,
+  .main-fortune-nav a small,
+  .main-fortune-nav a .nav-icon,
+  .main-fortune-nav a .nav-subtitle,
+  .main-fortune-nav a [class*="icon"],
+  .main-fortune-nav a [class*="subtitle"],
+  .main-fortune-nav a [class*="indicator"]{
+    content:none!important;
+    display:none!important;
+    border:0!important;
+    box-shadow:none!important;
+    background:none!important;
+    background-image:none!important;
+  }
 
   .main-fortune-nav a:hover,
   .main-fortune-nav a:focus,
-  .main-fortune-nav a.active{
-    background:#faf9ff!important;
+  .main-fortune-nav a.active,
+  .main-fortune-nav a[aria-current="page"]{
     color:#151824!important;
-  }
-
-  .main-fortune-nav a.active:after{left:auto;right:auto;bottom:auto;}
-
-  .main-fortune-nav a::before{
-    content:"";
-    width:34px;
-    height:34px;
-    display:block;
-    flex:0 0 34px;
-    background-position:center;
-    background-repeat:no-repeat;
-    background-size:32px 32px;
-  }
-
-  .main-fortune-nav a:nth-child(1)::before{
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b38d2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 3h8l4 4v14H6z'/%3E%3Cpath d='M14 3v5h5M9 12h6M9 16h4'/%3E%3Ccircle cx='17.5' cy='17.5' r='2.4' fill='white'/%3E%3Cpath d='m19.2 19.2 1.6 1.6'/%3E%3C/svg%3E");
-  }
-  .main-fortune-nav a:nth-child(2)::before{
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b38d2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.4 7.2C6.1 8.6 4 11.1 4 14.6 4 18.7 7.5 21 12 21s8-2.3 8-6.4c0-3.5-2.1-6-4.4-7.4'/%3E%3Cpath d='M8 3h8l-1.7 4H9.7z'/%3E%3Cpath d='M12 10v7M9.8 12.2c.8-.8 3.8-1 4.4.2.6 1.4-1 1.9-2.2 2.1-1.3.2-2.9.7-2.2 2.1.6 1.2 3.6 1 4.4.2'/%3E%3C/svg%3E");
-  }
-  .main-fortune-nav a:nth-child(3)::before,
-  .main-fortune-nav a:nth-child(4)::before{
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b38d2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5.5' width='17' height='15' rx='2'/%3E%3Cpath d='M7 3v5M17 3v5M3.5 10h17'/%3E%3C/svg%3E");
-  }
-  .main-fortune-nav a:nth-child(5)::before{
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b38d2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m12 7.2 1.45 2.94 3.25.47-2.35 2.29.55 3.23L12 14.6l-2.9 1.53.55-3.23-2.35-2.29 3.25-.47z'/%3E%3C/svg%3E");
-  }
-  .main-fortune-nav a:nth-child(6)::before{
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b38d2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 5.8c-2.1-2.2-5.5-2.2-7.6 0L12 7l-1.2-1.2c-2.1-2.2-5.5-2.2-7.6 0-2.2 2.2-2.2 5.7 0 7.9L12 22l8.8-8.3c2.2-2.2 2.2-5.7 0-7.9z'/%3E%3C/svg%3E");
-  }
-
-  .main-fortune-nav a::after{
-    position:static!important;
-    display:block!important;
-    width:auto!important;
-    height:auto!important;
-    margin:1px 0 0!important;
-    background:none!important;
-    color:#69707e!important;
-    font-size:.76rem!important;
-    font-weight:500!important;
-    line-height:1.2!important;
-    letter-spacing:-.025em!important;
-    transform:none!important;
-    opacity:1!important;
+    background:transparent!important;
+    border-bottom:0!important;
+    box-shadow:none!important;
     text-decoration:none!important;
   }
 
-  html[lang="ko"] .main-fortune-nav a:nth-child(1)::after{content:"사주 해석";}
-  html[lang="ko"] .main-fortune-nav a:nth-child(2)::after{content:"재물운 분석";}
-  html[lang="ko"] .main-fortune-nav a:nth-child(3)::after{content:"새해 운세";}
-  html[lang="ko"] .main-fortune-nav a:nth-child(4)::after{content:"이번 달 운세";}
-  html[lang="ko"] .main-fortune-nav a:nth-child(5)::after{content:"오늘의 조언";}
-  html[lang="ko"] .main-fortune-nav a:nth-child(6)::after{content:"궁합 분석";}
-
-  html[lang="en"] .main-fortune-nav a:nth-child(1)::after{content:"Saju reading";}
-  html[lang="en"] .main-fortune-nav a:nth-child(2)::after{content:"Wealth analysis";}
-  html[lang="en"] .main-fortune-nav a:nth-child(3)::after{content:"Yearly fortune";}
-  html[lang="en"] .main-fortune-nav a:nth-child(4)::after{content:"Monthly fortune";}
-  html[lang="en"] .main-fortune-nav a:nth-child(5)::after{content:"Today's guidance";}
-  html[lang="en"] .main-fortune-nav a:nth-child(6)::after{content:"Compatibility";}
-
-  html[lang="ja"] .main-fortune-nav a:nth-child(1)::after{content:"四柱解説";}
-  html[lang="ja"] .main-fortune-nav a:nth-child(2)::after{content:"金運分析";}
-  html[lang="ja"] .main-fortune-nav a:nth-child(3)::after{content:"新年運勢";}
-  html[lang="ja"] .main-fortune-nav a:nth-child(4)::after{content:"今月の運勢";}
-  html[lang="ja"] .main-fortune-nav a:nth-child(5)::after{content:"今日の助言";}
-  html[lang="ja"] .main-fortune-nav a:nth-child(6)::after{content:"相性分析";}
-
-  html[lang="tl"] .main-fortune-nav a:nth-child(1)::after{content:"Saju reading";}
-  html[lang="tl"] .main-fortune-nav a:nth-child(2)::after{content:"Pagsusuri ng pera";}
-  html[lang="tl"] .main-fortune-nav a:nth-child(3)::after{content:"Taunang kapalaran";}
-  html[lang="tl"] .main-fortune-nav a:nth-child(4)::after{content:"Buwanang kapalaran";}
-  html[lang="tl"] .main-fortune-nav a:nth-child(5)::after{content:"Gabay ngayon";}
-  html[lang="tl"] .main-fortune-nav a:nth-child(6)::after{content:"Compatibility";}
-
-  html[lang="vi"] .main-fortune-nav a:nth-child(1)::after{content:"Luận Tứ Trụ";}
-  html[lang="vi"] .main-fortune-nav a:nth-child(2)::after{content:"Phân tích tài lộc";}
-  html[lang="vi"] .main-fortune-nav a:nth-child(3)::after{content:"Vận năm mới";}
-  html[lang="vi"] .main-fortune-nav a:nth-child(4)::after{content:"Vận tháng này";}
-  html[lang="vi"] .main-fortune-nav a:nth-child(5)::after{content:"Gợi ý hôm nay";}
-  html[lang="vi"] .main-fortune-nav a:nth-child(6)::after{content:"Phân tích tương hợp";}
-
+  /* First screen mirrors the desktop composition: generous white space and centered copy. */
   .compact-hero{
-    min-height:0;
-    padding:76px 24px 92px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-    text-align:center;
-    background:#fff;
+    box-sizing:border-box!important;
+    min-height:calc(100svh - 124px)!important;
+    padding:20px 24px 34px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    background:#fff!important;
   }
 
   .compact-hero .eyebrow{
-    margin:0 0 27px;
-    color:#4b38d2;
-    font-size:1rem;
-    font-weight:750;
-    letter-spacing:.16em;
+    margin:0 0 24px!important;
+    color:#4b38d2!important;
+    font-size:.98rem!important;
+    font-weight:800!important;
+    line-height:1.1!important;
+    letter-spacing:.16em!important;
     text-align:center!important;
   }
 
   .compact-hero h1{
-    position:relative;
-    width:100%;
-    max-width:680px;
-    margin:0;
-    padding:0 0 40px;
-    color:#151824;
-    font-size:clamp(2.08rem,9.5vw,2.75rem);
-    font-weight:850;
-    letter-spacing:-.055em;
-    line-height:1.16;
+    position:relative!important;
+    width:100%!important;
+    max-width:680px!important;
+    margin:0!important;
+    padding:0!important;
+    color:#151824!important;
+    font-size:clamp(2.05rem,9.2vw,2.72rem)!important;
+    font-weight:850!important;
+    line-height:1.14!important;
+    letter-spacing:-.055em!important;
     text-align:center!important;
-    white-space:normal;
-    word-break:keep-all;
+    white-space:normal!important;
+    word-break:keep-all!important;
   }
 
-  .compact-hero h1::after{
-    content:"";
-    position:absolute;
-    left:50%;
-    bottom:17px;
-    width:70px;
-    height:2px;
-    background:#4b38d2;
-    transform:translateX(-50%);
-  }
+  .compact-hero h1::after{content:none!important;display:none!important}
 
   .compact-hero .hero-copy{
-    width:100%;
-    max-width:680px;
-    margin:18px auto 0;
-    color:#676d79;
-    font-size:1rem;
-    line-height:1.72;
-    letter-spacing:-.025em;
-    text-align:left!important;
-    word-break:keep-all;
+    width:100%!important;
+    max-width:680px!important;
+    margin:34px auto 0!important;
+    color:#676d79!important;
+    font-size:.98rem!important;
+    line-height:1.7!important;
+    letter-spacing:-.025em!important;
+    text-align:center!important;
+    word-break:keep-all!important;
   }
-
-  .compact-hero .hero-copy::after{
-    display:block;
-    margin-top:0;
-  }
-
-  html[lang="ko"] .compact-hero .hero-copy::after{content:"지금 바로 당신의 운명을 확인해보세요.";}
-  html[lang="en"] .compact-hero .hero-copy::after{content:"Check your destiny now.";}
-  html[lang="ja"] .compact-hero .hero-copy::after{content:"今すぐあなたの運勢を確認してみましょう。";}
-  html[lang="tl"] .compact-hero .hero-copy::after{content:"Tingnan ang iyong kapalaran ngayon.";}
-  html[lang="vi"] .compact-hero .hero-copy::after{content:"Hãy xem vận mệnh của bạn ngay bây giờ.";}
-
-  html,
-  .result-page{
-    scroll-padding-top:18px;
-  }
-
-  #analysis,#wealth,#yearly,#monthly,#today,#compatibility,#connection-map,#talisman{
-    scroll-margin-top:18px;
-  }
+  .compact-hero .hero-copy::after{content:none!important;display:none!important}
 }
 
 @media (max-width:390px){
-  .fortune-header{padding-left:10px;padding-right:10px;}
-  .fortune-header .brand{font-size:1.8rem!important;}
-  .language-switcher{gap:5px!important;}
-  .lang-choice{min-width:35px!important;width:35px!important;height:32px!important;}
-  .main-fortune-nav{margin-top:18px;grid-template-rows:repeat(2,minmax(106px,auto));}
-  .main-fortune-nav a{min-height:106px;font-size:.95rem!important;padding-left:3px;padding-right:3px;}
-  .main-fortune-nav a::before{width:31px;height:31px;flex-basis:31px;background-size:29px 29px;}
-  .main-fortune-nav a::after{font-size:.72rem!important;}
-  .compact-hero{padding:66px 20px 82px;}
-  .compact-hero h1{font-size:clamp(1.92rem,9.2vw,2.45rem);}
-  .compact-hero .hero-copy{font-size:.95rem;}
+  .fortune-header{padding-left:10px!important;padding-right:10px!important}
+  .brand-language-stack{gap:6px!important}
+  .fortune-header .brand,.brand-language-stack .brand{font-size:1rem!important}
+  .lang-choice{width:33px!important;min-width:33px!important;height:29px!important;font-size:1rem!important}
+  .language-switcher,.brand-language-stack .language-switcher{gap:3px!important}
+  .main-fortune-nav{width:calc(100% + 20px)!important;margin-left:-10px!important;margin-right:-10px!important;padding-left:10px!important;padding-right:10px!important;gap:20px!important}
+  .main-fortune-nav a{font-size:.92rem!important}
+  .compact-hero{min-height:calc(100svh - 120px)!important;padding-left:20px!important;padding-right:20px!important}
 }
