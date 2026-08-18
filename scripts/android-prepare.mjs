@@ -28,24 +28,22 @@ function copyTree(src, dst, relative = '') {
 }
 copyTree(root, webDir);
 
-// Android packaged-site parity fix.
-// IMPORTANT: no navbar screenshots/images and no Android-only menu artwork are injected.
-// The app keeps the website's real HTML/CSS navbar. We only guarantee missing routes,
-// Guardian selected-tab state, and the exact approved Guardian sales images used by the website.
+// Android package parity fix.
+// Keep the website navbar as real HTML text. Do not use screenshots, menu images,
+// decorative icons, or subtitle labels in the Android home navbar.
+const androidNavbarStyle = `<style id="android-home-navbar-text-only">
+@media (max-width:780px){
+  .main-fortune-nav a::before,.main-fortune-nav a::after{content:none!important;display:none!important;background:none!important;background-image:none!important}
+  .main-fortune-nav a img,.main-fortune-nav a svg,.main-fortune-nav a small,.main-fortune-nav a .nav-icon,.main-fortune-nav a .nav-subtitle,.main-fortune-nav a [class*="icon"],.main-fortune-nav a [class*="subtitle"]{display:none!important}
+  .main-fortune-nav a{background-image:none!important}
+}
+</style>`;
+
 const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   const directoryRoutes=new Set([
-    '/compatibility',
-    '/compatibility-result',
-    '/connection-map',
-    '/guardian',
-    '/guardian-order',
-    '/guardian-gift',
-    '/guardian-campaigns',
-    '/guardian-gallery',
-    '/guardian-physical-status',
-    '/guardian-verify',
-    '/guardian-story',
-    '/login'
+    '/compatibility','/compatibility-result','/connection-map','/guardian','/guardian-order',
+    '/guardian-gift','/guardian-campaigns','/guardian-gallery','/guardian-physical-status',
+    '/guardian-verify','/guardian-story','/login'
   ]);
 
   const normalizePath=p=>{
@@ -70,12 +68,12 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   };
 
   const labels={
-    ko:{connection:'인연지도',guardian:'가디언',login:'로그인'},
-    en:{connection:'Connection Map',guardian:'Guardian',login:'Login'},
-    ja:{connection:'ご縁マップ',guardian:'ガーディアン',login:'ログイン'},
-    tl:{connection:'Connection Map',guardian:'Guardian',login:'Login'},
-    vi:{connection:'Bản đồ quan hệ',guardian:'Guardian',login:'Đăng nhập'},
-    zh:{connection:'缘分地图',guardian:'Guardian',login:'登录'}
+    ko:{saju:'무료사주',wealth:'금전운',year:'신년운세',month:'월간운세',today:'오늘의 운세',compat:'궁합',connection:'인연지도',guardian:'가디언',login:'로그인'},
+    en:{saju:'Free Saju',wealth:'Money',year:'Year',month:'Month',today:'Today',compat:'Compatibility',connection:'Connection Map',guardian:'Guardian',login:'Login'},
+    ja:{saju:'無料四柱',wealth:'金運',year:'新年運',month:'月運',today:'今日の運勢',compat:'相性',connection:'ご縁マップ',guardian:'ガーディアン',login:'ログイン'},
+    tl:{saju:'Free Saju',wealth:'Pera',year:'Taon',month:'Buwan',today:'Ngayon',compat:'Compatibility',connection:'Connection Map',guardian:'Guardian',login:'Login'},
+    vi:{saju:'Tứ trụ miễn phí',wealth:'Tài vận',year:'Năm',month:'Tháng',today:'Hôm nay',compat:'Hợp tuổi',connection:'Bản đồ quan hệ',guardian:'Guardian',login:'Đăng nhập'},
+    zh:{saju:'免费四柱',wealth:'财运',year:'新年运势',month:'月运',today:'今日运势',compat:'合婚',connection:'缘分地图',guardian:'Guardian',login:'登录'}
   };
 
   const currentLang=()=>{
@@ -89,25 +87,30 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   };
 
   const ensureHomeNavbar=()=>{
-    const path=normalizePath(location.pathname);
-    if(path!=='/')return;
+    if(normalizePath(location.pathname)!=='/')return;
     const nav=document.querySelector('.main-fortune-nav');
     if(!nav)return;
     const t=labels[currentLang()]||labels.ko;
-    const ensure=(match,href,text)=>{
-      let a=[...nav.querySelectorAll('a[href]')].find(el=>String(el.getAttribute('href')||'').includes(match));
-      if(!a){
-        a=document.createElement('a');
-        nav.appendChild(a);
-      }
-      a.href=href;
-      a.textContent=text;
-      return a;
-    };
-    ensure('connection-map','/connection-map/index.html',t.connection);
-    ensure('guardian','/guardian/index.html',t.guardian);
-    ensure('login','/login/index.html',t.login);
-    nav.scrollLeft=0;
+    const wanted=[
+      ['analysis','#analysis',t.saju],['wealth','#wealth',t.wealth],['yearly','#yearly',t.year],
+      ['monthly','#monthly',t.month],['today','#today',t.today],['compatibility','/compatibility/index.html',t.compat],
+      ['connection-map','/connection-map/index.html',t.connection],['guardian','/guardian/index.html',t.guardian],['login','/login/index.html',t.login]
+    ];
+    const existing=[...nav.querySelectorAll('a[href]')];
+    const find=(needle)=>existing.find(a=>{
+      const h=String(a.getAttribute('href')||'');
+      return h.includes(needle)||(needle==='yearly'&&h==='#year')||(needle==='monthly'&&h==='#month');
+    });
+    const ordered=[];
+    wanted.forEach(([needle,href,text])=>{
+      let a=find(needle);
+      if(!a){a=document.createElement('a')}
+      if(a.getAttribute('href')!==href)a.setAttribute('href',href);
+      if(a.textContent.trim()!==text)a.textContent=text;
+      ordered.push(a);
+    });
+    ordered.forEach(a=>nav.appendChild(a));
+    nav.querySelectorAll('a[href]').forEach(a=>{if(!ordered.includes(a))a.remove()});
   };
 
   const guardianTabState=()=>{
@@ -117,89 +120,62 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
     if(!nav)return;
     const archive=path==='/guardian'&&location.hash==='#purpose-guardians';
     nav.querySelectorAll('a[href]').forEach(a=>{
-      let u;
-      try{u=new URL(a.getAttribute('href')||'',location.href)}catch{return}
+      let u; try{u=new URL(a.getAttribute('href')||'',location.href)}catch{return}
       const target=normalizePath(u.pathname);
       const targetArchive=target==='/guardian'&&u.hash==='#purpose-guardians';
       const active=targetArchive?archive:(!archive&&target===path);
       a.classList.toggle('active',active);
-      if(active){
-        a.setAttribute('aria-current','page');
-        a.style.background='#f3f0ff';
-        a.style.color='#3f2fc3';
-        a.style.borderBottom='4px solid #4b38d2';
-      }else{
-        a.removeAttribute('aria-current');
-        a.style.removeProperty('background');
-        a.style.removeProperty('color');
-        a.style.removeProperty('border-bottom');
-      }
+      if(active)a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
     });
   };
 
-  // Force the Android package to use the exact same approved Guardian artwork files as the website.
-  // This replaces emoji/fallback visuals only; it does not introduce any app-only artwork.
   const guardianImageParity=()=>{
     const path=normalizePath(location.pathname);
     if(path!=='/guardian')return;
     const cards=[...document.querySelectorAll('#purpose-guardians .archive-card')].slice(0,4);
     if(!cards.length)return;
-    const art=[
-      '/assets/guardian/sales/guardian-basic-5-hd.webp',
-      '/assets/guardian/sales/guardian-wish-10-hd.webp',
-      '/assets/guardian/sales/guardian-rare-50-hd.webp',
-      '/assets/guardian/sales/guardian-legendary-100-hd.webp'
-    ];
+    const art=['/assets/guardian/sales/guardian-basic-5-hd.webp','/assets/guardian/sales/guardian-wish-10-hd.webp','/assets/guardian/sales/guardian-rare-50-hd.webp','/assets/guardian/sales/guardian-legendary-100-hd.webp'];
     cards.forEach((card,i)=>{
       const box=card.querySelector('.guardian-purpose-visual');
       if(!box||!art[i])return;
-      box.classList.add('guardian-sales-art');
       let img=box.querySelector('img');
-      if(!img){
-        img=document.createElement('img');
-        box.replaceChildren(img);
-      }
-      img.src=art[i];
-      img.alt=(card.querySelector('h3')?.textContent||'Guardian')+' Guardian image';
-      img.style.display='block';
-      img.style.width='100%';
-      img.style.height='100%';
-      img.style.objectFit='contain';
-      img.style.objectPosition='center';
-      img.style.borderRadius='14px';
+      if(!img){img=document.createElement('img');box.replaceChildren(img)}
+      img.src=art[i]; img.alt=(card.querySelector('h3')?.textContent||'Guardian')+' Guardian image';
+      img.style.cssText='display:block;width:100%;height:100%;object-fit:contain;object-position:center;border-radius:14px';
     });
   };
 
   const rewriteAnchors=root=>{
     (root||document).querySelectorAll('a[href]').forEach(a=>{
       const next=explicitBundledHref(a.getAttribute('href'));
-      if(next)a.setAttribute('href',next);
+      if(next&&a.getAttribute('href')!==next)a.setAttribute('href',next);
     });
   };
 
+  let refreshing=false;
   const refresh=()=>{
-    ensureHomeNavbar();
-    rewriteAnchors(document);
-    guardianTabState();
-    guardianImageParity();
+    if(refreshing)return; refreshing=true;
+    ensureHomeNavbar(); rewriteAnchors(document); guardianTabState(); guardianImageParity();
+    refreshing=false;
   };
 
   window.addEventListener('DOMContentLoaded',()=>{
     refresh();
-    setTimeout(refresh,0);
-    setTimeout(refresh,250);
-    setTimeout(refresh,800);
+    [0,100,300,700,1500,3000].forEach(ms=>setTimeout(refresh,ms));
+    const nav=document.querySelector('.main-fortune-nav');
+    if(nav){
+      let timer=0;
+      new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(refresh,30)}).observe(nav,{childList:true,subtree:true,attributes:true,attributeFilter:['href','class']});
+    }
   });
-  window.addEventListener('hashchange',()=>setTimeout(()=>{guardianTabState();guardianImageParity();},0));
+  window.addEventListener('hashchange',()=>setTimeout(refresh,0));
 
   document.addEventListener('click',e=>{
     const a=e.target&&e.target.closest?e.target.closest('a[href]'):null;
     if(!a)return;
     const next=explicitBundledHref(a.getAttribute('href'));
     if(!next)return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    location.assign(next);
+    e.preventDefault(); e.stopImmediatePropagation(); location.assign(next);
   },true);
 })();</script>`;
 
@@ -207,8 +183,10 @@ function patchHtml(filePath){
   if(!fs.existsSync(filePath))return;
   let html=fs.readFileSync(filePath,'utf8');
   html=html.replace(/<style id="android-nav-hotfix">[\s\S]*?<\/style>\s*/g,'');
+  html=html.replace(/<style id="android-home-navbar-text-only">[\s\S]*?<\/style>\s*/g,'');
   html=html.replace(/<script id="android-nav-hotfix-script">[\s\S]*?<\/script>\s*/g,'');
   html=html.replace(/<script id="android-bundled-route-fix">[\s\S]*?<\/script>\s*/g,'');
+  html=html.replace('</head>',androidNavbarStyle+'\n</head>');
   html=html.replace('</body>',androidRouteFixScript+'\n</body>');
   fs.writeFileSync(filePath,html);
 }
@@ -222,15 +200,6 @@ function patchAllHtml(dir){
 }
 patchAllHtml(webDir);
 
-const config = {
-  appId,
-  appName: 'Lumen Destiny',
-  webDir: 'www',
-  bundledWebRuntime: false,
-  android: {
-    allowMixedContent: false,
-    captureInput: true
-  }
-};
-fs.writeFileSync(path.join(root, 'capacitor.config.json'), JSON.stringify(config, null, 2) + '\n');
-console.log(`Prepared Capacitor web assets for ${appId} with website navbar, complete routes, Guardian state, and Guardian image parity`);
+const config={appId,appName:'Lumen Destiny',webDir:'www',bundledWebRuntime:false,android:{allowMixedContent:false,captureInput:true}};
+fs.writeFileSync(path.join(root,'capacitor.config.json'),JSON.stringify(config,null,2)+'\n');
+console.log(`Prepared Capacitor assets with text-only website navbar and complete Android routes for ${appId}`);
