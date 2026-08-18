@@ -97,3 +97,5 @@ jobs:
           name: lumen-destiny-release-aab-v3
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
+
+# Trigger V3 closed-test build after Android navigation hotfix.
