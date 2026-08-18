@@ -29,9 +29,8 @@ function copyTree(src, dst, relative = '') {
 copyTree(root, webDir);
 
 // Android packaged-site navigation fix.
-// Keep the exact website navbar/visual structure. Do not inject Android-only menu items,
-// icons, grid rules, or active-state styling. Only translate directory routes to explicit
-// bundled index.html files so Capacitor does not fall back to the home page.
+// Preserve the website's original navbar markup and styling. The only Android-specific
+// behavior here is resolving app navigation to files that physically exist in the AAB.
 const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   const directoryRoutes=new Set([
     '/compatibility',
@@ -49,13 +48,23 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   ]);
 
   const normalizePath=p=>{
-    let out=String(p||'/').replace(/\\/index\\.html$/,'').replace(/\\.html$/,'');
-    if(out.length>1)out=out.replace(/\\/$/,'');
+    let out=String(p||'/');
+    if(out.endsWith('/index.html'))out=out.slice(0,-11);
+    else if(out.endsWith('.html'))out=out.slice(0,-5);
+    if(out.length>1&&out.endsWith('/'))out=out.slice(0,-1);
     return out||'/';
   };
 
   const explicitBundledHref=raw=>{
-    if(!raw||raw.startsWith('#')||raw.startsWith('mailto:')||raw.startsWith('tel:')||raw.startsWith('javascript:'))return null;
+    if(!raw)return null;
+
+    // On the website these two header links are same-page anchors. Inside the packaged
+    // Android app they must open their actual service pages instead of returning to/scrolling
+    // the home document.
+    if(raw==='#compatibility')return '/compatibility/index.html';
+    if(raw==='#connection-map')return '/connection-map/index.html';
+
+    if(raw.startsWith('#')||raw.startsWith('mailto:')||raw.startsWith('tel:')||raw.startsWith('javascript:'))return null;
     let u;
     try{u=new URL(raw,location.href)}catch{return null}
     if(u.origin!==location.origin)return null;
@@ -71,15 +80,14 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
     });
   };
 
-  // Run after the site's deferred navigation/i18n scripts have finished their DOM updates.
+  // Site scripts are deferred and may rewrite the links once. Run after they finish too.
   window.addEventListener('DOMContentLoaded',()=>{
     rewriteAnchors(document);
     setTimeout(()=>rewriteAnchors(document),0);
     setTimeout(()=>rewriteAnchors(document),250);
   });
 
-  // Capture navigation before any older page script can normalize a directory route back
-  // to a path that Capacitor serves as the home page.
+  // Capture first so older navigation handlers cannot send a packaged route back to '/'.
   document.addEventListener('click',e=>{
     const a=e.target&&e.target.closest?e.target.closest('a[href]'):null;
     if(!a)return;
@@ -94,11 +102,8 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
 function patchHtml(filePath){
   if(!fs.existsSync(filePath))return;
   let html=fs.readFileSync(filePath,'utf8');
-  // Remove the previous Android-only visual/navigation hotfix if present in generated assets.
-  html=html.replace(/<style id="android-nav-hotfix">[\\s\\S]*?<\\/style>\\s*/g,'');
-  html=html.replace(/<script id="android-nav-hotfix-script">[\\s\\S]*?<\\/script>\\s*/g,'');
   if(!html.includes('android-bundled-route-fix')){
-    html=html.replace('</body>',androidRouteFixScript+'\\n</body>');
+    html=html.replace('</body>',androidRouteFixScript+'\n</body>');
   }
   fs.writeFileSync(filePath,html);
 }
