@@ -125,9 +125,6 @@
   };
   const stableHrefPath=p=>{
     const normalized=stablePath(p);
-    // Capacitor's bundled static server resolves directory pages reliably with
-    // a trailing slash (e.g. /guardian/ -> /guardian/index.html). Without it,
-    // Android can fall back to the root index and make navigation look stuck.
     return normalized!=='/'&&stable.has(normalized)?normalized+'/':normalized;
   };
 
@@ -150,17 +147,33 @@
         ['/guardian-physical-status',labels[3]],
         ['/guardian-verify',labels[4]]
       ];
+      const syncGuardianActive=()=>{
+        const currentPath=stablePath(location.pathname);
+        const archiveActive=currentPath==='/guardian'&&location.hash==='#purpose-guardians';
+        nav.querySelectorAll('a').forEach(a=>{
+          a.classList.remove('active');
+          a.removeAttribute('aria-current');
+          const href=a.getAttribute('href')||'';
+          const u=new URL(href,location.origin);
+          const path=stablePath(u.pathname);
+          const isArchive=u.hash==='#purpose-guardians';
+          const active=isArchive?archiveActive:(!archiveActive&&path===currentPath);
+          if(active){
+            a.classList.add('active');
+            a.setAttribute('aria-current','page');
+          }
+        });
+      };
       nav.innerHTML='';
       items.forEach(([href,text])=>{
         const a=document.createElement('a');
         a.href=href;
         a.textContent=text;
-        if(!href.includes('#')&&stablePath(location.pathname)===href){
-          a.classList.add('active');
-          a.setAttribute('aria-current','page');
-        }
+        a.addEventListener('click',()=>requestAnimationFrame(syncGuardianActive));
         nav.appendChild(a);
       });
+      syncGuardianActive();
+      window.addEventListener('hashchange',syncGuardianActive);
     }else{
       const map=[
         ['a[href*="#analysis"]','saju'],
