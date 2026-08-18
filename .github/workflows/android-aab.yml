@@ -98,4 +98,4 @@ jobs:
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
-# Trigger V5 build after navbar parity and missing-route fix.
+# Trigger V5 rebuild after Guardian active-tab underline/background fix.
