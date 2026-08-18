@@ -123,6 +123,13 @@
     p=p.replace(/\.html$/,'').replace(/\/$/,'');
     return stable.has(p)?p:p||'/';
   };
+  const stableHrefPath=p=>{
+    const normalized=stablePath(p);
+    // Capacitor's bundled static server resolves directory pages reliably with
+    // a trailing slash (e.g. /guardian/ -> /guardian/index.html). Without it,
+    // Android can fall back to the root index and make navigation look stuck.
+    return normalized!=='/'&&stable.has(normalized)?normalized+'/':normalized;
+  };
 
   if(nav){
     nav.querySelectorAll('a[href*="consult"]').forEach(a=>a.remove());
@@ -200,7 +207,7 @@
       if(!raw||raw.startsWith('#')||raw.startsWith('mailto:')||raw.startsWith('tel:')||raw.startsWith('http'))return;
       const u=new URL(raw,location.origin);
       if(u.origin!==location.origin)return;
-      u.pathname=stablePath(u.pathname);
+      u.pathname=stableHrefPath(u.pathname);
       u.searchParams.set('lang',lang);
       a.setAttribute('href',u.pathname+u.search+u.hash);
     }catch{}
