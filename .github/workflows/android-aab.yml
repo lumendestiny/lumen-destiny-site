@@ -98,4 +98,4 @@ jobs:
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
-# Trigger V5 closed-test build.
+# Trigger V5 rebuild: text-only home navbar, restored Connection Map / Guardian / Login.
