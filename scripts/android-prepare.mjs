@@ -29,8 +29,9 @@ function copyTree(src, dst, relative = '') {
 copyTree(root, webDir);
 
 // Android packaged-site navigation fix.
-// Preserve the website's original navbar markup and styling. The only Android-specific
-// behavior here is resolving app navigation to files that physically exist in the AAB.
+// IMPORTANT: no navbar screenshots/images and no Android-only visual CSS are injected.
+// The app keeps the website's real HTML/CSS navbar. We only guarantee the missing menu
+// entries exist and map directory routes to index.html files physically bundled in the AAB.
 const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   const directoryRoutes=new Set([
     '/compatibility',
@@ -57,13 +58,8 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
 
   const explicitBundledHref=raw=>{
     if(!raw)return null;
-
-    // On the website these two header links are same-page anchors. Inside the packaged
-    // Android app they must open their actual service pages instead of returning to/scrolling
-    // the home document.
     if(raw==='#compatibility')return '/compatibility/index.html';
     if(raw==='#connection-map')return '/connection-map/index.html';
-
     if(raw.startsWith('#')||raw.startsWith('mailto:')||raw.startsWith('tel:')||raw.startsWith('javascript:'))return null;
     let u;
     try{u=new URL(raw,location.href)}catch{return null}
@@ -73,6 +69,49 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
     return normalized+'/index.html'+u.search+u.hash;
   };
 
+  const labels={
+    ko:{connection:'인연지도',guardian:'가디언',login:'로그인'},
+    en:{connection:'Connection Map',guardian:'Guardian',login:'Login'},
+    ja:{connection:'ご縁マップ',guardian:'ガーディアン',login:'ログイン'},
+    tl:{connection:'Connection Map',guardian:'Guardian',login:'Login'},
+    vi:{connection:'Bản đồ quan hệ',guardian:'Guardian',login:'Đăng nhập'},
+    zh:{connection:'缘分地图',guardian:'Guardian',login:'登录'}
+  };
+
+  const currentLang=()=>{
+    let value=String(localStorage.getItem('lumen-lang')||document.documentElement.lang||'ko').toLowerCase();
+    if(value.startsWith('zh'))return 'zh';
+    if(value.startsWith('ja'))return 'ja';
+    if(value.startsWith('vi'))return 'vi';
+    if(value.startsWith('tl')||value.startsWith('fil'))return 'tl';
+    if(value.startsWith('en'))return 'en';
+    return 'ko';
+  };
+
+  const ensureHomeNavbar=()=>{
+    const path=normalizePath(location.pathname);
+    if(path!=='/')return;
+    const nav=document.querySelector('.main-fortune-nav');
+    if(!nav)return;
+    const t=labels[currentLang()]||labels.ko;
+    const ensure=(match,href,text)=>{
+      let a=[...nav.querySelectorAll('a[href]')].find(el=>String(el.getAttribute('href')||'').includes(match));
+      if(!a){
+        a=document.createElement('a');
+        nav.appendChild(a);
+      }
+      a.href=href;
+      a.textContent=text;
+      return a;
+    };
+    // Keep existing website items unchanged; only guarantee these three missing items.
+    ensure('connection-map','/connection-map/index.html',t.connection);
+    ensure('guardian','/guardian/index.html',t.guardian);
+    ensure('login','/login/index.html',t.login);
+    // Website first view always begins from the first menu item, not a remembered middle position.
+    nav.scrollLeft=0;
+  };
+
   const rewriteAnchors=root=>{
     (root||document).querySelectorAll('a[href]').forEach(a=>{
       const next=explicitBundledHref(a.getAttribute('href'));
@@ -80,14 +119,19 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
     });
   };
 
-  // Site scripts are deferred and may rewrite the links once. Run after they finish too.
-  window.addEventListener('DOMContentLoaded',()=>{
+  const refresh=()=>{
+    ensureHomeNavbar();
     rewriteAnchors(document);
-    setTimeout(()=>rewriteAnchors(document),0);
-    setTimeout(()=>rewriteAnchors(document),250);
+  };
+
+  window.addEventListener('DOMContentLoaded',()=>{
+    refresh();
+    setTimeout(refresh,0);
+    setTimeout(refresh,250);
+    setTimeout(refresh,800);
   });
 
-  // Capture first so older navigation handlers cannot send a packaged route back to '/'.
+  // Capture packaged routes before older site handlers can normalize them to '/'.
   document.addEventListener('click',e=>{
     const a=e.target&&e.target.closest?e.target.closest('a[href]'):null;
     if(!a)return;
@@ -102,9 +146,11 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
 function patchHtml(filePath){
   if(!fs.existsSync(filePath))return;
   let html=fs.readFileSync(filePath,'utf8');
-  if(!html.includes('android-bundled-route-fix')){
-    html=html.replace('</body>',androidRouteFixScript+'\n</body>');
-  }
+  // Remove any old Android-only navbar appearance overrides from generated assets.
+  html=html.replace(/<style id="android-nav-hotfix">[\s\S]*?<\/style>\s*/g,'');
+  html=html.replace(/<script id="android-nav-hotfix-script">[\s\S]*?<\/script>\s*/g,'');
+  html=html.replace(/<script id="android-bundled-route-fix">[\s\S]*?<\/script>\s*/g,'');
+  html=html.replace('</body>',androidRouteFixScript+'\n</body>');
   fs.writeFileSync(filePath,html);
 }
 
@@ -128,4 +174,4 @@ const config = {
   }
 };
 fs.writeFileSync(path.join(root, 'capacitor.config.json'), JSON.stringify(config, null, 2) + '\n');
-console.log(`Prepared Capacitor web assets for ${appId} with explicit bundled routes and original website navbar`);
+console.log(`Prepared Capacitor web assets for ${appId} with website navbar and complete Android routes`);
