@@ -98,4 +98,4 @@ jobs:
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
-# Trigger V7 rebuild: Connection Map active navigation underline fixed to exactly one line on mobile web and Android app.
+# Trigger V7 rebuild: login header flags aligned immediately beside Lumen Destiny brand on mobile web and Android app.
