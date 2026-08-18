@@ -1,8 +1,5 @@
-/* 2026-08-16: Connection Map header must match the Compatibility header exactly. */
+/* 2026-08-18: Connection Map header must match the Compatibility header exactly. */
 
-/* Compatibility/fortune-ui desktop header geometry.  The explicit min-width is
-   important because header-language-v2 uses a 270px grid column; without it the
-   Korean brand can shrink to one syllable per line. */
 body.connection-map-page .brand-language-stack{
   display:flex!important;
   flex-direction:row!important;
@@ -29,7 +26,6 @@ body.connection-map-page .language-switcher{
   min-width:max-content!important;
 }
 
-/* Use the exact Compatibility navigation cell treatment. */
 body.connection-map-page .main-fortune-nav{
   display:flex!important;
   gap:0!important;
@@ -46,6 +42,11 @@ body.connection-map-page .main-fortune-nav a{
   white-space:nowrap!important;
   background:transparent;
   transition:background .18s ease,color .18s ease!important;
+  border:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+  text-decoration:none!important;
+  background-image:none!important;
 }
 body.connection-map-page .main-fortune-nav a:hover{
   color:#4b38d2!important;
@@ -55,6 +56,17 @@ body.connection-map-page .main-fortune-nav a.active,
 body.connection-map-page .main-fortune-nav a[aria-current="page"]{
   color:#4b38d2!important;
   background:#f1efff!important;
+  border:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+  text-decoration:none!important;
+  background-image:none!important;
+}
+/* Eliminate every inherited underline source first, then draw exactly one line. */
+body.connection-map-page .main-fortune-nav a::before{
+  border:0!important;
+  box-shadow:none!important;
+  text-decoration:none!important;
 }
 body.connection-map-page .main-fortune-nav a.active::after,
 body.connection-map-page .main-fortune-nav a[aria-current="page"]::after{
@@ -63,8 +75,15 @@ body.connection-map-page .main-fortune-nav a[aria-current="page"]::after{
   left:15px!important;
   right:15px!important;
   bottom:0!important;
+  width:auto!important;
   height:3px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
   background:#4b38d2!important;
+  box-shadow:none!important;
+  transform:none!important;
   display:block!important;
 }
 
@@ -108,10 +127,21 @@ body.connection-map-page .main-fortune-nav a[aria-current="page"]::after{
   body.connection-map-page .main-fortune-nav a{
     height:50px!important;
     padding:0 12px!important;
+    border:0!important;
+    border-bottom:0!important;
+    box-shadow:none!important;
+  }
+  body.connection-map-page .main-fortune-nav a.active,
+  body.connection-map-page .main-fortune-nav a[aria-current="page"]{
+    border:0!important;
+    border-bottom:0!important;
+    box-shadow:none!important;
   }
   body.connection-map-page .main-fortune-nav a.active::after,
   body.connection-map-page .main-fortune-nav a[aria-current="page"]::after{
     left:10px!important;
     right:10px!important;
+    bottom:0!important;
+    height:3px!important;
   }
 }
