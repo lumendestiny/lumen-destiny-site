@@ -28,14 +28,24 @@ function copyTree(src, dst, relative = '') {
 }
 copyTree(root, webDir);
 
-// Android package parity fix.
-// Keep the website navbar as real HTML text. Do not use screenshots, menu images,
-// decorative icons, or subtitle labels in the Android home navbar.
+// Android-only presentation polish. Keep real website HTML; no screenshot/image navbar.
 const androidNavbarStyle = `<style id="android-home-navbar-text-only">
 @media (max-width:780px){
+  /* Header/brand/flags: one compact row on every page, including login. */
+  .site-header.fortune-header{padding:10px 14px!important;min-height:auto!important;align-items:center!important}
+  .brand-language-stack{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;width:100%!important;flex-wrap:nowrap!important}
+  .brand-language-stack .brand,.site-header .brand{display:inline-flex!important;align-items:center!important;flex:0 0 auto!important;margin:0!important;padding:0!important;font-size:1.05rem!important;line-height:1.15!important;white-space:nowrap!important}
+  .brand-language-stack .language-switcher{display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;margin:0!important;padding:0!important;flex-wrap:nowrap!important}
+  .brand-language-stack .language-switcher .lang-choice{margin:0!important;flex:0 0 auto!important}
+
+  /* Text-only home navigation: remove icon art and subtitle/helper copy. */
   .main-fortune-nav a::before,.main-fortune-nav a::after{content:none!important;display:none!important;background:none!important;background-image:none!important}
-  .main-fortune-nav a img,.main-fortune-nav a svg,.main-fortune-nav a small,.main-fortune-nav a .nav-icon,.main-fortune-nav a .nav-subtitle,.main-fortune-nav a [class*="icon"],.main-fortune-nav a [class*="subtitle"]{display:none!important}
-  .main-fortune-nav a{background-image:none!important}
+  .main-fortune-nav a img,.main-fortune-nav a svg,.main-fortune-nav a small,.main-fortune-nav a .nav-icon,.main-fortune-nav a .nav-subtitle,.main-fortune-nav a [class*="icon"],.main-fortune-nav a [class*="subtitle"],.main-fortune-nav a [class*="indicator"]{display:none!important}
+  .main-fortune-nav a{background-image:none!important;box-shadow:none!important;outline:none!important;border-bottom:4px solid transparent!important;text-decoration:none!important}
+  .main-fortune-nav a.active,.main-fortune-nav a[aria-current="page"]{border-bottom:4px solid #4b38d2!important;box-shadow:none!important;text-decoration:none!important}
+
+  /* Prevent any secondary underline rendered by nav containers or child elements. */
+  .main-fortune-nav a.active>*,.main-fortune-nav a[aria-current="page"]>*{border-bottom:0!important;box-shadow:none!important;text-decoration:none!important}
 }
 </style>`;
 
@@ -202,4 +212,4 @@ patchAllHtml(webDir);
 
 const config={appId,appName:'Lumen Destiny',webDir:'www',bundledWebRuntime:false,android:{allowMixedContent:false,captureInput:true}};
 fs.writeFileSync(path.join(root,'capacitor.config.json'),JSON.stringify(config,null,2)+'\n');
-console.log(`Prepared Capacitor assets with text-only website navbar and complete Android routes for ${appId}`);
+console.log(`Prepared Capacitor assets with compact one-row header, single nav underline, and complete Android routes for ${appId}`);
