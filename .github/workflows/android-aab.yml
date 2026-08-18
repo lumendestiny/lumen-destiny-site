@@ -97,3 +97,5 @@ jobs:
           name: lumen-destiny-release-aab-v4
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
+
+# Trigger corrected V4 build after bundled-route syntax repair.
