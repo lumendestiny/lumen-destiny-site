@@ -31,20 +31,16 @@ copyTree(root, webDir);
 // Android-only presentation polish. Keep real website HTML; no screenshot/image navbar.
 const androidNavbarStyle = `<style id="android-home-navbar-text-only">
 @media (max-width:780px){
-  /* Header/brand/flags: one compact row on every page, including login. */
   .site-header.fortune-header{padding:10px 14px!important;min-height:auto!important;align-items:center!important}
   .brand-language-stack{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;width:100%!important;flex-wrap:nowrap!important}
   .brand-language-stack .brand,.site-header .brand{display:inline-flex!important;align-items:center!important;flex:0 0 auto!important;margin:0!important;padding:0!important;font-size:1.05rem!important;line-height:1.15!important;white-space:nowrap!important}
   .brand-language-stack .language-switcher{display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;margin:0!important;padding:0!important;flex-wrap:nowrap!important}
   .brand-language-stack .language-switcher .lang-choice{margin:0!important;flex:0 0 auto!important}
 
-  /* Text-only home navigation: remove icon art and subtitle/helper copy. */
   .main-fortune-nav a::before,.main-fortune-nav a::after{content:none!important;display:none!important;background:none!important;background-image:none!important}
   .main-fortune-nav a img,.main-fortune-nav a svg,.main-fortune-nav a small,.main-fortune-nav a .nav-icon,.main-fortune-nav a .nav-subtitle,.main-fortune-nav a [class*="icon"],.main-fortune-nav a [class*="subtitle"],.main-fortune-nav a [class*="indicator"]{display:none!important}
   .main-fortune-nav a{background-image:none!important;box-shadow:none!important;outline:none!important;border-bottom:4px solid transparent!important;text-decoration:none!important}
   .main-fortune-nav a.active,.main-fortune-nav a[aria-current="page"]{border-bottom:4px solid #4b38d2!important;box-shadow:none!important;text-decoration:none!important}
-
-  /* Prevent any secondary underline rendered by nav containers or child elements. */
   .main-fortune-nav a.active>*,.main-fortune-nav a[aria-current="page"]>*{border-bottom:0!important;box-shadow:none!important;text-decoration:none!important}
 }
 </style>`;
@@ -123,6 +119,18 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
     nav.querySelectorAll('a[href]').forEach(a=>{if(!ordered.includes(a))a.remove()});
   };
 
+  const stabilizeAndroidTextInputs=()=>{
+    const name=document.querySelector('#userName');
+    if(name){
+      name.maxLength=20;
+      name.setAttribute('maxlength','20');
+      name.setAttribute('inputmode','text');
+      name.setAttribute('autocomplete','name');
+      name.style.webkitUserSelect='text';
+      name.style.userSelect='text';
+    }
+  };
+
   const guardianTabState=()=>{
     const path=normalizePath(location.pathname);
     if(!path.startsWith('/guardian'))return;
@@ -165,7 +173,7 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   let refreshing=false;
   const refresh=()=>{
     if(refreshing)return; refreshing=true;
-    ensureHomeNavbar(); rewriteAnchors(document); guardianTabState(); guardianImageParity();
+    ensureHomeNavbar(); stabilizeAndroidTextInputs(); rewriteAnchors(document); guardianTabState(); guardianImageParity();
     refreshing=false;
   };
 
@@ -210,6 +218,8 @@ function patchAllHtml(dir){
 }
 patchAllHtml(webDir);
 
-const config={appId,appName:'Lumen Destiny',webDir:'www',bundledWebRuntime:false,android:{allowMixedContent:false,captureInput:true}};
+// Do not enable Capacitor's native input capture. Android IME composition (especially Korean Hangul)
+// must stay under the WebView so multi-syllable names are not cut after the composing characters.
+const config={appId,appName:'Lumen Destiny',webDir:'www',bundledWebRuntime:false,android:{allowMixedContent:false,captureInput:false}};
 fs.writeFileSync(path.join(root,'capacitor.config.json'),JSON.stringify(config,null,2)+'\n');
-console.log(`Prepared Capacitor assets with compact one-row header, single nav underline, and complete Android routes for ${appId}`);
+console.log(`Prepared Capacitor assets with Android IME-safe text input, compact header, and complete routes for ${appId}`);
