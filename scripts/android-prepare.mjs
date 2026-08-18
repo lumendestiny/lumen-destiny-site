@@ -29,9 +29,10 @@ function copyTree(src, dst, relative = '') {
 copyTree(root, webDir);
 
 // Android packaged-site navigation fix.
-// IMPORTANT: no navbar screenshots/images and no Android-only visual CSS are injected.
+// IMPORTANT: no navbar screenshots/images and no Android-only menu artwork are injected.
 // The app keeps the website's real HTML/CSS navbar. We only guarantee the missing menu
-// entries exist and map directory routes to index.html files physically bundled in the AAB.
+// entries exist, map directory routes to bundled index.html files, and keep the Guardian
+// selected-tab state visually consistent with the website (background + underline).
 const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   const directoryRoutes=new Set([
     '/compatibility',
@@ -104,12 +105,37 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
       a.textContent=text;
       return a;
     };
-    // Keep existing website items unchanged; only guarantee these three missing items.
     ensure('connection-map','/connection-map/index.html',t.connection);
     ensure('guardian','/guardian/index.html',t.guardian);
     ensure('login','/login/index.html',t.login);
-    // Website first view always begins from the first menu item, not a remembered middle position.
     nav.scrollLeft=0;
+  };
+
+  const guardianTabState=()=>{
+    const path=normalizePath(location.pathname);
+    if(!path.startsWith('/guardian'))return;
+    const nav=document.querySelector('.main-fortune-nav');
+    if(!nav)return;
+    const archive=path==='/guardian'&&location.hash==='#purpose-guardians';
+    nav.querySelectorAll('a[href]').forEach(a=>{
+      let u;
+      try{u=new URL(a.getAttribute('href')||'',location.href)}catch{return}
+      const target=normalizePath(u.pathname);
+      const targetArchive=target==='/guardian'&&u.hash==='#purpose-guardians';
+      const active=targetArchive?archive:(!archive&&target===path);
+      a.classList.toggle('active',active);
+      if(active){
+        a.setAttribute('aria-current','page');
+        a.style.background='#f3f0ff';
+        a.style.color='#3f2fc3';
+        a.style.borderBottom='4px solid #4b38d2';
+      }else{
+        a.removeAttribute('aria-current');
+        a.style.removeProperty('background');
+        a.style.removeProperty('color');
+        a.style.removeProperty('border-bottom');
+      }
+    });
   };
 
   const rewriteAnchors=root=>{
@@ -122,6 +148,7 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   const refresh=()=>{
     ensureHomeNavbar();
     rewriteAnchors(document);
+    guardianTabState();
   };
 
   window.addEventListener('DOMContentLoaded',()=>{
@@ -130,8 +157,8 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
     setTimeout(refresh,250);
     setTimeout(refresh,800);
   });
+  window.addEventListener('hashchange',()=>setTimeout(guardianTabState,0));
 
-  // Capture packaged routes before older site handlers can normalize them to '/'.
   document.addEventListener('click',e=>{
     const a=e.target&&e.target.closest?e.target.closest('a[href]'):null;
     if(!a)return;
@@ -146,7 +173,6 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
 function patchHtml(filePath){
   if(!fs.existsSync(filePath))return;
   let html=fs.readFileSync(filePath,'utf8');
-  // Remove any old Android-only navbar appearance overrides from generated assets.
   html=html.replace(/<style id="android-nav-hotfix">[\s\S]*?<\/style>\s*/g,'');
   html=html.replace(/<script id="android-nav-hotfix-script">[\s\S]*?<\/script>\s*/g,'');
   html=html.replace(/<script id="android-bundled-route-fix">[\s\S]*?<\/script>\s*/g,'');
@@ -174,4 +200,4 @@ const config = {
   }
 };
 fs.writeFileSync(path.join(root, 'capacitor.config.json'), JSON.stringify(config, null, 2) + '\n');
-console.log(`Prepared Capacitor web assets for ${appId} with website navbar and complete Android routes`);
+console.log(`Prepared Capacitor web assets for ${appId} with website navbar, complete Android routes, and Guardian active-tab state`);
