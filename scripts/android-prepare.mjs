@@ -28,11 +28,10 @@ function copyTree(src, dst, relative = '') {
 }
 copyTree(root, webDir);
 
-// Android packaged-site navigation fix.
+// Android packaged-site parity fix.
 // IMPORTANT: no navbar screenshots/images and no Android-only menu artwork are injected.
-// The app keeps the website's real HTML/CSS navbar. We only guarantee the missing menu
-// entries exist, map directory routes to bundled index.html files, and keep the Guardian
-// selected-tab state visually consistent with the website (background + underline).
+// The app keeps the website's real HTML/CSS navbar. We only guarantee missing routes,
+// Guardian selected-tab state, and the exact approved Guardian sales images used by the website.
 const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
   const directoryRoutes=new Set([
     '/compatibility',
@@ -138,6 +137,39 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
     });
   };
 
+  // Force the Android package to use the exact same approved Guardian artwork files as the website.
+  // This replaces emoji/fallback visuals only; it does not introduce any app-only artwork.
+  const guardianImageParity=()=>{
+    const path=normalizePath(location.pathname);
+    if(path!=='/guardian')return;
+    const cards=[...document.querySelectorAll('#purpose-guardians .archive-card')].slice(0,4);
+    if(!cards.length)return;
+    const art=[
+      '/assets/guardian/sales/guardian-basic-5-hd.webp',
+      '/assets/guardian/sales/guardian-wish-10-hd.webp',
+      '/assets/guardian/sales/guardian-rare-50-hd.webp',
+      '/assets/guardian/sales/guardian-legendary-100-hd.webp'
+    ];
+    cards.forEach((card,i)=>{
+      const box=card.querySelector('.guardian-purpose-visual');
+      if(!box||!art[i])return;
+      box.classList.add('guardian-sales-art');
+      let img=box.querySelector('img');
+      if(!img){
+        img=document.createElement('img');
+        box.replaceChildren(img);
+      }
+      img.src=art[i];
+      img.alt=(card.querySelector('h3')?.textContent||'Guardian')+' Guardian image';
+      img.style.display='block';
+      img.style.width='100%';
+      img.style.height='100%';
+      img.style.objectFit='contain';
+      img.style.objectPosition='center';
+      img.style.borderRadius='14px';
+    });
+  };
+
   const rewriteAnchors=root=>{
     (root||document).querySelectorAll('a[href]').forEach(a=>{
       const next=explicitBundledHref(a.getAttribute('href'));
@@ -149,6 +181,7 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
     ensureHomeNavbar();
     rewriteAnchors(document);
     guardianTabState();
+    guardianImageParity();
   };
 
   window.addEventListener('DOMContentLoaded',()=>{
@@ -157,7 +190,7 @@ const androidRouteFixScript = `<script id="android-bundled-route-fix">(()=>{
     setTimeout(refresh,250);
     setTimeout(refresh,800);
   });
-  window.addEventListener('hashchange',()=>setTimeout(guardianTabState,0));
+  window.addEventListener('hashchange',()=>setTimeout(()=>{guardianTabState();guardianImageParity();},0));
 
   document.addEventListener('click',e=>{
     const a=e.target&&e.target.closest?e.target.closest('a[href]'):null;
@@ -200,4 +233,4 @@ const config = {
   }
 };
 fs.writeFileSync(path.join(root, 'capacitor.config.json'), JSON.stringify(config, null, 2) + '\n');
-console.log(`Prepared Capacitor web assets for ${appId} with website navbar, complete Android routes, and Guardian active-tab state`);
+console.log(`Prepared Capacitor web assets for ${appId} with website navbar, complete routes, Guardian state, and Guardian image parity`);
