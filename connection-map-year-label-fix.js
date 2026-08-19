@@ -15,6 +15,9 @@ const fix=()=>{
 };
 const PROFILE_KEY='lumen-connection-profile-v1';
 const ELEMENTS=['목','화','토','금','수'];
+const PUBLIC_ORIGIN='https://lumendestiny.com';
+const isBundledApp=()=>location.hostname==='localhost'||location.protocol==='capacitor:'||location.protocol==='file:'||!!window.Capacitor?.isNativePlatform?.();
+const apiUrl=path=>isBundledApp()?PUBLIC_ORIGIN+path:path;
 const readProfile=()=>{try{return JSON.parse(localStorage.getItem(PROFILE_KEY)||'null')}catch{return null}};
 const weakest=elements=>{if(!elements)return[];const values=ELEMENTS.map(k=>Number(elements[k]||0)),min=Math.min(...values);return ELEMENTS.filter(k=>Number(elements[k]||0)===min)};
 function injectInviteStyles(){
@@ -38,10 +41,10 @@ function injectInviteCard(){
     if(!profile?.name||!profile?.elements){status.textContent='먼저 위에서 “나의 오행 기준 계산”을 완료해 주세요.';document.getElementById('saveProfile')?.scrollIntoView({behavior:'smooth',block:'center'});return}
     createBtn.disabled=true;createBtn.textContent='초대 링크 만드는 중…';status.textContent='';
     try{
-      const res=await fetch('/api/lumen-link/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({inviterLabel:profile.name,elements:profile.elements,weakest:weakest(profile.elements)})});
+      const res=await fetch(apiUrl('/api/lumen-link/create'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({inviterLabel:profile.name,elements:profile.elements,weakest:weakest(profile.elements)})});
       const data=await res.json().catch(()=>({}));
       if(!res.ok||!data?.ok||!data?.invite?.token){if(data?.error==='link_not_enabled')throw Error('초대 기능이 아직 서버에서 활성화되지 않았습니다. 배포 설정에서 LUMEN_LINK_ENABLED를 확인해 주세요.');throw Error('초대 링크를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.')}
-      currentUrl=`${location.origin}/link/${encodeURIComponent(data.invite.token)}`;
+      currentUrl=`${PUBLIC_ORIGIN}/link/${encodeURIComponent(data.invite.token)}`;
       linkBox.textContent=currentUrl;linkBox.hidden=false;copyBtn.hidden=false;status.textContent='초대 링크가 만들어졌습니다.';
       await share(currentUrl,profile.name);
     }catch(e){status.textContent=e.message||'초대 링크 생성 중 오류가 발생했습니다.'}
