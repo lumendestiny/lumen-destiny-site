@@ -48,7 +48,7 @@ jobs:
       - name: Create Android project
         run: npx cap add android
 
-      - name: Target Android 16 / API 36 and set closed-test V8 version
+      - name: Target Android 16 / API 36 and set closed-test V9 version
         shell: bash
         run: |
           if [ -f android/variables.gradle ]; then
@@ -56,8 +56,8 @@ jobs:
             sed -i -E 's/targetSdkVersion = [0-9]+/targetSdkVersion = 36/' android/variables.gradle
           fi
           if [ -f android/app/build.gradle ]; then
-            sed -i -E 's/versionCode [0-9]+/versionCode 8/' android/app/build.gradle
-            sed -i -E 's/versionName "[^"]+"/versionName "1.0.7"/' android/app/build.gradle
+            sed -i -E 's/versionCode [0-9]+/versionCode 9/' android/app/build.gradle
+            sed -i -E 's/versionName "[^"]+"/versionName "1.0.8"/' android/app/build.gradle
           fi
           grep -nE 'applicationId|versionCode|versionName' android/app/build.gradle
 
@@ -94,8 +94,8 @@ jobs:
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lumen-destiny-release-aab-v8
+          name: lumen-destiny-release-aab-v9
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
-# Trigger V8 rebuild: includes easy-to-read fortune interpretation and connection-map invitation flow for web, mobile web, and Android.
+# Trigger V9 rebuild: cute animal relationship map for web, mobile web, and Android.
