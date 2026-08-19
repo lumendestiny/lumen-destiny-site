@@ -18,13 +18,21 @@
     friend:['친구','지인','동창','동문','선배','후배','베프','friend'],
     work:['직장','회사','동료','상사','부하','팀장','대표','사장','직원','거래처','고객','사업','비즈니스','업무','work','coworker','colleague','boss','client','business']
   };
-  const icon={partner:'♥',family:'●',friend:'✦',work:'◆',other:'◎'};
+  const animals={
+    partner:['🐰','🐱','🐶'],
+    family:['🐻','🐶','🐼'],
+    friend:['🦔','🐧','🐹'],
+    work:['🦊','🐯','🐿️'],
+    other:['🦉','🐥','🦝']
+  };
   const label={partner:'연인·배우자',family:'가족',friend:'친구',work:'직장·사업',other:'기타'};
   const infer=text=>{
     const value=(text||'').toLowerCase();
     for(const [group,words] of Object.entries(sets))if(words.some(w=>value.includes(w.toLowerCase())))return group;
     return 'other';
   };
+  const hash=text=>[...String(text||'')].reduce((n,ch)=>((n*31)+ch.codePointAt(0))>>>0,7);
+  const animalFor=(group,key)=>{const list=animals[group]||animals.other;return list[hash(key)%list.length]};
   const numeric=text=>{const match=String(text||'').replace(/,/g,'').match(/[+-]?\d+(?:\.\d+)?/);return match?Number(match[0]):0};
   function decorateRanking(){
     if(!ranking)return;
@@ -48,18 +56,28 @@
       node.classList.add(`group-${group}`);
       let mark=node.querySelector('.node-icon');
       if(!mark){mark=document.createElement('span');mark.className='node-icon';node.prepend(mark)}
-      mark.textContent=icon[group];
-      mark.setAttribute('aria-hidden','true');
       const name=node.querySelector('strong')?.textContent||'인연';
+      mark.textContent=animalFor(group,`${name}|${relation}`);
+      mark.setAttribute('aria-hidden','true');
+      mark.setAttribute('data-animal-group',group);
       const score=node.querySelector('em')?.textContent||'';
       node.setAttribute('aria-label',`${name}, ${relation||label[group]}, 오행 보완도 ${score}, 상세 보기`);
     });
     const center=map.querySelector('.center-node');
-    if(center)center.setAttribute('aria-label',`${center.querySelector('strong')?.textContent||'나'}, 인연지도의 중심`);
+    if(center){
+      let avatar=center.querySelector('.center-animal');
+      if(!avatar){avatar=document.createElement('span');avatar.className='center-animal';avatar.setAttribute('aria-hidden','true');center.prepend(avatar)}
+      avatar.textContent='🐱';
+      center.setAttribute('aria-label',`${center.querySelector('strong')?.textContent||'나'}, 인연지도의 중심`);
+    }
     if(selected&&!selected.hidden){
       const meta=selected.querySelector('.selected-head p')?.textContent||'';
       const group=infer(meta);
       selected.dataset.group=group;
+      let avatar=selected.querySelector('.selected-animal');
+      const head=selected.querySelector('.selected-head>div');
+      if(head&&!avatar){avatar=document.createElement('span');avatar.className='selected-animal';avatar.setAttribute('aria-hidden','true');head.prepend(avatar)}
+      if(avatar){const name=selected.querySelector('.selected-head h3')?.textContent||'';avatar.textContent=animalFor(group,`${name}|${meta}`)}
     }
     decorateRanking();
   }
