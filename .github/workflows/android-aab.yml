@@ -7,9 +7,6 @@ on:
       - main
     paths:
       - '.github/workflows/android-aab.yml'
-      - 'connection-map-visual-v2.js'
-      - 'connection-map/**'
-      - 'assets/connection-animals/reference-v9/**'
 
 jobs:
   build-aab:
@@ -101,4 +98,4 @@ jobs:
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
-# Trigger V9 rebuild 2026-08-19: exact characters cropped from the approved reference screenshot — fire fox, water dolphin, earth owl, wood turtle, metal rabbit, and large center purple cat — for PC web, mobile web, and Android.
+# Trigger V9 rebuild 2026-08-19: restore the original compact cute-animal orbit mockup across web, mobile web, and Android.
