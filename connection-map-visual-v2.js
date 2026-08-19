@@ -26,13 +26,29 @@
   const profileData=()=>read(PROFILE_KEY,null);
   const memberForNode=node=>{const id=node.dataset.node||'';return networkData().find(m=>String(m.id)===String(id))||null};
   const memberForSelected=()=>{const name=selected?.querySelector('.selected-head h3')?.textContent?.trim()||'';const meta=selected?.querySelector('.selected-head p')?.textContent||'';return networkData().find(m=>m.name===name&&meta.includes(m.relation||''))||networkData().find(m=>m.name===name)||null};
+
+  function ensureStyles(){
+    if(document.getElementById('connectionElementArtV9'))return;
+    const style=document.createElement('style');style.id='connectionElementArtV9';style.textContent=`
+      .node-animal,.center-animal-img,.selected-animal-img{object-fit:cover!important;object-position:center 42%!important;background:#fff;box-shadow:0 8px 20px rgba(61,43,135,.16);border:3px solid rgba(255,255,255,.96)}
+      .node-animal{width:82px!important;height:82px!important;border-radius:26px!important;top:-38px!important;filter:none!important}
+      .center-animal-img{width:102px!important;height:102px!important;border-radius:34px!important;margin-top:-32px!important;filter:none!important}
+      .selected-animal-img{border-radius:17px!important;object-fit:cover!important}
+      .element-badge{display:block;margin:3px auto 0;font-size:8px;font-weight:900;letter-spacing:-.02em;color:#746d83}
+      .center-element-badge{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);min-width:42px;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.92);font-size:8px!important;color:#5d48c8!important;font-weight:900;white-space:nowrap}
+      .selected-element-badge{display:inline-flex;margin-top:5px;padding:3px 7px;border-radius:999px;background:#f1edff;color:#5d48c8;font-size:9px;font-weight:900}
+      .node.element-wood{border-color:#b9dfc6!important}.node.element-wood em{background:#4eaa72!important}.node.element-fire{border-color:#f3b6af!important}.node.element-fire em{background:#e96555!important}.node.element-earth{border-color:#e7d3a5!important}.node.element-earth em{background:#bb8d3e!important}.node.element-metal{border-color:#e6d9ef!important}.node.element-metal em{background:#9b70c7!important}.node.element-water{border-color:#b8d7f1!important}.node.element-water em{background:#4f8fc8!important}
+      @media(max-width:720px){.node-animal{width:64px!important;height:64px!important;border-radius:21px!important;top:-30px!important}.center-animal-img{width:78px!important;height:78px!important;border-radius:26px!important;margin-top:-24px!important}.element-badge{font-size:7px}.center-element-badge{bottom:4px;font-size:7px!important}}
+      @media(max-width:390px){.node-animal{width:56px!important;height:56px!important;border-radius:18px!important;top:-26px!important}.center-animal-img{width:68px!important;height:68px!important;border-radius:22px!important;margin-top:-21px!important}}
+    `;document.head.appendChild(style);
+  }
   function ensureImg(container,className,src){let img=container.querySelector('.'+className);if(!img){img=document.createElement('img');img.className=className;img.alt='';img.setAttribute('aria-hidden','true');img.decoding='async';container.prepend(img)}if(img.getAttribute('src')!==src)img.src=src;return img}
   function applyElementClass(el,element){for(const c of Object.values(elementClass))el.classList.remove(`element-${c}`);el.classList.add(`element-${elementClass[element]||'earth'}`);el.dataset.element=element}
   function ensureElementBadge(node,element){let badge=node.querySelector('.element-badge');if(!badge){badge=document.createElement('span');badge.className='element-badge';node.appendChild(badge)}badge.textContent=elementLabel[element]||element}
   function sparkles(){if(map.querySelector('.map-sparkles'))return;const s=document.createElement('span');s.className='map-sparkles';s.setAttribute('aria-hidden','true');s.innerHTML='<i>♥</i><i>✦</i><i>♡</i><i>✦</i><i>♥</i>';map.appendChild(s)}
 
   function decorate(){
-    sparkles();
+    ensureStyles();sparkles();
     map.querySelectorAll('.node').forEach(node=>{
       const relation=node.querySelector('small')?.textContent||'';
       const name=node.querySelector('strong')?.textContent||'인연';
