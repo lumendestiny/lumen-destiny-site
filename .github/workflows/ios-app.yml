@@ -1,0 +1,31 @@
+name: Build iOS App V1
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install
+      - name: Prepare bundled web assets
+        run: npm run android:prepare
+      - name: Install Capacitor iOS
+        run: npm install @capacitor/ios@^8.0.0
+      - name: Create iOS project
+        run: npx cap add ios
+      - name: Sync Capacitor iOS
+        run: npx cap sync ios
+      - name: Verify iOS project
+        run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -showBuildSettings > /dev/null
+      - name: Build unsigned iOS archive for validation
+        run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -archivePath "$RUNNER_TEMP/LumenDestiny.xcarchive" CODE_SIGNING_ALLOWED=NO archive
