@@ -8,6 +8,9 @@ on:
     paths:
       - '.github/workflows/android-aab.yml'
       - 'scripts/android-prepare.mjs'
+      - 'index.html'
+      - 'home-fortune-services-3x2.css'
+      - 'home-fortune-focus.js'
       - 'connection-map-visual-v2.js'
       - 'connection-map/**'
       - 'guardian/**'
