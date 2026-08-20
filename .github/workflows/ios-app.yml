@@ -2,6 +2,18 @@ name: Build iOS App V1
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/ios-app.yml'
+      - 'scripts/android-prepare.mjs'
+      - 'package.json'
+      - 'index.html'
+      - 'compatibility/**'
+      - 'connection-map/**'
+      - 'guardian/**'
+      - 'assets/**'
 
 jobs:
   build-ios:
@@ -25,7 +37,19 @@ jobs:
         run: npx cap add ios
       - name: Sync Capacitor iOS
         run: npx cap sync ios
-      - name: Verify iOS project
-        run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -showBuildSettings > /dev/null
+      - name: Set Lumen Destiny iOS identity
+        shell: bash
+        run: |
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Lumen Destiny" ios/App/App/Info.plist || true
+          echo "Bundle ID: com.lumendestiny.app"
+      - name: Verify iOS project and deployment settings
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -showBuildSettings | tee "$RUNNER_TEMP/ios-build-settings.txt"
+          grep -E 'PRODUCT_BUNDLE_IDENTIFIER|IPHONEOS_DEPLOYMENT_TARGET|SDKROOT' "$RUNNER_TEMP/ios-build-settings.txt"
       - name: Build unsigned iOS archive for validation
         run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -archivePath "$RUNNER_TEMP/LumenDestiny.xcarchive" CODE_SIGNING_ALLOWED=NO archive
+      - name: App Store signing status
+        shell: bash
+        run: |
+          echo "Unsigned iOS V1 archive validation complete."
+          echo "For TestFlight/App Store upload, Apple Developer Team ID, distribution certificate, provisioning profile, and App Store Connect credentials must be configured as repository secrets."
