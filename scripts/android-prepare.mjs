@@ -81,4 +81,4 @@ patchAllHtml(webDir);
 
 const config={appId,appName:'Lumen Destiny',webDir:'www',bundledWebRuntime:false,android:{allowMixedContent:false,captureInput:false}};
 fs.writeFileSync(path.join(root,'capacitor.config.json'),JSON.stringify(config,null,2)+'\n');
-console.log(`Prepared Capacitor V11 assets with website-identical Guardian archive artwork for ${appId}`);
+console.log(`Prepared Capacitor V12 assets with website-identical Guardian archive artwork for ${appId}`);
