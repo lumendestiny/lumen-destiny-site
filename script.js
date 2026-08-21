@@ -206,7 +206,10 @@ const serviceCards = fortuneServices ? [...fortuneServices.querySelectorAll('.fo
 
 function navHeaderHeight() {
   const header = document.querySelector('.fortune-header') || document.querySelector('.site-header');
-  return Math.ceil(header?.getBoundingClientRect().height || 0);
+  if (!header) return 0;
+  const style = window.getComputedStyle(header);
+  if (style.position !== 'fixed' && style.position !== 'sticky') return 0;
+  return Math.ceil(header.getBoundingClientRect().height || 0);
 }
 
 function setActiveFortune(hash) {
@@ -233,7 +236,7 @@ function goToFortune(hash, updateHash = true) {
     setFocusedCard(hash);
     const target = document.querySelector(hash);
     if ((hash === '#wealth' || window.matchMedia('(min-width: 781px)').matches) && fortuneServices) {
-      scrollElementBelowHeader(fortuneServices, 0);
+      scrollElementBelowHeader(fortuneServices, window.matchMedia('(max-width: 780px)').matches ? 0 : 0);
     } else if (target) {
       scrollElementBelowHeader(target, 12);
     } else if (fortuneServices) {
