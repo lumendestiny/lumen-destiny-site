@@ -1,0 +1,67 @@
+name: Store Signing Preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-required-store-signing-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Google Play signing inputs
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=0
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "MISSING: $name"
+              missing=1
+            else
+              echo "PRESENT: $name"
+            fi
+          done
+          echo "ANDROID_MISSING=$missing" >> "$GITHUB_ENV"
+
+      - name: Check Apple signing inputs
+        env:
+          APPLE_DISTRIBUTION_P12_BASE64: ${{ secrets.APPLE_DISTRIBUTION_P12_BASE64 }}
+          APPLE_DISTRIBUTION_P12_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_P12_PASSWORD }}
+          APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          missing=0
+          for name in APPLE_DISTRIBUTION_P12_BASE64 APPLE_DISTRIBUTION_P12_PASSWORD APPLE_PROVISIONING_PROFILE_BASE64 APPLE_TEAM_ID; do
+            if [ -z "${!name}" ]; then
+              echo "MISSING: $name"
+              missing=1
+            else
+              echo "PRESENT: $name"
+            fi
+          done
+          echo "APPLE_MISSING=$missing" >> "$GITHUB_ENV"
+
+      - name: Summary
+        run: |
+          echo "## Lumen Destiny store signing preflight" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$ANDROID_MISSING" = "0" ]; then
+            echo "- Google Play signing secrets: READY" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Google Play signing secrets: NOT READY" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "$APPLE_MISSING" = "0" ]; then
+            echo "- Apple signing secrets: READY" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Apple signing secrets: NOT READY" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Fail until both stores are ready
+        if: env.ANDROID_MISSING != '0' || env.APPLE_MISSING != '0'
+        run: |
+          echo "One or more required signing secrets are missing. Values were not printed."
+          exit 1

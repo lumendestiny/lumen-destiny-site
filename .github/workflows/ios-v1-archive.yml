@@ -1,0 +1,70 @@
+name: iOS V1 Archive Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/android-v1-apk
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios-v1-archive.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  archive-ios:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode and SDK versions
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks
+          python3 - <<'PY'
+          import re, subprocess, sys
+          out = subprocess.check_output(['xcodebuild','-version'], text=True)
+          m = re.search(r'Xcode\s+(\d+)', out)
+          if not m or int(m.group(1)) < 26:
+              print('App Store submission requires Xcode 26 or later as of 2026-04-28.')
+              sys.exit(1)
+          PY
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Archive without signing
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -project LumenDestiny.xcodeproj \
+            -scheme LumenDestiny \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/LumenDestiny.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            archive
+
+      - name: Verify archive contents
+        run: |
+          test -d "$RUNNER_TEMP/LumenDestiny.xcarchive/Products/Applications/Lumen Destiny.app"
+          /usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:CFBundleIdentifier' "$RUNNER_TEMP/LumenDestiny.xcarchive/Info.plist"
+
+      - name: Package archive validation artifact
+        run: ditto -c -k --keepParent "$RUNNER_TEMP/LumenDestiny.xcarchive" Lumen-Destiny-V1-Unsigned-Archive.zip
+
+      - name: Upload unsigned archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lumen-Destiny-V1-iOS-Unsigned-Archive
+          path: Lumen-Destiny-V1-Unsigned-Archive.zip
+          if-no-files-found: error
+          retention-days: 14
