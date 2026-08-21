@@ -1,10 +1,12 @@
-const headers={'Cache-Control':'no-store','Content-Type':'application/json; charset=utf-8','X-Content-Type-Options':'nosniff'};
+const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type, Accept','Access-Control-Max-Age':'86400'};
+const headers={'Cache-Control':'no-store','Content-Type':'application/json; charset=utf-8','X-Content-Type-Options':'nosniff',...cors};
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
 const ELEMENTS=['목','화','토','금','수'];
 const enc=new TextEncoder();
 const b64url=bytes=>btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 async function sha256(value){const digest=await crypto.subtle.digest('SHA-256',enc.encode(value));return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 function validElements(v){return v&&ELEMENTS.every(k=>Number.isFinite(Number(v[k]))&&Number(v[k])>=0)}
+export async function onRequestOptions(){return new Response(null,{status:204,headers:cors})}
 export async function onRequestPost({request,env}){
  if(env?.LUMEN_LINK_ENABLED!=='true')return json({ok:false,error:'link_not_enabled'},503);
  if(!env?.GUARDIAN_DB)return json({ok:false,error:'storage_not_configured'},503);
